@@ -4859,7 +4859,7 @@ if (elFinder && elFinder.prototype && typeof(elFinder.prototype.i18) == 'object'
 			'cmdnetmount'  : 'Mount network volume', // added 18.04.2012
 			'cmdnetunmount': 'Unmount', // added 30.04.2012
 
-            'cmdlogout'    : 'Log out',
+            'cmdlogout'    : 'Log out (' + IRIGO.tktuser + ')',
             'cmdsmbmount'  : 'Mount share on local desktop',
             'cmdbtsync'    : 'Bittorrent Sync',
 
@@ -9114,8 +9114,9 @@ elFinder.prototype.commands.help = function() {
 	}];
 	
 	setTimeout(function() {
-		var parts = self.options.view || ['about', 'shortcuts', 'help'];
-		
+        //var parts = self.options.view || ['about', 'shortcuts', 'help'];
+        var parts = ['about', 'shortcuts'];
+
 		$.each(parts, function(i, title) {
 			html.push(tab[r](/\{id\}/, title)[r](/\{title\}/, fm.i18n(title)));
 		});
@@ -9370,8 +9371,8 @@ elFinder.prototype.commands.btsync = function() {
                     title = tpl.itemTitle.replace('{name}', fm.escape(file.i18 || file.name)).replace('{kind}', "Non-synced folder");
                 }
             } else if (data["secrets"]) {
-                if (data["secrets"]["read_write"]) content.push(row.replace(l, 'Read/write key').replace(v, '<input type="text" class="elfinder-cwd"  id="btsync_rw" onClick="this.setSelectionRange(0, this.value.length)" style="width:260px;" readonly value="' + data["secrets"]["read_write"] + '" />'));
-                content.push(row.replace(l, 'Read-only key').replace(v, '<input type="text" id="btsync_ro" class="elfinder-cwd" onClick="this.setSelectionRange(0, this.value.length)" style="width:260px;" readonly value="' + data["secrets"]["read_only"] + '" />'));
+                if (data["secrets"]["read_write"]) content.push(row.replace(l, 'Read/write key').replace(v, '<input type="text" class="elfinder-cwd"  id="btsync_rw" title="Click to copy to clipboard" onClick="this.setSelectionRange(0, this.value.length); document.execCommand(\'copy\');" style="width:260px;" readonly value="' + data["secrets"]["read_write"] + '" />'));
+                content.push(row.replace(l, 'Read-only key').replace(v, '<input type="text" id="btsync_ro" title="Click to copy to clipboard" class="elfinder-cwd" onClick="this.setSelectionRange(0, this.value.length); document.execCommand(\'copy\');" style="width:260px;" readonly value="' + data["secrets"]["read_only"] + '" />'));
                 var syncpeers = [];
                 var syncpeers_text = "none";
                 $.each(data.peers, function(i, peer) {
@@ -9472,6 +9473,22 @@ elFinder.prototype.commands.info = function() {
         return keyValue ? keyValue[2] : null;
     }
 
+    elfinder.setPubRead = function(dir, checked) {
+        $("#pubread").attr('disabled', 'disabled');
+        $.post(
+                "index.cgi?action=setpubread&dir=" + dir + "&checked=" + checked + "&tkt=" + getCookie("auth_tkt")
+            ).done(function( data ) {
+                $("#pubread").removeAttr('disabled');
+                if (data.pubreadpath) {
+                    $("#pubread").attr('checked', 'checked');
+                    $("#pubreadlink").attr('href', "http://" + location.hostname + data.pubreadpath);
+                } else {
+                    $("#pubread").removeAttr('checked');
+                    $("#pubreadlink").attr('href', "http://" + location.hostname + data.readpath);
+                }
+            });
+    }
+
 	this.exec = function(hashes) {
 		var files   = this.files(hashes);
 		if (! files.length) {
@@ -9534,7 +9551,15 @@ elFinder.prototype.commands.info = function() {
 				var href;
 				if (file.url == '1') {
                     // Don't show link if in public read mode with commands disabled
-					if (fm.isCommandEnabled('btsync')) content.push(row.replace(l, msg.link).replace(v, tpl.spinner.replace('{text}', msg.modify).replace('{name}', 'url')));
+					if (fm.isCommandEnabled('btsync')) content.push(
+                        row.replace(l, msg.link).replace(
+                            v, tpl.spinner.replace(
+                                '{text}', msg.modify
+                            ).replace(
+                                '{name}', 'url'
+                            )
+                        )
+                    );
 					fm.request({
 						data : {cmd : 'url', target : file.hash},
 						preventDefault : true
@@ -9543,7 +9568,7 @@ elFinder.prototype.commands.info = function() {
 						replSpinner(file.name, 'url');
 					})
 					.done(function(data) {
-						replSpinner('<a href="'+data.url+'" target="_blank">'+file.name+'</a>' || file.name, 'url');
+						replSpinner('<a href="'+data.url+'" target="_blank" id="pubreadlink">'+file.name+'</a>' || file.name, 'url');
 						if (data.url) {
 							var rfile = fm.file(file.hash);
 							rfile.url = data.url;
@@ -9557,19 +9582,27 @@ elFinder.prototype.commands.info = function() {
 						href = fm.url(file.hash);
 					}
                     if (fm.isCommandEnabled('btsync')) {
-                        content.push(row.replace(l, msg.link).replace(v,  '<a href="'+href+'" target="_blank">'+file.name+'</a>'));
+                        content.push(row.replace(l, msg.link).replace(v,  '<a href="'+href+'" target="_blank" id="pubreadlink">'+file.name+'</a>'));
 
                         if (file.mime == 'directory') {
-                            content.push(row.replace(l, '<a href="#" id="pubhref" target="_blank">Guest link</a>').replace(v,  '<input type="text" class="elfinder-cwd" id="publink" onClick="this.setSelectionRange(0, this.value.length)" style="width:260px;" readonly/><br>(Link will expire in 48 hours)'));
+                            content.push(row.replace(l, '<a href="#" id="pubhref" target="_blank">Guest link</a>').replace(v,  '<input type="text" class="elfinder-cwd" id="publink" onClick="this.setSelectionRange(0, this.value.length)" style="width:260px;" /><br>(Link will expire in 48 hours)'));
 
                             dir = fm.url([ file.hash ]);
                             if (dir.substr(0,6) == '../../') dir = dir.substr(6);
+
+                            content.push(row.replace(l, 'Public read access').replace(v, '<input type="checkbox" id="pubread" onclick="elfinder.setPubRead(\'' + dir + '\', this.checked); return false;" disabled>'));
+
                             $.post(
                                     "index.cgi?action=getpublink&dir=" + dir + "&tkt=" + getCookie("auth_tkt")
                                 ).done(function( data ) {
+                                    if (data.pubreadpath && data.pubreadpath != '--') {
+                                        $("#pubread").attr('checked', 'checked');
+                                        $("#pubreadlink").attr('href', "http://" + location.hostname + data.pubreadpath);
+                                    }
                                     var link = "https://" + location.hostname + data.path;
                                     $("#publink").val(link);
                                     $("#pubhref").attr("href", link);
+                                    if ((data.pubreadmatch || data.pubreadpath=='') && file.write && file.write==1) $("#pubread").removeAttr('disabled');
                                 });
 
                         }

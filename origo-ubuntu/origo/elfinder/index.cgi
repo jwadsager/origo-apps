@@ -16,7 +16,7 @@ my $action = $in{action};
 my $cookie = $ENV{HTTP_COOKIE};
 my $tkt;
 $tkt = $1 if ($cookie =~ /auth_tkt=(\w+)/);
-$tkt = $1 if ($cookie =~ /auth_tkt=(\S+)\%/);
+#$tkt = $1 if ($cookie =~ /auth_tkt=(\S+)\%/);
 my $tktuser = `/usr/local/bin/ticketmaster.pl $tkt`;
 chomp $tktuser;
 
@@ -36,20 +36,63 @@ END
 ;
     print $res;
 
-} elsif ($action eq 'getpublink') {
+} elsif ($action eq 'getpublink' || $action eq 'setpubread') {
     my $dir = $in{dir};
     $dir = $1 if ($dir =~ /(.+)\/$/);
-    my $tkt = `/usr/local/bin/ticketmaster.pl g -- "$dir"`;
-    chomp $tkt;
-    my $externalip = `cat /tmp/externalip`;
-    chomp $externalip;
-    my $res = <<END
+    my $checked = $in{checked};
+    my $dirOK = dirOK($dir);
+    my $r;
+    if ($dirOK) {
+        my $tkt = `/usr/local/bin/ticketmaster.pl g -- "$dir"`;
+        chomp $tkt;
+        my $externalip = `cat /tmp/externalip`;
+        chomp $externalip;
+        my $pubreadpath;
+        my $readpath;
+        my $pubreadmatch = "false";
+        my $prpaths = `cat /etc/apache2/sites-available/default | sed -rn 's/.*"\\/mnt\\/data\\/(.+)\\/"/\\1/p'`;
+        my @pubreadpaths = split("\n", $prpaths);
+        foreach my $prpath (@pubreadpaths) {
+            if ($dir =~ /^$prpath/) {
+                $pubreadmatch = "true" if ($dir eq $prpath);
+                $pubreadpath = $dir;
+                $pubreadpath = "/public/$2/"  if ($pubreadpath =~ /^(groups|users|shared)\/(.+)/);
+                last;
+            } elsif ($prpath =~ /^$dir/) {
+                $pubreadpath = '--';
+            }
+        }
+        if ($dirOK > 0) { # Write access required to share publicly
+            my $escdir = $dir;
+            $escdir = "$escdir/" unless ($escdir =~ /.*\/$/);
+            $escdir =~ s/\//\\\//g;
+            if ($pubreadpath && $pubreadmatch eq 'true' && $checked eq 'false') {
+        # Remove share
+                my $cmd = qq|perl -ni -e 'print unless (/\\/mnt\\/data\\/$escdir/)' /etc/apache2/sites-available/default|;
+                `$cmd`;
+                $readpath = "/$dir";
+                $pubreadpath = '';
+                `/etc/init.d/apache2 reload`;
+            } elsif (!$pubreadpath && $checked eq 'true') {
+        # Add share
+                $pubreadpath = $dir;
+                $pubreadpath = "/public/$2/"  if ($pubreadpath =~ /^(groups|users|shared)\/(.+)/);
+                $escpubreadpath = $pubreadpath;
+                $escpubreadpath =~ s/\//\\\//g;
+                my $cmd = qq|perl -pi -e 's/<\\/VirtualHost>/Alias "$escpubreadpath\\/" "\\/mnt\\/data\\/$escdir"\\n<\\/VirtualHost>/;' /etc/apache2/sites-available/default|;
+                `$cmd`;
+                `/etc/init.d/apache2 reload`;
+            }
+        }
+
+        my $res = <<END
 Content-type: application/json; charset=utf-8
 
-{"link": "https://$externalip/origo/elfinder/index.cgi?auth_tkt=$tkt", "path": "/origo/elfinder/index.cgi?auth_tkt=$tkt"}
+{"link": "https://$externalip/origo/elfinder/index.cgi?auth_tkt=$tkt", "path": "/origo/elfinder/index.cgi?auth_tkt=$tkt", "pubreadpath": "$pubreadpath", "pubreadmatch": $pubreadmatch, "readpath": "$readpath"}
 END
 ;
-    print $res if ($tktuser && $tktuser ne 'g');
+        print "$res\n$r" if ($tktuser && $tktuser ne 'g');
+    }
 
 } elsif ($action eq 'btsync') {
     my $syncaction = $in{syncaction};
@@ -69,6 +112,7 @@ END
         $dirOK = 1;
     } elsif ($pdir =~ /^\/mnt\/data\/groups\/(.+)\//) {
         my $groupdir = $1;
+        $groupdir = $1 if ($groupdir =~ /(.+)\/[^\/]+/);
     # Get the users groups
         my %usergroups;
         my $dominfo = `samba-tool domain info \`cat /tmp/internalip\``;
@@ -163,7 +207,10 @@ Content-type: text/html; charset=utf-8
 		<meta charset="utf-8">
         <meta http-equiv="Cache-Control" content="no-store" />
         <title>Browse files</title>
-
+        <script>
+            IRIGO = {};
+            IRIGO.tktuser = "$tktuser";
+        </script>
 		<!-- jQuery and jQuery UI (REQUIRED) -->
 		<link rel="stylesheet" type="text/css" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.23/themes/smoothness/jquery-ui.css">
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.0/jquery.min.js"></script>
@@ -304,4 +351,45 @@ sub isGroupMember {
     foreach my $g (@groups) {
         return 1 if (lc $g eq lc $tktuser);
     }
+}
+
+sub dirOK {
+    my $dir = shift;
+    $dir = "/mnt/data/$dir" if ($dir =~ /^(users\/|groups\/|shared)/);
+    # Security check
+    my $pdir = "$dir/";
+
+    if ($pdir =~ /^\/mnt\/data\/users\/$tktuser\//) {
+        $dirOK = 1;
+    } elsif ($pdir =~ /^\/mnt\/data\/groups\/(.+)\//) {
+        my $groupdir = $1;
+        $groupdir = $1 if ($groupdir =~ /(.+)\/[^\/]+/);
+    # Get the users groups
+        my %usergroups;
+        my $dominfo = `samba-tool domain info \`cat /tmp/internalip\``;
+        my $sambadomain;
+        $sambadomain = $1 if ($dominfo =~ /Domain\s+: (\S+)/);
+        if ($sambadomain) {
+            my @domparts = split(/\./, $sambadomain);
+            my $userbase = "CN=users,DC=" . join(",DC=", @domparts);
+            my $cmd = "/usr/bin/ldbsearch -H /opt/samba4/private/sam.ldb -b \"CN=$tktuser,$userbase\" objectClass=user memberof";
+            my $cmdres = `$cmd`;
+            my @lines = split("\n", $cmdres);
+            foreach my $line (@lines) {
+                if ($line =~ /^memberOf: CN=(.+),CN=Users/) {
+                    $group = $1;
+                    $usergroups{$group} = $group;
+                }
+            };
+        }
+        if ($usergroups{$groupdir}) {
+            $dirOK = -1;
+            $dirOK = 1 if (isWriter($tktuser, $groupdir));
+        }
+    } elsif ($pdir =~ /^\/mnt\/data\/shared\//) {
+        $dirOK = -1;
+        $dirOK = 1 if (isWriter($tktuser, ''));
+    }
+    # 1 = rw, -1 = r, 0 = no access
+    return $dirOK;
 }

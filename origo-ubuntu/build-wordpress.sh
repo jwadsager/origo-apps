@@ -198,7 +198,7 @@ default-collation=utf8_general_ci" > /var/lib/mysql/wordpress_default/db.opt'
    chroot $1 bash -c 'echo "sshd: 10.0.0.0/8 #origo" >> /etc/hosts.allow'
 
 # Disable Webmin login from outside - reenable from configuration UI
-   chroot $1 bash -c 'echo "allow:10.0.0.0/8 127.0.0.0/16" >> /etc/webmin/miniserv.conf'
+   chroot $1 bash -c 'echo "allow=10.0.0.0/8 127.0.0.0/16" >> /etc/webmin/miniserv.conf'
 
 # If called without parameters, build image
 else

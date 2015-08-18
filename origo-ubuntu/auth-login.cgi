@@ -1,4 +1,4 @@
-#!/usr/bin/perl -w
+#!/usr/bin/perl -UTw
 #
 # mod_auth_tkt sample login script - runs as a vanilla CGI, under 
 #   mod_perl 1 via Apache::Registry, and under mod_perl2 via 
@@ -23,8 +23,12 @@
 #     location 
 #
 
+$ENV{PATH} = '/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin';
+delete @ENV{'IFS', 'CDPATH', 'ENV', 'BASH_ENV'};
+
 use File::Basename;
-use lib dirname($ENV{SCRIPT_FILENAME});
+#use lib dirname($ENV{SCRIPT_FILENAME});
+use lib '/var/www/auth';
 use Apache::AuthTkt 0.03;
 use AuthTktConfig;
 use CGI qw(:standard);
@@ -34,6 +38,8 @@ use URI;
 use JSON;
 use Digest::SHA qw(sha256_base64);
 use strict;
+use Expect;
+
 
 # ------------------------------------------------------------------------
 # Configuration settings in AuthTktConfig.pm
@@ -71,12 +77,13 @@ my $back_html = escapeHTML($back) if $back;
 
 my ($fatal, @errors, @messages);
 my ($mode, $location, $suffix) = fileparse($ENV{SCRIPT_NAME}, '\.cgi', '\.pl');
-$mode = 'login' unless $mode eq 'guest' || $mode eq 'autologin';
+$mode = 'login' unless $mode eq 'guest' || $mode eq 'autologin' || $mode eq 'changepwd';
 my $self_redirect = $q->param('redirect') || 0;
 my $username = lc($q->param('username'));
 my $password = $q->param('password');
 my $timeout = $q->param('timeout');
 my $unauth = $q->param('unauth');
+push @messages, $q->param('message') if ($q->param('message'));
 my $ip_addr = $at->ignore_ip ? '' : $ENV{REMOTE_ADDR};
 #my $ip_addr = $ENV{REMOTE_ADDR};
 my $redirected = 0;
@@ -161,7 +168,7 @@ elsif ($mode eq 'autologin') {
     my $b = URI->new($back);
     $back .= $b->query ? '&' : '?';
     $back .= $at->cookie_name . '=' . $ticket;
-    print $q->redirect($back);
+    redirect($back);
     $redirected = 1;
   }
   # Can't autologin - change mode to either guest or login
@@ -209,7 +216,30 @@ unless ($fatal || $redirected) {
       }
     }
   }
-
+  elsif ($mode eq 'changepwd') {
+      if ($username && $password) {
+          my $newpassword;
+          if ($q->param('newpassword') && $q->param('newpassword') eq $q->param('newpassword2')) {
+              $newpassword = $q->param('newpassword');
+              my ($valid, $tokens) = $AuthTktConfig::validate_sub->($username, $password);
+              if ($valid) {
+                my $res = changeSambaPassword($username, $newpassword);
+                push @errors, $res if ($res);
+                if (! @errors) {
+                  $fatal = "Password change successful!";
+                  redirect(
+                    "/auth/login.cgi?message=" . uri_escape($fatal)
+                  );
+                  $redirected = 1;
+                }
+              } else {
+                push @errors, "Invalid username or password.";
+              }
+          } else {
+                push @errors, "Passwords don't match!";
+          }
+      }
+  }
   elsif ($mode eq 'guest') {
     # Generate a guest ticket and redirect to $back
     my $tkt = $at->ticket(uid => $AuthTktConfig::guest_sub->(), ip_addr => $ip_addr);
@@ -226,11 +256,29 @@ my @style = ();
 my $title = $AuthTktConfig::TITLE || "\u$mode Page";
 unless ($redirected) {
     my $error_msg = "Authorized use only";
+    $error_msg = join(" ", @messages) if (@messages);
     $error_msg = join(" ", @errors) if (@errors);
-    $error_msg .= join(" ", @messages) if (@messages);
 
     my $back = $back_html;
     $back = $1 if ($back =~ /(.+)index\.php$/);
+
+    my $pwdfields = <<END
+                    <tr><th style="text-align:right;">Password:</th><td><input type="password" name="password"  style="width:200px;" /></td></tr>
+                    <tr><td colspan="2">
+                    <button class="btn btn-default pull-right" type="submit">Login</button>
+                    <br clear="both"><a class="small pull-right" style="font-size:70%; color:grey; margin-top:8px;" href="changepwd.cgi">change password</a>
+END
+;
+    $pwdfields = <<END
+                    <tr><th style="text-align:right;">Current password:</th><td><input type="password" name="password"  style="width:200px;" /></td></tr>
+                    <tr><th style="text-align:right;">New password:</th><td><input type="password" name="newpassword"  style="width:200px;" /></td></tr>
+                    <tr><th style="text-align:right;">New password (confirm):</th><td><input type="password" name="newpassword2"  style="width:200px;" /></td></tr>
+                    <tr><td colspan="2">
+                    <button class="btn btn-default pull-right" type="submit">Change</button>
+                    <br clear="both"><a class="small pull-right" style="font-size:70%; color:grey; margin-top:8px;" href="login.cgi">log in</a>
+END
+if ($mode eq 'changepwd');
+
     my $elfinder = <<END
 Content-type: text/html; charset=utf-8
 Set-Cookie: auth_tkt=; Expires=Thu, 01-Jan-1970 00:00:01 GMT; Path=/;
@@ -263,15 +311,13 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
             <h4 style="display:inline-block; vertical-align:middle;">
                 <img width="38" height="43" style="margin:0 6px 6px 12px;" src="/origo/elfinder/img/origo-gray.png">File Browser
             </h4>
-            <div class="label label-warning pull-right">$error_msg</div>
+            <div class="label label-warning pull-right" style="white-space:normal;">$error_msg</div>
         </nav>
         <div align="center">
-            <form name="login" method="post" action="/auth/login.cgi" class="passwordform" style="margin:10px;">
+            <form name="login" method="post" noaction="/auth/login.cgi" class="passwordform" style="margin:10px;">
                 <table style="border-spacing: 6px; border-collapse: separate;">
                     <tr><th style="text-align:right;">Username:</th><td><input type="text" name="username" style="width:200px;" /></td></tr>
-                    <tr><th style="text-align:right;">Password:</th><td><input type="password" name="password"  style="width:200px;" /></td></tr>
-                    <tr><td colspan="2">
-                    <button class="btn btn-default pull-right" type="submit">Login</button>
+$pwdfields
                     </td></tr>
                 </table>
                 <input type="hidden" name="back" value="$back" />
@@ -287,5 +333,35 @@ END
 
 }
 
-# vim:sw=2:sm:cin
+sub changeSambaPassword {
+    my ($username, $newpassword) = @_;
+    my $error;
+    my $smbpasswd="/usr/bin/suid-smbpasswd";
+
+    if (!$error ) { #&& $samba_user_check->expect(30, '-re', "$username:*")) {
+        my $samba_passwd=Expect->spawn("$smbpasswd $username");
+        $samba_passwd->slave->stty(qw(-echo));
+        $samba_passwd->log_stdout(0);
+        if ($samba_passwd) {
+            unless($samba_passwd->expect(30, "New SMB password:")) { $error =  "Unable to change password!"; }
+            print $samba_passwd "$newpassword\n";
+
+            unless($samba_passwd->expect(30, "Retype new SMB password:")) { $error = "Unable to change password."; }
+            print $samba_passwd "$newpassword\n";
+
+            if ($samba_passwd->expect(30, '-re', "Failed to modify account")) { $error =  "ERROR: ". $samba_passwd->after(); }
+            chomp $error if ($error);
+
+            #Must soft close this file handle otherwise on some system
+            #command may fail to complete.
+            $samba_passwd->soft_close();
+            `/etc/init.d/samba4 restart` unless ($error);
+        } else {
+            $error =  "Unable to start smbpasswd!";
+        }
+
+    }
+    return $error;
+}
+
 

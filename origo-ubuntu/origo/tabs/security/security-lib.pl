@@ -18,7 +18,7 @@ sub security {
         Here you can manage basic security settings for the servers in your app.
     </div>
     <small>Set password for Linux user "origo":</small>
-    <form class="passwordform" action="index.cgi?action=changelinuxpassword&tab=security" method="post" onsubmit="passwordSpinner();" accept-charset="utf-8" id="linform">
+    <form class="passwordform" action="index.cgi?action=changelinuxpassword&tab=security" method="post" onsubmit="passwordSpinner();" accept-charset="utf-8" id="linform" autocomplete="off">
         <input id="linuxpassword" type="password" name="linuxpassword" autocomplete="off" value="" class="password" onfocus="doStrength(this);">
         <button class="btn btn-default" type="submit" id="password_button">Set!</button>
     </form>
@@ -54,6 +54,7 @@ END
             strengthButtonText: 'Show Password',
             strengthButtonTextToggle: 'Hide Password'
         });
+        \$('#linuxpassword').val('');
     });
 
     function doStrength(item) {

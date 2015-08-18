@@ -292,6 +292,7 @@ END
                 if ($cmdres =~ /^Added group/) {
                     # Also add group share
                     `/bin/mkdir -p "/mnt/data/groups/$groupname"`;
+                    `/bin/chmod 777 "/mnt/data/groups/$groupname"`;
                     my $validusers = '+\"' . $sambadomain . '\\\\\\' . $groupname . '\"';
                     $txt = <<END
 [$groupname]

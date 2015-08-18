@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # The version of the app we are building
-version="1.0"
+version="1.1"
 #dname=`basename "$PWD"`
 dname="origo-samba"
 me=`basename $0`
@@ -126,7 +126,7 @@ exec /usr/local/bin/origo-samba-networking.pl" > /etc/init/origo-samba-networkin
     chroot $1 bash -c 'echo "sshd: 10.0.0.0/8 #origo" >> /etc/hosts.allow'
 
 # Disable Webmin login from outside - reenable from configuration UI
-    chroot $1 bash -c 'echo "allow:10.0.0.0/8  127.0.0.0/16" >> /etc/webmin/miniserv.conf'
+    chroot $1 bash -c 'echo "allow=10.0.0.0/8 127.0.0.0/16" >> /etc/webmin/miniserv.conf'
 
 # Add Samba4 repo
     chroot $1 add-apt-repository "deb http://ppa.launchpad.net/kernevil/samba-4.0/ubuntu precise main"
@@ -155,7 +155,7 @@ SetEnv MOD_AUTH_TKT_CONF \"/etc/apache2/conf.d/auth_tkt.conf\"
     Deny from all
   </FilesMatch>
 </Directory>
-<LocationMatch \"(php|/elfinder/index\.cgi)\">
+<LocationMatch \"(/php/|/elfinder/index\.cgi)\">
     order deny,allow
     AuthName Services
     AuthType None
@@ -205,6 +205,9 @@ SetEnv MOD_AUTH_TKT_CONF \"/etc/apache2/conf.d/auth_tkt.conf\"
     RewriteEngine On
     RewriteCond %{REMOTE_USER} ^g$
     RewriteRule ^.*$ - [G]
+</Location>
+<Location \"/public/\">
+   Options Indexes
 </Location>
 " > /etc/apache2/conf.d/auth_tkt.conf'
 
@@ -262,6 +265,12 @@ include = /etc/samba/smb.conf.groups
     chmod 755 $1/var/www/auth/*
     cp AuthTktConfig.pm $1/var/www/auth/
 
+    gcc -o suid-smbpasswd suid-smbpasswd.c
+    cp suid-smbpasswd $1/usr/bin
+    chmod 6755 $1/usr/bin/suid-smbpasswd
+
+    chroot $1 ln -s /var/www/auth/login.cgi /var/www/auth/changepwd.cgi
+
     chroot $1 /usr/sbin/a2enmod rewrite
     chroot $1 /usr/sbin/a2enmod headers
 
@@ -285,13 +294,14 @@ exec /usr/share/webmin/origo/tabs/samba/bittorrent_sync_x64/btsync --nodaemon --
 
 # If called without parameters, build image
 else
-vmbuilder kvm ubuntu -o -v --debug --suite precise --components main,universe,multiverse --arch amd64 --rootsize 81920 --user origo --pass origo --hostname $dname --addpkg libjson-perl --addpkg liburi-encode-perl --addpkg curl --addpkg acpid --addpkg openssh-server --addpkg nfs-common --addpkg dmidecode --addpkg man --addpkg unzip --addpkg python-software-properties --addpkg php5-imagick --addpkg heimdal-clients --addpkg libauthen-simple-ldap-perl --addpkg libstring-shellquote-perl --addpkg libapache2-mod-perl2 --tmpfs - --domain origo.io --ip 10.1.1.2 --execscript="./$me"
+vmbuilder kvm ubuntu -o -v --debug --suite precise --components main,universe,multiverse --arch amd64 --rootsize 81920 --user origo --pass origo --hostname $dname --addpkg libjson-perl --addpkg liburi-encode-perl --addpkg curl --addpkg acpid --addpkg openssh-server --addpkg nfs-common --addpkg dmidecode --addpkg man --addpkg unzip --addpkg python-software-properties --addpkg php5-imagick --addpkg heimdal-clients --addpkg libauthen-simple-ldap-perl --addpkg libstring-shellquote-perl --addpkg libexpect-perl --addpkg libapache2-mod-perl2 --tmpfs - --domain origo.io --ip 10.1.1.2 --execscript="./$me"
 # --mirror=http://us-east-1.ec2.archive.ubuntu.com/ubuntu
 # Clean up
 	mv ubuntu-kvm/*.qcow2 "./$dname-$version.master.qcow2"
 	rm -r ubuntu-kvm
 # Create data image
     [ -f ./samba/users ] || mkdir -p ./samba/users/administrator ./samba/groups ./samba/shared
+    chmod -R 777 ./samba/users ./samba/groups ./samba/shared
     [ -f ./$dname-$version-data.master.qcow2 ] || virt-make-fs --format=qcow2 --type=ext4 --size=100G samba "./$dname-$version-data.master.qcow2"
 fi
 

@@ -7,11 +7,13 @@ use String::ShellQuote;
 require 'simplestack-lib.pl';
 
 # Security check
-if (($ENV{REMOTE_ADDR} && $ENV{REMOTE_ADDR} =~ /(^10\.\d+\.\d+\.\d+)|(^127\.0\.\d+\.\d+)/) || !$ENV{ANONYMOUS_USER}) {
+if ((
+        $ENV{REMOTE_ADDR} && $ENV{REMOTE_ADDR} =~ /(^10\.\d+\.\d+\.\d+)/)
+        || !$ENV{ANONYMOUS_USER}) {
 ; # OK
 } else {
     print "Content-type: text/html\n\n";
-    print qq|I'm sorry Dave, I'm afraid I can't do that $ENV{HTTP_X_FORWARDED_FOR}\n|;
+    print qq|I'm sorry Dave, I'm afraid I can't do that $ENV{REMOTE_ADDR}, $ENV{HTTP_X_FORWARDED_FOR}\n|;
     exit;
 }
 
@@ -41,7 +43,7 @@ my $upgradeurl;
 my $appinfo_ref = get_appinfo();
 my %appinfo = %$appinfo_ref;
 if ($appid) {
-    $appurl = "https://origo.io/app?p=$appid";
+    $appurl = "https://origo.io/?app=$appid";
     $upgradeurl = $appinfo{upgradelink};
 }
 

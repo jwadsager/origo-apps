@@ -38,6 +38,21 @@ sub samba {
             $sambawritelist = join(", ", @vals);
         }
 
+        $cmd = qq[cat /etc/samba/smb.conf | grep "invalid users" | uniq];
+        my $invalids = `$cmd`;
+        chomp $invalids;
+        my $sambainvalids;
+        if ($invalids =~ /invalid users =(.+)/) {
+            $invalids = $1;
+            my @writers = quotewords('\s+', 1, $invalids);
+            my @vals;
+            foreach my $writer (@writers) {
+                $writer = $2 if ($writer =~ /(\+)?".+\\(.+)"/);
+                push(@vals, "$writer") if ($writer);
+            }
+            $sambainvalids = join(", ", @vals);
+        }
+
         $cmd = qq[cat /etc/samba/smb.conf | grep "hosts allow"];
         my $hallow = `$cmd`;
         chomp $hallow;
@@ -76,6 +91,11 @@ sub samba {
         <input type="text" name="sambawritelist" id="sambawritelist" value="$sambawritelist" class="password">
         <button id="changewritelist_button" class="btn btn-default" type="button" onclick="changeWritelist();">Set!</button>
         <span style="float: left; font-size: 13px;">leave empty to allow all users write access to "shared".</span>
+        <br style="clear:both;" />
+        <small>External users (e.g. "friend1, Domain Guests"):</small><br />
+        <input type="text" name="sambainvalids" id="sambainvalids" value="$sambainvalids" class="password">
+        <button id="changeinvalids_button" class="btn btn-default" type="button" onclick="changeInvalids();">Set!</button>
+        <span style="float: left; font-size: 13px;">these users do not have access to "shared" and have no home-dir.</span>
         <br style="clear:both;" />
         <small>Hosts to allow (e.g. "192.168.1. 195.41.32.80"):</small><br />
         <input type="text" name="sambahostsallow" id="sambahostsallow" value="$sambahostsallow" class="password">
@@ -141,6 +161,14 @@ END
         .done(function( data ) {
             \$("#changewritelist_button").html('Set!').prop( "disabled", false );
             \$("#sambawritelist").val(data.writelist)
+        })
+    }
+    function changeInvalids() {
+        \$("#changeinvalids_button").prop("disabled", true ).html('Set! <i class="fa fa-cog fa-spin"></i>');
+        \$.post( "index.cgi?action=changeinvalids\&tab=samba\&show=samba-config", \$("#sambaconfigform").serialize())
+        .done(function( data ) {
+            \$("#changeinvalids_button").html('Set!').prop( "disabled", false );
+            \$("#sambainvalids").val(data.invalids)
         })
     }
     function changeHostsAllow() {
@@ -305,6 +333,40 @@ END
 Content-type: application/json; charset=utf-8
 
 {"result": "OK: $res", "writelist": "$ret_writelist"}
+END
+;
+
+    } elsif ($action eq 'changeinvalids' && defined $in{sambainvalids}) {
+        my $invalids = '';
+        my $ret_invalids = '';
+        if ($in{sambainvalids}) { # Limit access to shared and home-dirs
+            my @garray = split(/\n/, `samba-tool group list`);
+            my %ghash = map { lc $_ => $_ } @garray; # Create hash with all groups
+            my @writers = split(/, ?/, $in{sambainvalids});
+            my $writel;
+            foreach my $writer (@writers) {
+                my $plus = '';
+                $plus = '+' if ($ghash{lc $writer});
+                $writel .= qq|$plus"$sambadomain\\\\$writer" |;
+                $ret_invalids .= qq|$writer, |;
+            }
+            $ret_invalids = substr($ret_invalids, 0, -2) if ($ret_invalids);
+            $invalids = <<END
+
+   invalid users = $writel
+END
+;
+            chomp $invalids;
+        }
+        `perl -ni -e 'print unless (/invalid users/)' /etc/samba/smb.conf`; # remove current invalids, if any
+        `perl -pi -e 's/\\[shared\\]/[shared]$invalids/;' /etc/samba/smb.conf`;
+        `perl -pi -e 's/\\[home\\]/[home]$invalids/;' /etc/samba/smb.conf`;
+        my $res = `/etc/init.d/samba4 restart`;
+        $res = uri_encode($res),
+        return <<END
+Content-type: application/json; charset=utf-8
+
+{"result": "OK: $res", "invalids": "$ret_invalids"}
 END
 ;
 

@@ -65,14 +65,16 @@ $dheaders
         <form id="edit_user_form" class="small" method="post" action="index.cgi?action=savesambauser\&tab=users" autocomplete="off">
             <table width="100\%" style="padding:2px;">
                 <tr>
-                    <td width="200">Username:</td><td class="passwordform"><input readonly type="text" name="edituser_cn" id="edituser_cn" /></td>
+                    <td width="200">Username:</td><td class="passwordform"><input readonly type="text" name="edituser_cn" id="edituser_cn" value="" /></td>
                 </tr>
 $drows
                 <tr>
                     <td>Password:</td><td class="passwordform"><input type="text" name="edituser_pwd" id="edituser_pwd" value="" /></td>
                 </tr>
             </table>
+            <!-- input type="hidden" name="edituser_cn" id="edituser_cn" / -->
             <input type="hidden" name="edituser_dn" id="edituser_dn" />
+            <input type="hidden" name="edituser_sAMAccountName" id="edituser_sAMAccountName" />
         </form>
       </div>
       <div class="modal-footer">
@@ -96,7 +98,7 @@ END
         my $nprops = scalar @userprops;
         my $i=1;
         foreach my $prop (@userprops) {
-            $editjs .= qq|\$('#edituser_$prop').val(editrow["$prop"]);\n|;
+            $editjs .= qq|\$('#edituser_$prop').val(editrow["$prop"]+"");\n|;
             $newjs .= qq|\$("#edituser_$prop").val("");\n|;
             $tablejs .= qq|{ data: "$prop" },\n|;
             $i++;
@@ -143,6 +145,7 @@ END
     }
 
     function editSambaUser(cn) {
+        \$('#editUserDialog').modal({'backdrop': false, 'show': true});
         var editrow = [];
         if (cn) {
             \$('#edituser_cn').val(cn);
@@ -152,6 +155,7 @@ END
             });
             if(editrow) {
                 \$('#edituser_dn').val(editrow["dn"]);
+                \$('#edituser_sAMAccountName').val(editrow["sAMAccountName"]);
                 $editjs
             }
             \$('#user_label').html("Edit user");
@@ -163,9 +167,12 @@ END
             $newjs;
             \$('#user_label').html("New user");
         }
-        \$('#edituser_pwd').val('');
         \$('#edituser_pwd')[0].type = "password";
-        \$('#editUserDialog').modal({'backdrop': false, 'show': true});
+        // A little fight against auto-fill-out
+        setTimeout(function(){
+            \$('#edituser_pwd').val('');
+            if (!editrow["telephoneNumber"]) \$('#edituser_telephoneNumber').val('');
+        }, 100);
         \$('#edituser_cn').focus();
     }
 
@@ -251,26 +258,33 @@ END
                 $res .= "User not deleted - there was a problem ($cmd, $cmdres)";
             }
         }
+        return $res;
+
     } elsif ($action eq 'savesambauser' && defined $in{edituser_dn}) {
         my $res = "Content-type: text/html\n\n";
         my $cmd;
         my $cmdres;
         my $cmdalert;
+        my $isnew;
         if ($in{edituser_dn} eq 'new') {
+            $isnew = 1;
             if ($userbase && $in{edituser_cn} && $in{edituser_pwd}) {
+                $in{edituser_dn} = "CN=$in{edituser_cn},$userbase";
                 $cmd = qq[samba-tool user add "$in{edituser_cn}" "$in{edituser_pwd}"];
-                $cmd .= qq[ --mail-address "$in{edituser_mail}"] if ($in{edituser_mail});
-                $cmd .= qq[ --telephone-number "$in{edituser_telephoneNumber}"] if ($in{edituser_telephoneNumber});
-                $cmd .= qq[ --given-name "$in{edituser_givenName}"] if ($in{edituser_givenName});
-                $cmd .= qq[ --surname "$in{edituser_sn}"] if ($in{edituser_sn});
+#                $cmd .= qq[ --mail-address "$in{edituser_mail}"] if ($in{edituser_mail});
+#                $cmd .= qq[ --telephone-number "$in{edituser_telephoneNumber}"] if ($in{edituser_telephoneNumber});
+#                $cmd .= qq[ --given-name "$in{edituser_givenName}"] if ($in{edituser_givenName});
+#                $cmd .= qq[ --surname "$in{edituser_sn}"] if ($in{edituser_sn});
                 $cmdres .= `$cmd 2>\&1`;
                 `mkdir "/mnt/data/users/$in{edituser_cn}"`;
+                `chmod 777 "/mnt/data/users/$in{edituser_cn}"`;
             } else {
                 $cmdalert .= "no userbase" if (!$userbase);
                 $cmdalert .= "Please provide a user name" if (!$in{edituser_cn});
                 $cmdalert .= "Please provide a password" if (!$cmdalert && !$in{edituser_pwd});
             }
-        } else {
+        }
+#        } else {
             my $laction;
             $laction .= "changetype: modify\n";
             my $changes;
@@ -294,7 +308,7 @@ END
             $cmd = qq[echo "$ldif"| ldbmodify -H /opt/samba4/private/sam.ldb --] if ($changes);
             $cmdres .= `$cmd 2>\&1` if ($cmd);
 
-            if ($in{edituser_pwd}) {
+            if ($in{edituser_pwd} && !$isnew) {
                 $cmd = qq[samba-tool user setpassword $in{edituser_cn} --newpassword=$in{edituser_pwd}];
                 $cmdres .=  `$cmd 2>\&1`;
                 if ($cmdres =~ /password OK/) {
@@ -303,7 +317,7 @@ END
                     $res .= "The Samba password was NOT changed! ";
                 }
             }
-        }
+#        }
 
         if ($cmdalert) {
             $res .= $cmdalert;
@@ -346,7 +360,7 @@ sub getUsers {
     }
 
     my %users;
-    my $fields = join(" ", @userprops) . '';
+    my $fields = join(" ", @userprops) . ' sAMAccountName';
     my $users_text = `ldbsearch -H /opt/samba4/private/sam.ldb -b "$userbase" objectClass=user cn $fields`;
     my $cn;
     foreach my $line (split /\n/, $users_text) {

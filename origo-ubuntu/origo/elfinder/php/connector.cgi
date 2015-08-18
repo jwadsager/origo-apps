@@ -81,7 +81,9 @@ if ($session_id === '') { // Something went wrong, we don't have a session
 //    file_put_contents("/tmp/SESSION_$session_id.txt", $session_id);
 }
 
-if (isset($tktuser) && $tktuser!=='' && $tktuser!=='g') {
+$invalid = isInvalid($tktuser);
+
+if (isset($tktuser) && $tktuser!=='' && $tktuser!=='g' && !$invalid) {
     if (file_exists("/mnt/data/users/$tktuser")) {
         array_push($roots,
             array(
@@ -110,7 +112,7 @@ if ((isset( $_GET ) && isset($_GET['nfs'])) || (isset( $_POST ) && isset($_POST[
             'URL'           => "fuel/$nfsid" // URL to files (REQUIRED)
         )
     );
-} elseif (isset($tktuser) && $tktuser!=='' && $tktuser!=='g' && file_exists("/mnt/data/shared")) {
+} elseif (isset($tktuser) && $tktuser!=='' && $tktuser!=='g' && !$invalid && file_exists("/mnt/data/shared")) {
     array_push($roots,
         array(
             'alias'         => 'Shared',
@@ -209,6 +211,29 @@ function isWriter($tktuser, $group) {
             return TRUE; // No write list
         }
     }
+}
+
+function isInvalid($tktuser) {
+    $conf = "/etc/samba/smb.conf";
+    if (file_exists($conf)) {
+        $wlist = `cat "$conf" | grep "invalid users"`;
+        $wlist = chop($wlist);
+        if (preg_match('/invalid users =(.+)/', $wlist, $matches)) {
+            $wlist = $matches[1];
+            preg_match_all('/\+?"(?:\\\\.|[^\\\\"])*"|\S+/', $wlist, $writers);
+            foreach ($writers[0] as $writer) {
+                if (preg_match('/(\+)?"(.+)\\\\(.+)"/', $writer, $m)) {
+                    if ($m[1] == '+') {
+                        if (isGroupMember($tktuser, $m[3])) {return TRUE;}
+                    } else {
+                        $writer = $m[3];
+                        if (strtolower($writer) == strtolower($tktuser)) {return TRUE;}
+                    }
+                }
+            }
+        }
+    }
+    return FALSE;// No invalid users
 }
 
 function isGroupMember($tktuser, $group) {
