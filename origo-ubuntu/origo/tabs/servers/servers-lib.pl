@@ -85,6 +85,29 @@ END
         });
     }
 
+    function loadTerm(networkuuid1, name) {
+        if (\$("#terminal").length==0) {
+            \$("#nav-tabs").append('<li><a data-toggle="tab" href="#terminal">Terminal: ' + name + '&nbsp;</a> <span class="no-closeText">x</span> </li>');
+            \$("#tab-content").append('<div id="terminal" class="tab-pane">Terminal</div>');
+
+            \$("#nav-tabs").on("click", "a", function(e){
+                  e.preventDefault();
+                  \$(this).tab('show');
+                })
+                .on("click", "span", function () {
+                    var anchor = \$(this).siblings('a');
+                    \$(anchor.attr('href')).remove();
+                    \$(this).parent().remove();
+                    \$(".nav-tabs li").children('a').last().click();
+                });
+
+        }
+        \$('#nav-tabs li:nth-child(5) a').click();
+        if (\$("#" + networkuuid1).length==0)
+            \$("#terminal").html('<iframe src="https://' + location.host + '/steamengine/pipe/http://' + networkuuid1 + ':4200/" style="height:364px; width:710px; border:none;" id="' + networkuuid1 + '">Terminal</iframe>');
+        return false;
+    }
+
     function listServers(webmin) {
         console.log("listing servers", (updating?"spinner":"no spinner"), updating, webmin);
         var bgcolors = {
@@ -109,7 +132,10 @@ END
             else \$("#net_test").show();
             for (var s in data) {
                 serv = data[s];
-                stext += '<table title="' + serv.internalip + ' (' + serv.name + ')' + ':' + serv.status + '" id="' + serv.uuid + '" style="display:inline-block; margin:0; padding:0;"><tr><td style="background-color: ' + bgcolors[serv.status] + ';"><img src="images/server-black.png"></td></tr></table> ';
+                // var termurl = '/steamengine/pipe/http://' + serv.networkuuid1 + ':4200/';
+                // var termurl = 'index.cgi?action=terminal&tab=servers&ip=' + serv.internalip; + '/'
+
+                stext += '<table title="' + serv.internalip + ' (' + serv.name + ')' + ':' + serv.status + '" id="' + serv.uuid + '" style="display:inline-block; margin:0; padding:0;"><tr><td style="background-color: ' + bgcolors[serv.status] + ';"><a href="#" onclick="loadTerm(\\\'' + serv.networkuuid1 + '\\\', \\\'' + serv.name + '\\\');"><img src="images/server-black.png"></a></td></tr></table> ';
 //                if ( bgcolors[serv.status]=="orange" || bgcolors[serv.status]=="darkgreen" ) sloading = true;
                 if ( bgcolors[serv.status]=="orange" ) sloading = true;
             }
@@ -186,6 +212,25 @@ END
         }
         $res .= qq|{"message": "$message"}|;
         return $res;
+
+    } elsif ($action eq "terminal") {
+        if ($in{ip}) {
+            my $s = list_simplestack_servers();
+            @servers = @$s;
+            my $serv;
+            foreach $serv (@servers) {
+                last if ($serv->{internalip} eq $in{ip})
+            }
+
+            my $terminalcmd = qq[/usr/share/webmin/origo/tabs/servers/shellinaboxd --cgi -t --css=/usr/share/webmin/origo/tabs/servers/shellinabox.css --debug 2>/tmp/sib.log];
+            my $cmdout;
+            $cmdout .= `$terminalcmd`;
+            $cmdout =~ s/<title>.+<\/title>/<title>Server: $serv->{name}<\/title>/;
+            $cmdout =~ s/:(\d+)\//\/shellinabox\/$1\//g;
+            return $cmdout;
+        } else {
+            return "ERROR Unable to open terminal\n";
+        }
 
     }
 }

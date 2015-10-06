@@ -87,10 +87,14 @@ sub list_webmin_servers {
 
 sub save_webmin_server {
     my $host = shift;
+    my $pass = shift;
     my $id = $host;
+    $pass = `cat /etc/webmin/servers/$id.serv | sed -n -e 's/^pass=//p'` unless ($pass);
+    chomp $pass;
+    $pass = 'origo' unless $pass;
     my $s = {
               'user' => 'origo',
-              'pass' => 'origo',
+              'pass' => $pass,
               'ssl' => '0',
               'file' => "/etc/webmin/servers/$id.serv",
               'port' => '10000',
@@ -174,7 +178,7 @@ sub run_command {
 
     # Make sure admin server is registered
     if (!@servers && $internalip) {
-        save_webmin_server($internalip);
+        save_webmin_server($internalip) unless ( -e "/etc/webmin/servers/$internalip.serv");
         @servers = &foreign_call("servers", "list_servers");
     }
 
@@ -218,6 +222,7 @@ sub run_command {
 sub get_results {
     # Get back all the results
     my $servers_ref = shift;
+    my $tab = shift || $in{tab};
     my @servers = @$servers_ref;
     `pkill -f "/bin/cat < /tmp/OPIPE"`; # Terminate previous blocking reads that still hang
     $p = 0;
@@ -239,23 +244,27 @@ sub get_results {
             if ($in{tab} eq 'software') {
                 my $d2 = $d;
                 $d2 =~ tr/./-/;
+                my $rid = "$tab-result-$d2";
+                $rid =~ tr/-/_/;
                 my $disp = "display:none; ";
                 if ($result =~ /Setting up/) {
-                    $res .= qq|<span class="label label-success" style="cursor:pointer;" onclick='\$("#result-$d2").toggle();'>$d has been upgraded</span>\n|;
-                    $res .= qq|<ul><pre id="result-$d2" style="max-height:160px; font-size:12px; overflow: auto; $disp">$result</pre></ul>\n|;
+                    $res .= qq|<span class="label label-success" style="cursor:pointer;" onclick='\$("#$rid").toggle();'>$d has been upgraded</span>\n|;
+                    $res .= qq|<ul><pre id="$rid" style="max-height:160px; font-size:12px; overflow: auto; $disp">$result</pre></ul>\n|;
                 } elsif ($result =~ /The following packages will be upgraded/) {
-                    $res .= qq|<span class="label label-success upgrade-available" style="cursor:pointer;" onclick='\$("#result-$d2").toggle();'>$d has software upgrades available</span>\n|;
-                    $res .= qq|<ul><pre id="result-$d2" style="max-height:160px; font-size:12px; overflow: auto; $disp">$result</pre></ul>\n|;
+                    $res .= qq|<span class="label label-success upgrade-available" style="cursor:pointer;" onclick='\$("#$rid").toggle();'>$d has software upgrades available</span>\n|;
+                    $res .= qq|<ul><pre id="$rid" style="max-height:160px; font-size:12px; overflow: auto; $disp">$result</pre></ul>\n|;
                 } else {
                     $res .= qq|<span class="label label-success">$d has no software upgrades available</span><br />\n|;
                 }
             } else {
                 my $d2 = $d;
                 $d2 =~ tr/./-/;
+                my $rid = "$tab-result-$d2";
+                $rid =~ tr/-/_/;
                 my $disp = ($p==0)?'':"display:none; ";
                 if ($result) {
-                    $res .= qq|<span class="label label-success" style="cursor:pointer;" onclick='\$("#result-$d2").toggle();'>$d ran command succesfully</span>\n|;
-                    $res .= qq|<ul><pre id="result-$d2" style="max-height:160px; font-size:12px; overflow: auto; $disp">$result</pre></ul>\n|;
+                    $res .= qq|<span class="label label-success" style="cursor:pointer;" onclick='\$("#$rid").toggle();'>$d ran command succesfully</span>\n|;
+                    $res .= qq|<ul><pre id="$rid" style="max-height:160px; font-size:12px; overflow: auto; $disp">$result</pre></ul>\n|;
                 } else {
                     $res .= qq|<span class="label label-success">$d ran command succesfully</span><br />\n|;
                 }

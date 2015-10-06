@@ -5,10 +5,13 @@ use Text::ParseWords;
 use Data::Dumper;
 
 my $registered;
+my $internalip;
 my $i;
 
 while (!$registered && $i<20) {
-    my $res = `curl http://localhost:10000/origo/index.cgi?action=registerwebminserver`;
+    $internalip = `cat /tmp/internalip` if (-e '/tmp/internalip');
+    chomp $internalip;
+    my $res = `curl http://$internalip:10000/origo/index.cgi?action=registerwebminserver`;
     $registered = ($res =~ /Registered at \S+/);
     if ($registered) {
         `echo "$res" >> /tmp/origo-registered`;
@@ -92,4 +95,17 @@ if ($status eq 'upgrading') {
 
 } else {
     print "Server is $status. Not upgrading this server...\n";
+    if (-e '/usr/share/webmin/origo/tabs/servers/shellinaboxd') {
+        unless (`pgrep shellinaboxd`) {
+            print "Starting shellinabox...\n";
+            # Disallow shellinabox access from outside
+            my $gw = $internalip;
+            $gw = "$1.1" if ($gw =~ /(\d+\.\d+\.\d+)\.\d+/);
+            print `iptables -D INPUT -p tcp --dport 4200 -s $gw -j ACCEPT`;
+            print `iptables -D INPUT -p tcp --dport 4200 -j DROP`;
+            print `iptables -A INPUT -p tcp --dport 4200 -s $gw -j ACCEPT`;
+            print `iptables -A INPUT -p tcp --dport 4200 -j DROP`;
+            `screen -d -m /usr/share/webmin/origo/tabs/servers/shellinaboxd -t -n`;
+        }
+    }
 }

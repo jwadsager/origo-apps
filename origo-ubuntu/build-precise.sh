@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # The version of the app we are building
-version="1.0"
+version="1.2"
 #dname=`basename "$PWD"`
 dname="origo-precise"
 me=`basename $0`
@@ -127,9 +127,12 @@ exec /usr/local/bin/origo-networking.pl" > /etc/init/origo-networking.conf'
 # Disable Webmin login from outside - reenable from configuration UI
     chroot $1 bash -c 'echo "allow=10.0.0.0/8 127.0.0.0/16" >> /etc/webmin/miniserv.conf'
 
+# Set nice color xterm as default
+    chroot $1 bash -c 'echo "export TERM=xterm-color" >> /etc/bash.bashrc'
+
 # If called without parameters, build image
 else
-vmbuilder kvm ubuntu -o -v --debug --suite precise --components main,universe,multiverse --arch amd64 --rootsize 81920 --user origo --pass origo --hostname $dname --addpkg libjson-perl --addpkg liburi-encode-perl --addpkg libstring-shellquote-perl --addpkg curl --addpkg acpid --addpkg openssh-server --addpkg nfs-common --addpkg dmidecode --addpkg man --addpkg unzip --addpkg python-software-properties --addpkg php5-imagick --tmpfs - --domain origo.io --ip 10.1.1.2 --execscript="./$me"
+vmbuilder kvm ubuntu -o -v --debug --suite precise --components main,universe,multiverse --arch amd64 --rootsize 81920 --user origo --pass origo --hostname $dname --addpkg libjson-perl --addpkg liburi-encode-perl --addpkg libstring-shellquote-perl --addpkg curl --addpkg acpid --addpkg openssh-server --addpkg nfs-common --addpkg dmidecode --addpkg man --addpkg unzip --addpkg python-software-properties --addpkg php5-imagick --addpkg screen --addpkg iptables --tmpfs - --domain origo.io --ip 10.1.1.2 --execscript="./$me"
 # Clean up
 	mv ubuntu-kvm/*.qcow2 "./$dname-$version.master.qcow2"
 	rm -r ubuntu-kvm

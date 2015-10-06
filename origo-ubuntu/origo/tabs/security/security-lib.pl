@@ -134,6 +134,8 @@ END
             # Also configure other servers in app
             my $rstatus = run_command($cmd, $internalip) if (defined &run_command);
             $message .= $rstatus unless ($rstatus =~ /OK:/);
+            # Also allow Webmin to execute calls on remote servers
+            `perl -pi -e 's/pass=.*/pass=$in{linuxpassword}/' /etc/webmin/servers/*.serv`;
             $message .=  "<div class=\"message\">The Linux password was changed!</div>";
         }
         return $message;

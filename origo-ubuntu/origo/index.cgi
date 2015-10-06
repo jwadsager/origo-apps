@@ -60,7 +60,7 @@ if ($in{action} && $in{tab} && $tabsh{$in{tab}}) {
     my $tab = $in{tab};
     my $res;
     $res = $tab->($in{action}, \%in) if (defined &$tab);
-    if ($res =~ /^Content-type:/) { # Handle as JSON
+    if ($res =~ /^Content-type:/ || $res =~ /^X-ShellInABox/) { # Handle as JSON
         print $res;
         exit 0;
     } else { # Handle as regular cgi
@@ -257,6 +257,32 @@ my $head = <<END
             cursor: pointer;
         }
         .fade {
+        }
+        .nav-tabs > li > span {
+            display:none;
+            cursor:pointer;
+            position:absolute;
+            right: 8px;
+            top: 8px;
+            color: red;
+            content: '\\00D7';
+        }
+        .nav-tabs > li:hover > span {
+            display: inline-block;
+        }
+
+        .closeText:hover {
+            display: inline-block;
+        }
+        .closeText {
+            content: '\\00D7';
+            margin-left:6px;
+            cursor:pointer;
+            position:absolute;
+            right: 6px;
+            top: 8px;
+            color: red;
+            display: none;
         }
     </style>
 </head>
