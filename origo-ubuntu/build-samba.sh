@@ -118,7 +118,7 @@ exec /usr/local/bin/origo-samba-networking.pl" > /etc/init/origo-samba-networkin
 
 # Run netserver under xinetd
     chroot $1 perl -pi -e 's/(smsqp\s+11201\/udp)/$1\nnetperf         12865\/tcp/' /etc/services
-    chroot $1 perl -pi -e 's/NETSERVER_ENABLE=YES/NETSERVER_ENABLE=NO' /etc/default/netperf
+    chroot $1 perl -pi -e 's/NETSERVER_ENABLE=YES/NETSERVER_ENABLE=NO/' /etc/default/netperf
     chroot $1 bash -c 'echo "netserver: 10.0.0.0/8" >> /etc/hosts.allow'
 
 # Disable ssh login from outside - reenable from configuration UI

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # The version of the app we are building
-version="1.1"
+version="1.2"
 #dname=`basename "$PWD"`
 dname="origo-reference"
 me=`basename $0`
