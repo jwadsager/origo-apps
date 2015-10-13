@@ -2778,3 +2778,572 @@ EOT
 2015-10-06 16:19:27,537 DEBUG   : Setting up apache2.2-bin (2.2.22-1ubuntu1.10) ...
 2015-10-06 16:19:36,059 DEBUG   : Setting up apache2-utils (2.2.22-1ubuntu1.10) ...
 2015-10-06 16:19:42,780 DEBUG   : Setting up apache2.2-common (2.2.22-1ubuntu1.10) ...
+2015-10-06 16:25:24,745 DEBUG   : Enabling site default.
+2015-10-06 16:25:25,217 DEBUG   : Enabling module alias.
+2015-10-06 16:25:25,245 DEBUG   : Enabling module autoindex.
+2015-10-06 16:25:25,266 DEBUG   : Enabling module dir.
+2015-10-06 16:25:25,288 DEBUG   : Enabling module env.
+2015-10-06 16:25:25,310 DEBUG   : Enabling module mime.
+2015-10-06 16:25:25,331 DEBUG   : Enabling module negotiation.
+2015-10-06 16:25:25,353 DEBUG   : Enabling module setenvif.
+2015-10-06 16:25:25,375 DEBUG   : Enabling module status.
+2015-10-06 16:25:25,396 DEBUG   : Enabling module auth_basic.
+2015-10-06 16:25:25,418 DEBUG   : Enabling module deflate.
+2015-10-06 16:25:25,439 DEBUG   : Enabling module authz_default.
+2015-10-06 16:25:25,461 DEBUG   : Enabling module authz_user.
+2015-10-06 16:25:25,483 DEBUG   : Enabling module authz_groupfile.
+2015-10-06 16:25:25,504 DEBUG   : Enabling module authn_file.
+2015-10-06 16:25:25,526 DEBUG   : Enabling module authz_host.
+2015-10-06 16:25:25,591 DEBUG   : Enabling module reqtimeout.
+2015-10-06 16:25:28,111 DEBUG   : Setting up apache2-mpm-prefork (2.2.22-1ubuntu1.10) ...
+2015-10-06 16:25:41,863 DEBUG   :  * Starting web server apache2
+2015-10-06 16:25:42,338 INFO    : apache2: apr_sockaddr_info_get() failed for ubuntu
+2015-10-06 16:25:42,338 INFO    : apache2: Could not reliably determine the server's fully qualified domain name, using 127.0.0.1 for ServerName
+2015-10-06 16:25:42,339 INFO    : (98)Address already in use: make_sock: could not bind to address 0.0.0.0:80
+2015-10-06 16:25:42,339 INFO    : no listening sockets available, shutting down
+2015-10-06 16:25:42,339 INFO    : Unable to open logs
+2015-10-06 16:25:42,351 DEBUG   : Action 'start' failed.
+2015-10-06 16:25:42,352 DEBUG   : The Apache error log may have more information.
+2015-10-06 16:25:42,352 DEBUG   :    ...fail!
+2015-10-06 16:25:42,378 INFO    : invoke-rc.d: initscript apache2, action "start" failed.
+2015-10-06 16:25:46,557 DEBUG   : Setting up libapache2-mod-php5 (5.3.10-1ubuntu3.20) ...
+2015-10-06 16:26:03,450 INFO    : 
+2015-10-06 16:26:03,450 INFO    : Creating config file /etc/php5/apache2/php.ini with new version
+2015-10-06 16:26:09,749 DEBUG   :  * Restarting web server apache2
+2015-10-06 16:26:09,791 INFO    : apache2: apr_sockaddr_info_get() failed for ubuntu
+2015-10-06 16:26:09,792 INFO    : apache2: Could not reliably determine the server's fully qualified domain name, using 127.0.0.1 for ServerName
+2015-10-06 16:26:09,836 INFO    : apache2: apr_sockaddr_info_get() failed for ubuntu
+2015-10-06 16:26:09,836 INFO    : apache2: Could not reliably determine the server's fully qualified domain name, using 127.0.0.1 for ServerName
+2015-10-06 16:26:09,837 INFO    : (98)Address already in use: make_sock: could not bind to address 0.0.0.0:80
+2015-10-06 16:26:09,837 INFO    : no listening sockets available, shutting down
+2015-10-06 16:26:09,837 INFO    : Unable to open logs
+2015-10-06 16:26:09,849 DEBUG   : Action 'start' failed.
+2015-10-06 16:26:09,849 DEBUG   : The Apache error log may have more information.
+2015-10-06 16:26:09,850 DEBUG   :    ...fail!
+2015-10-06 16:26:09,851 INFO    : invoke-rc.d: initscript apache2, action "restart" failed.
+2015-10-06 16:26:16,648 DEBUG   : Setting up php5-cli (5.3.10-1ubuntu3.20) ...
+2015-10-06 16:26:21,948 INFO    : 
+2015-10-06 16:26:21,948 INFO    : Creating config file /etc/php5/cli/php.ini with new version
+2015-10-06 16:26:28,115 DEBUG   : update-alternatives: using /usr/bin/php5 to provide /usr/bin/php (php) in auto mode.
+2015-10-06 16:26:34,016 DEBUG   : Setting up ssl-cert (1.0.28ubuntu0.1) ...
+2015-10-06 16:26:55,933 INFO    : hostname: Name or service not known
+2015-10-06 16:26:55,935 INFO    : make-ssl-cert: Could not get or use FQDN, using "ubuntu".
+2015-10-06 16:26:55,935 INFO    : make-ssl-cert: You may want to fix your /etc/hosts and/or DNS setup and run
+2015-10-06 16:26:55,936 INFO    : make-ssl-cert: make-ssl-cert generate-default-snakeoil --force-overwrite
+2015-10-06 16:26:55,936 INFO    : make-ssl-cert: again.
+2015-10-06 16:27:07,474 DEBUG   : Processing triggers for libc-bin ...
+2015-10-06 16:27:10,984 DEBUG   : ldconfig deferred processing now taking place
+2015-10-06 16:28:16,747 DEBUG   : Reading package lists...
+2015-10-06 16:28:17,049 DEBUG   : Building dependency tree...
+2015-10-06 16:28:17,050 DEBUG   : Reading state information...
+2015-10-06 16:28:17,259 DEBUG   : The following extra packages will be installed:
+2015-10-06 16:28:17,259 DEBUG   :   apt-show-versions libapt-pkg-perl libauthen-pam-perl libio-pty-perl
+2015-10-06 16:28:17,259 DEBUG   :   libnet-ssleay-perl
+2015-10-06 16:28:17,264 DEBUG   : The following NEW packages will be installed:
+2015-10-06 16:28:17,265 DEBUG   :   apt-show-versions libapt-pkg-perl libauthen-pam-perl libio-pty-perl
+2015-10-06 16:28:17,265 DEBUG   :   libnet-ssleay-perl webmin
+2015-10-06 16:28:25,769 DEBUG   : 0 upgraded, 6 newly installed, 0 to remove and 0 not upgraded.
+2015-10-06 16:28:25,770 DEBUG   : Need to get 28.2 MB of archives.
+2015-10-06 16:28:25,771 DEBUG   : After this operation, 157 MB of additional disk space will be used.
+2015-10-06 16:28:25,771 DEBUG   : Get:1 http://archive.ubuntu.com/ubuntu/ precise/main libnet-ssleay-perl amd64 1.42-1build1 [188 kB]
+2015-10-06 16:28:26,470 DEBUG   : Get:2 http://archive.ubuntu.com/ubuntu/ precise/universe libauthen-pam-perl amd64 0.16-2build2 [28.5 kB]
+2015-10-06 16:28:26,773 DEBUG   : Get:3 http://download.webmin.com/download/repository/ sarge/contrib webmin all 1.770 [27.8 MB]
+2015-10-06 16:28:26,773 DEBUG   : Get:4 http://archive.ubuntu.com/ubuntu/ precise/main libio-pty-perl amd64 1:1.08-1build2 [36.7 kB]
+2015-10-06 16:28:26,773 DEBUG   : Get:5 http://archive.ubuntu.com/ubuntu/ precise/main libapt-pkg-perl amd64 0.1.25build2 [82.9 kB]
+2015-10-06 16:28:26,871 DEBUG   : Get:6 http://archive.ubuntu.com/ubuntu/ precise/universe apt-show-versions all 0.17 [32.9 kB]
+2015-10-06 16:29:07,006 DEBUG   : Fetched 28.2 MB in 20s (1358 kB/s)
+2015-10-06 16:29:11,376 DEBUG   : Selecting previously unselected package libnet-ssleay-perl.
+2015-10-06 16:29:13,610 DEBUG   : (Reading database ... 17696 files and directories currently installed.)
+2015-10-06 16:29:13,611 DEBUG   : Unpacking libnet-ssleay-perl (from .../libnet-ssleay-perl_1.42-1build1_amd64.deb) ...
+2015-10-06 16:29:47,003 DEBUG   : Selecting previously unselected package libauthen-pam-perl.
+2015-10-06 16:29:47,004 DEBUG   : Unpacking libauthen-pam-perl (from .../libauthen-pam-perl_0.16-2build2_amd64.deb) ...
+2015-10-06 16:30:13,867 DEBUG   : Selecting previously unselected package libio-pty-perl.
+2015-10-06 16:30:13,867 DEBUG   : Unpacking libio-pty-perl (from .../libio-pty-perl_1%3a1.08-1build2_amd64.deb) ...
+2015-10-06 16:30:31,119 DEBUG   : Selecting previously unselected package libapt-pkg-perl.
+2015-10-06 16:30:31,119 DEBUG   : Unpacking libapt-pkg-perl (from .../libapt-pkg-perl_0.1.25build2_amd64.deb) ...
+2015-10-06 16:31:06,647 DEBUG   : Selecting previously unselected package apt-show-versions.
+2015-10-06 16:31:06,647 DEBUG   : Unpacking apt-show-versions (from .../apt-show-versions_0.17_all.deb) ...
+2015-10-06 16:31:52,233 DEBUG   : Selecting previously unselected package webmin.
+2015-10-06 16:31:52,236 DEBUG   : Unpacking webmin (from .../archives/webmin_1.770_all.deb) ...
+2015-10-06 16:34:53,196 DEBUG   : Processing triggers for man-db ...
+2015-10-06 16:35:49,122 DEBUG   : Processing triggers for ureadahead ...
+2015-10-06 16:36:03,345 DEBUG   : Setting up libnet-ssleay-perl (1.42-1build1) ...
+2015-10-06 16:36:14,360 DEBUG   : Setting up libauthen-pam-perl (0.16-2build2) ...
+2015-10-06 16:36:25,904 DEBUG   : Setting up libio-pty-perl (1:1.08-1build2) ...
+2015-10-06 16:36:35,062 DEBUG   : Setting up libapt-pkg-perl (0.1.25build2) ...
+2015-10-06 16:36:41,140 DEBUG   : Setting up apt-show-versions (0.17) ...
+2015-10-06 16:36:52,916 DEBUG   : ** initializing cache. This may take a while **
+2015-10-06 16:38:20,091 DEBUG   : Setting up webmin (1.770) ...
+2015-10-06 16:45:40,001 DEBUG   : Webmin install complete. You can now login to https://ubuntu:10000/
+2015-10-06 16:45:40,254 DEBUG   : as root with your root password, or as any user who can use sudo
+2015-10-06 16:45:40,254 DEBUG   : to run commands as root.
+2015-10-06 16:47:06,910 DEBUG   : Reading package lists...
+2015-10-06 16:47:07,700 DEBUG   : Building dependency tree...
+2015-10-06 16:47:07,700 DEBUG   : Reading state information...
+2015-10-06 16:47:07,701 DEBUG   : The following NEW packages will be installed:
+2015-10-06 16:47:07,701 DEBUG   :   iozone3
+2015-10-06 16:47:15,833 DEBUG   : 0 upgraded, 1 newly installed, 0 to remove and 0 not upgraded.
+2015-10-06 16:47:17,109 DEBUG   : Need to get 433 kB of archives.
+2015-10-06 16:47:17,109 DEBUG   : After this operation, 685 kB of additional disk space will be used.
+2015-10-06 16:47:17,109 DEBUG   : Get:1 http://archive.ubuntu.com/ubuntu/ precise/multiverse iozone3 amd64 397-2 [433 kB]
+2015-10-06 16:47:27,938 DEBUG   : Fetched 433 kB in 0s (446 kB/s)
+2015-10-06 16:47:38,210 DEBUG   : Selecting previously unselected package iozone3.
+2015-10-06 16:47:41,694 DEBUG   : (Reading database ... 43891 files and directories currently installed.)
+2015-10-06 16:47:41,697 DEBUG   : Unpacking iozone3 (from .../iozone3_397-2_amd64.deb) ...
+2015-10-06 16:48:05,432 DEBUG   : Processing triggers for man-db ...
+2015-10-06 16:48:31,427 DEBUG   : Setting up iozone3 (397-2) ...
+2015-10-06 16:49:22,187 INFO    : no crontab for root
+2015-10-06 16:49:25,421 DEBUG   : origo/
+2015-10-06 16:49:25,423 DEBUG   : origo/strength/
+2015-10-06 16:49:25,425 DEBUG   : origo/strength/.gitattributes
+2015-10-06 16:49:25,427 DEBUG   : origo/strength/README.md
+2015-10-06 16:49:25,429 DEBUG   : origo/strength/strength.js
+2015-10-06 16:49:25,432 DEBUG   : origo/strength/strength.css
+2015-10-06 16:49:25,435 DEBUG   : origo/strength/demo/
+2015-10-06 16:49:25,436 DEBUG   : origo/strength/demo/styled_example/
+2015-10-06 16:49:25,437 DEBUG   : origo/strength/demo/styled_example/strength.js
+2015-10-06 16:49:25,439 DEBUG   : origo/strength/demo/styled_example/index.html
+2015-10-06 16:49:25,440 DEBUG   : origo/strength/demo/styled_example/js.js
+2015-10-06 16:49:25,442 DEBUG   : origo/strength/demo/simple_example/
+2015-10-06 16:49:25,444 DEBUG   : origo/strength/demo/simple_example/strength.js
+2015-10-06 16:49:25,446 DEBUG   : origo/strength/demo/simple_example/strength.css
+2015-10-06 16:49:25,448 DEBUG   : origo/strength/demo/simple_example/index.html
+2015-10-06 16:49:25,449 DEBUG   : origo/strength/demo/simple_example/js.js
+2015-10-06 16:49:25,450 DEBUG   : origo/strength/index.html
+2015-10-06 16:49:25,451 DEBUG   : origo/origo
+2015-10-06 16:49:25,461 DEBUG   : origo/tabs/
+2015-10-06 16:49:25,462 DEBUG   : origo/index.cgi
+2015-10-06 16:49:25,465 DEBUG   : origo/font-awesome/
+2015-10-06 16:49:25,467 DEBUG   : origo/font-awesome/scss/
+2015-10-06 16:49:25,468 DEBUG   : origo/font-awesome/scss/.__rotated-flipped.scss
+2015-10-06 16:49:25,470 DEBUG   : origo/font-awesome/scss/.__icons.scss
+2015-10-06 16:49:25,472 DEBUG   : origo/font-awesome/scss/_larger.scss
+2015-10-06 16:49:25,474 DEBUG   : origo/font-awesome/scss/.__mixins.scss
+2015-10-06 16:49:25,475 DEBUG   : origo/font-awesome/scss/font-awesome.scss
+2015-10-06 16:49:25,477 DEBUG   : origo/font-awesome/scss/.__spinning.scss
+2015-10-06 16:49:25,479 DEBUG   : origo/font-awesome/scss/.__path.scss
+2015-10-06 16:49:25,481 DEBUG   : origo/font-awesome/scss/.__core.scss
+2015-10-06 16:49:25,483 DEBUG   : origo/font-awesome/scss/_fixed-width.scss
+2015-10-06 16:49:25,485 DEBUG   : origo/font-awesome/scss/_path.scss
+2015-10-06 16:49:25,487 DEBUG   : origo/font-awesome/scss/_icons.scss
+2015-10-06 16:49:25,489 DEBUG   : origo/font-awesome/scss/.__larger.scss
+2015-10-06 16:49:25,491 DEBUG   : origo/font-awesome/scss/_spinning.scss
+2015-10-06 16:49:25,493 DEBUG   : origo/font-awesome/scss/.__stacked.scss
+2015-10-06 16:49:25,494 DEBUG   : origo/font-awesome/scss/._font-awesome.scss
+2015-10-06 16:49:25,496 DEBUG   : origo/font-awesome/scss/.__list.scss
+2015-10-06 16:49:25,498 DEBUG   : origo/font-awesome/scss/_list.scss
+2015-10-06 16:49:25,500 DEBUG   : origo/font-awesome/scss/_stacked.scss
+2015-10-06 16:49:25,502 DEBUG   : origo/font-awesome/scss/_variables.scss
+2015-10-06 16:49:25,504 DEBUG   : origo/font-awesome/scss/.__fixed-width.scss
+2015-10-06 16:49:25,506 DEBUG   : origo/font-awesome/scss/_core.scss
+2015-10-06 16:49:25,508 DEBUG   : origo/font-awesome/scss/.__variables.scss
+2015-10-06 16:49:25,510 DEBUG   : origo/font-awesome/scss/_mixins.scss
+2015-10-06 16:49:25,512 DEBUG   : origo/font-awesome/scss/_rotated-flipped.scss
+2015-10-06 16:49:25,514 DEBUG   : origo/font-awesome/scss/.__bordered-pulled.scss
+2015-10-06 16:49:25,516 DEBUG   : origo/font-awesome/scss/_bordered-pulled.scss
+2015-10-06 16:49:25,519 DEBUG   : origo/font-awesome/css/
+2015-10-06 16:49:25,520 DEBUG   : origo/font-awesome/css/font-awesome.min.css
+2015-10-06 16:49:25,523 DEBUG   : origo/font-awesome/css/._font-awesome.min.css
+2015-10-06 16:49:25,525 DEBUG   : origo/font-awesome/css/font-awesome.css
+2015-10-06 16:49:25,528 DEBUG   : origo/font-awesome/css/._font-awesome.css
+2015-10-06 16:49:25,531 DEBUG   : origo/font-awesome/less/
+2015-10-06 16:49:25,532 DEBUG   : origo/font-awesome/less/._icons.less
+2015-10-06 16:49:25,534 DEBUG   : origo/font-awesome/less/path.less
+2015-10-06 16:49:25,536 DEBUG   : origo/font-awesome/less/rotated-flipped.less
+2015-10-06 16:49:25,537 DEBUG   : origo/font-awesome/less/._fixed-width.less
+2015-10-06 16:49:25,539 DEBUG   : origo/font-awesome/less/spinning.less
+2015-10-06 16:49:25,541 DEBUG   : origo/font-awesome/less/._bordered-pulled.less
+2015-10-06 16:49:25,543 DEBUG   : origo/font-awesome/less/mixins.less
+2015-10-06 16:49:25,545 DEBUG   : origo/font-awesome/less/core.less
+2015-10-06 16:49:25,547 DEBUG   : origo/font-awesome/less/._font-awesome.less
+2015-10-06 16:49:25,549 DEBUG   : origo/font-awesome/less/font-awesome.less
+2015-10-06 16:49:25,551 DEBUG   : origo/font-awesome/less/larger.less
+2015-10-06 16:49:25,553 DEBUG   : origo/font-awesome/less/fixed-width.less
+2015-10-06 16:49:25,554 DEBUG   : origo/font-awesome/less/._path.less
+2015-10-06 16:49:25,556 DEBUG   : origo/font-awesome/less/variables.less
+2015-10-06 16:49:25,558 DEBUG   : origo/font-awesome/less/._spinning.less
+2015-10-06 16:49:25,560 DEBUG   : origo/font-awesome/less/._stacked.less
+2015-10-06 16:49:25,562 DEBUG   : origo/font-awesome/less/._list.less
+2015-10-06 16:49:25,564 DEBUG   : origo/font-awesome/less/._mixins.less
+2015-10-06 16:49:25,566 DEBUG   : origo/font-awesome/less/list.less
+2015-10-06 16:49:25,567 DEBUG   : origo/font-awesome/less/._core.less
+2015-10-06 16:49:25,569 DEBUG   : origo/font-awesome/less/stacked.less
+2015-10-06 16:49:25,571 DEBUG   : origo/font-awesome/less/icons.less
+2015-10-06 16:49:25,574 DEBUG   : origo/font-awesome/less/bordered-pulled.less
+2015-10-06 16:49:25,576 DEBUG   : origo/font-awesome/less/._larger.less
+2015-10-06 16:49:25,578 DEBUG   : origo/font-awesome/less/._variables.less
+2015-10-06 16:49:25,580 DEBUG   : origo/font-awesome/less/._rotated-flipped.less
+2015-10-06 16:49:25,583 DEBUG   : origo/font-awesome/fonts/
+2015-10-06 16:49:25,584 DEBUG   : origo/font-awesome/fonts/._fontawesome-webfont.ttf
+2015-10-06 16:49:25,586 DEBUG   : origo/font-awesome/fonts/fontawesome-webfont.svg
+2015-10-06 16:49:25,594 DEBUG   : origo/font-awesome/fonts/._fontawesome-webfont.woff
+2015-10-06 16:49:25,596 DEBUG   : origo/font-awesome/fonts/fontawesome-webfont.woff
+2015-10-06 16:49:25,599 DEBUG   : origo/font-awesome/fonts/fontawesome-webfont.eot
+2015-10-06 16:49:25,603 DEBUG   : origo/font-awesome/fonts/._fontawesome-webfont.eot
+2015-10-06 16:49:25,605 DEBUG   : origo/font-awesome/fonts/._fontawesome-webfont.svg
+2015-10-06 16:49:25,607 DEBUG   : origo/font-awesome/fonts/FontAwesome.otf
+2015-10-06 16:49:25,611 DEBUG   : origo/font-awesome/fonts/._FontAwesome.otf
+2015-10-06 16:49:25,613 DEBUG   : origo/font-awesome/fonts/fontawesome-webfont.ttf
+2015-10-06 16:49:25,619 DEBUG   : origo/images/
+2015-10-06 16:49:25,620 DEBUG   : origo/images/back_enabled.png
+2015-10-06 16:49:25,622 DEBUG   : origo/images/back_enabled_hover.png
+2015-10-06 16:49:25,623 DEBUG   : origo/images/forward_disabled.png
+2015-10-06 16:49:25,626 DEBUG   : origo/images/tile/
+2015-10-06 16:49:25,627 DEBUG   : origo/images/tile/ribbon-2x.png
+2015-10-06 16:49:25,629 DEBUG   : origo/images/tile/ribbon.png
+2015-10-06 16:49:25,631 DEBUG   : origo/images/sort_desc.png
+2015-10-06 16:49:25,633 DEBUG   : origo/images/loader.gif
+2015-10-06 16:49:25,635 DEBUG   : origo/images/origo.png
+2015-10-06 16:49:25,637 DEBUG   : origo/images/back_disabled.png
+2015-10-06 16:49:25,639 DEBUG   : origo/images/server-black.png
+2015-10-06 16:49:25,641 DEBUG   : origo/images/sort_both.png
+2015-10-06 16:49:25,642 DEBUG   : origo/images/sort_asc_disabled.png
+2015-10-06 16:49:25,644 DEBUG   : origo/images/forward_enabled.png
+2015-10-06 16:49:25,646 DEBUG   : origo/images/.DS_Store
+2015-10-06 16:49:25,648 DEBUG   : origo/images/forward_enabled_hover.png
+2015-10-06 16:49:25,651 DEBUG   : origo/images/login/
+2015-10-06 16:49:25,652 DEBUG   : origo/images/login/icon.png
+2015-10-06 16:49:25,654 DEBUG   : origo/images/login/imac-2x.png
+2015-10-06 16:49:25,657 DEBUG   : origo/images/login/imac.png
+2015-10-06 16:49:25,658 DEBUG   : origo/images/sort_asc.png
+2015-10-06 16:49:25,660 DEBUG   : origo/images/server.png
+2015-10-06 16:49:25,662 DEBUG   : origo/images/video/
+2015-10-06 16:49:25,664 DEBUG   : origo/images/video/fullscreen.png
+2015-10-06 16:49:25,665 DEBUG   : origo/images/video/play-2x.png
+2015-10-06 16:49:25,667 DEBUG   : origo/images/video/fullscreen-2x.png
+2015-10-06 16:49:25,669 DEBUG   : origo/images/video/volume-off.png
+2015-10-06 16:49:25,670 DEBUG   : origo/images/video/volume-off-2x.png
+2015-10-06 16:49:25,672 DEBUG   : origo/images/video/play.png
+2015-10-06 16:49:25,673 DEBUG   : origo/images/video/volume-full.png
+2015-10-06 16:49:25,675 DEBUG   : origo/images/video/volume-full-2x.png
+2015-10-06 16:49:25,677 DEBUG   : origo/images/video/pause-2x.png
+2015-10-06 16:49:25,679 DEBUG   : origo/images/video/poster.jpg
+2015-10-06 16:49:25,682 DEBUG   : origo/images/video/pause.png
+2015-10-06 16:49:25,684 DEBUG   : origo/images/origo-logo-print.png
+2015-10-06 16:49:25,687 DEBUG   : origo/images/todo/
+2015-10-06 16:49:25,688 DEBUG   : origo/images/todo/todo-2x.png
+2015-10-06 16:49:25,690 DEBUG   : origo/images/todo/done.png
+2015-10-06 16:49:25,692 DEBUG   : origo/images/todo/search-2x.png
+2015-10-06 16:49:25,694 DEBUG   : origo/images/todo/search.png
+2015-10-06 16:49:25,695 DEBUG   : origo/images/todo/todo.png
+2015-10-06 16:49:25,697 DEBUG   : origo/images/todo/done-2x.png
+2015-10-06 16:49:25,699 DEBUG   : origo/images/sort_desc_disabled.png
+2015-10-06 16:49:25,701 DEBUG   : origo/images/icons/
+2015-10-06 16:49:25,703 DEBUG   : origo/images/icons/svg/
+2015-10-06 16:49:25,704 DEBUG   : origo/images/icons/svg/pencils.svg
+2015-10-06 16:49:25,706 DEBUG   : origo/images/icons/svg/paper-bag.svg
+2015-10-06 16:49:25,708 DEBUG   : origo/images/icons/svg/clocks.svg
+2015-10-06 16:49:25,709 DEBUG   : origo/images/icons/svg/book.svg
+2015-10-06 16:49:25,711 DEBUG   : origo/images/icons/svg/compas.svg
+2015-10-06 16:49:25,713 DEBUG   : origo/images/icons/svg/clipboard.svg
+2015-10-06 16:49:25,715 DEBUG   : origo/images/icons/svg/mail.svg
+2015-10-06 16:49:25,716 DEBUG   : origo/images/icons/svg/retina.svg
+2015-10-06 16:49:25,718 DEBUG   : origo/images/icons/svg/loop.svg
+2015-10-06 16:49:25,720 DEBUG   : origo/images/icons/svg/calendar.svg
+2015-10-06 16:49:25,722 DEBUG   : origo/images/icons/svg/map.svg
+2015-10-06 16:49:25,723 DEBUG   : origo/images/icons/svg/gift-box.svg
+2015-10-06 16:49:25,725 DEBUG   : origo/images/icons/svg/toilet-paper.svg
+2015-10-06 16:49:25,727 DEBUG   : origo/images/icons/svg/chat.svg
+2015-10-06 16:49:25,729 DEBUG   : origo/images/icons/favicon.ico
+2015-10-06 16:49:25,733 DEBUG   : origo/images/icons/png/
+2015-10-06 16:49:25,734 DEBUG   : origo/images/icons/png/Gift-Box.png
+2015-10-06 16:49:25,736 DEBUG   : origo/images/icons/png/Clipboard.png
+2015-10-06 16:49:25,738 DEBUG   : origo/images/icons/png/Pocket.png
+2015-10-06 16:49:25,740 DEBUG   : origo/images/icons/png/Book.png
+2015-10-06 16:49:25,742 DEBUG   : origo/images/icons/png/Compas.png
+2015-10-06 16:49:25,744 DEBUG   : origo/images/icons/png/Calendar.png
+2015-10-06 16:49:25,746 DEBUG   : origo/images/icons/png/Mail.png
+2015-10-06 16:49:25,748 DEBUG   : origo/images/icons/png/Map.png
+2015-10-06 16:49:25,750 DEBUG   : origo/images/icons/png/Toilet-Paper.png
+2015-10-06 16:49:25,752 DEBUG   : origo/images/icons/png/Watches.png
+2015-10-06 16:49:25,754 DEBUG   : origo/images/icons/png/Infinity-Loop.png
+2015-10-06 16:49:25,756 DEBUG   : origo/images/icons/png/Retina-Ready.png
+2015-10-06 16:49:25,758 DEBUG   : origo/images/icons/png/Pensils.png
+2015-10-06 16:49:25,760 DEBUG   : origo/images/icons/png/Chat.png
+2015-10-06 16:49:25,762 DEBUG   : origo/images/origo-gray.png
+2015-10-06 16:49:25,764 DEBUG   : origo/images/switch/
+2015-10-06 16:49:25,766 DEBUG   : origo/images/switch/mask-square.png
+2015-10-06 16:49:25,767 DEBUG   : origo/images/switch/mask.png
+2015-10-06 16:49:25,770 DEBUG   : origo/css/
+2015-10-06 16:49:25,771 DEBUG   : origo/css/jquery.dataTables.min.css
+2015-10-06 16:49:25,773 DEBUG   : origo/css/._dataTables.bootstrap.css
+2015-10-06 16:49:25,775 DEBUG   : origo/css/flat-ui.css
+2015-10-06 16:49:25,779 DEBUG   : origo/css/dataTables.bootstrap.css
+2015-10-06 16:49:25,781 DEBUG   : origo/.DS_Store
+2015-10-06 16:49:25,783 DEBUG   : origo/files/
+2015-10-06 16:49:25,785 DEBUG   : origo/files/.quarantine/
+2015-10-06 16:49:25,786 DEBUG   : origo/files/.tmb/
+2015-10-06 16:49:25,788 DEBUG   : origo/lang/
+2015-10-06 16:49:25,790 DEBUG   : origo/lang/en
+2015-10-06 16:49:25,793 DEBUG   : origo/lang/CVS/
+2015-10-06 16:49:25,794 DEBUG   : origo/lang/CVS/Root
+2015-10-06 16:49:25,795 DEBUG   : origo/lang/CVS/Repository
+2015-10-06 16:49:25,797 DEBUG   : origo/lang/CVS/Entries
+2015-10-06 16:49:25,800 DEBUG   : origo/lang/CVS/BaseRevisions/
+2015-10-06 16:49:25,801 DEBUG   : origo/lang/CVS/BaseRevisions/.#en.1.2
+2015-10-06 16:49:25,804 DEBUG   : origo/elfinder/
+2015-10-06 16:49:25,806 DEBUG   : origo/elfinder/php/
+2015-10-06 16:49:25,807 DEBUG   : origo/elfinder/php/elFinderVolumeDriver.class.php
+2015-10-06 16:49:25,813 DEBUG   : origo/elfinder/php/elFinderVolumeFTPIIS.class.php
+2015-10-06 16:49:25,815 DEBUG   : origo/elfinder/php/plugins/
+2015-10-06 16:49:25,817 DEBUG   : origo/elfinder/php/plugins/AutoResize/
+2015-10-06 16:49:25,818 DEBUG   : origo/elfinder/php/plugins/AutoResize/plugin.php
+2015-10-06 16:49:25,821 DEBUG   : origo/elfinder/php/plugins/Sanitizer/
+2015-10-06 16:49:25,822 DEBUG   : origo/elfinder/php/plugins/Sanitizer/plugin.php
+2015-10-06 16:49:25,824 DEBUG   : origo/elfinder/php/plugins/Watermark/
+2015-10-06 16:49:25,825 DEBUG   : origo/elfinder/php/plugins/Watermark/logo.png
+2015-10-06 16:49:25,827 DEBUG   : origo/elfinder/php/plugins/Watermark/plugin.php
+2015-10-06 16:49:25,829 DEBUG   : origo/elfinder/php/plugins/Normalizer/
+2015-10-06 16:49:25,830 DEBUG   : origo/elfinder/php/plugins/Normalizer/plugin.php
+2015-10-06 16:49:25,832 DEBUG   : origo/elfinder/php/elFinderVolumeFTP.class.php
+2015-10-06 16:49:25,835 DEBUG   : origo/elfinder/php/elFinderVolumeMySQL.class.php
+2015-10-06 16:49:25,837 DEBUG   : origo/elfinder/php/MySQLStorage.sql
+2015-10-06 16:49:25,839 DEBUG   : origo/elfinder/php/connector.cgi
+2015-10-06 16:49:25,841 DEBUG   : origo/elfinder/php/mime.types
+2015-10-06 16:49:25,843 DEBUG   : origo/elfinder/php/elFinderVolumeDropbox.class.php
+2015-10-06 16:49:25,846 DEBUG   : origo/elfinder/php/elFinderVolumeS3.class.php
+2015-10-06 16:49:25,848 DEBUG   : origo/elfinder/php/elFinderVolumeLocalFileSystem.class.php
+2015-10-06 16:49:25,851 DEBUG   : origo/elfinder/php/elFinderConnector.class.php
+2015-10-06 16:49:25,853 DEBUG   : origo/elfinder/php/elFinder.class.php
+2015-10-06 16:49:25,856 DEBUG   : origo/elfinder/php/connector.minimal.php
+2015-10-06 16:49:25,858 DEBUG   : origo/elfinder/index.cgi
+2015-10-06 16:49:25,861 DEBUG   : origo/elfinder/img/
+2015-10-06 16:49:25,862 DEBUG   : origo/elfinder/img/btsync.png
+2015-10-06 16:49:25,867 DEBUG   : origo/elfinder/img/dialogs.png
+2015-10-06 16:49:25,869 DEBUG   : origo/elfinder/img/spinner-mini.gif
+2015-10-06 16:49:25,871 DEBUG   : origo/elfinder/img/arrows-active.png
+2015-10-06 16:49:25,872 DEBUG   : origo/elfinder/img/._btsync.png
+2015-10-06 16:49:25,874 DEBUG   : origo/elfinder/img/volume_icon_ftp.png
+2015-10-06 16:49:25,876 DEBUG   : origo/elfinder/img/icons-small.png
+2015-10-06 16:49:25,878 DEBUG   : origo/elfinder/img/progress.gif
+2015-10-06 16:49:25,880 DEBUG   : origo/elfinder/img/icons-big.png
+2015-10-06 16:49:25,883 DEBUG   : origo/elfinder/img/quicklook-icons.png
+2015-10-06 16:49:25,884 DEBUG   : origo/elfinder/img/resize.png
+2015-10-06 16:49:25,886 DEBUG   : origo/elfinder/img/volume_icon_dropbox.png
+2015-10-06 16:49:25,888 DEBUG   : origo/elfinder/img/crop.gif
+2015-10-06 16:49:25,889 DEBUG   : origo/elfinder/img/logo.png
+2015-10-06 16:49:25,891 DEBUG   : origo/elfinder/img/volume_icon_sql.png
+2015-10-06 16:49:25,893 DEBUG   : origo/elfinder/img/arrows-normal.png
+2015-10-06 16:49:25,894 DEBUG   : origo/elfinder/img/quicklook-bg.png
+2015-10-06 16:49:25,896 DEBUG   : origo/elfinder/img/volume_icon_local.png
+2015-10-06 16:49:25,898 DEBUG   : origo/elfinder/img/._logout.png
+2015-10-06 16:49:25,899 DEBUG   : origo/elfinder/img/toolbar.png
+2015-10-06 16:49:25,902 DEBUG   : origo/elfinder/img/logout.png
+2015-10-06 16:49:25,909 DEBUG   : origo/elfinder/css/
+2015-10-06 16:49:25,910 DEBUG   : origo/elfinder/css/elfinder.full.css
+2015-10-06 16:49:25,913 DEBUG   : origo/elfinder/css/elfinder.min.css
+2015-10-06 16:49:25,916 DEBUG   : origo/elfinder/css/theme.css
+2015-10-06 16:49:25,919 DEBUG   : origo/elfinder/sounds/
+2015-10-06 16:49:25,919 DEBUG   : origo/elfinder/sounds/rm.wav
+2015-10-06 16:49:25,924 DEBUG   : origo/elfinder/js/
+2015-10-06 16:49:25,925 DEBUG   : origo/elfinder/js/elfinder.full.js
+2015-10-06 16:49:25,933 DEBUG   : origo/elfinder/js/elfinder.min.js
+2015-10-06 16:49:25,938 DEBUG   : origo/simplestack-lib.pl
+2015-10-06 16:49:25,941 DEBUG   : origo/bootstrap/
+2015-10-06 16:49:25,943 DEBUG   : origo/bootstrap/css/
+2015-10-06 16:49:25,944 DEBUG   : origo/bootstrap/css/bootstrap-docs.css
+2015-10-06 16:49:25,946 DEBUG   : origo/bootstrap/css/bootstrap.css
+2015-10-06 16:49:25,952 DEBUG   : origo/bootstrap/css/prettify.css
+2015-10-06 16:49:25,954 DEBUG   : origo/bootstrap/js/
+2015-10-06 16:49:25,955 DEBUG   : origo/bootstrap/js/application.js
+2015-10-06 16:49:25,958 DEBUG   : origo/bootstrap/js/google-code-prettify/
+2015-10-06 16:49:25,959 DEBUG   : origo/bootstrap/js/google-code-prettify/prettify.js
+2015-10-06 16:49:25,962 DEBUG   : origo/bootstrap/js/holder.js
+2015-10-06 16:49:25,964 DEBUG   : origo/bootstrap/js/.DS_Store
+2015-10-06 16:49:25,967 DEBUG   : origo/bootstrap/fonts/
+2015-10-06 16:49:25,968 DEBUG   : origo/bootstrap/fonts/glyphicons-halflings-regular.ttf
+2015-10-06 16:49:25,971 DEBUG   : origo/bootstrap/fonts/glyphicons-halflings-regular.woff
+2015-10-06 16:49:25,974 DEBUG   : origo/bootstrap/fonts/glyphicons-halflings-regular.svg
+2015-10-06 16:49:25,977 DEBUG   : origo/bootstrap/fonts/glyphicons-halflings-regular.eot
+2015-10-06 16:49:25,979 DEBUG   : origo/._.DS_Store
+2015-10-06 16:49:25,981 DEBUG   : origo/module.info
+2015-10-06 16:49:25,982 DEBUG   : origo/config.info
+2015-10-06 16:49:25,985 DEBUG   : origo/js/
+2015-10-06 16:49:25,986 DEBUG   : origo/js/bootstrap-select.js
+2015-10-06 16:49:25,988 DEBUG   : origo/js/flatui-checkbox.js
+2015-10-06 16:49:25,990 DEBUG   : origo/js/jquery.placeholder.js
+2015-10-06 16:49:25,992 DEBUG   : origo/js/jquery.dataTables.min.js
+2015-10-06 16:49:25,997 DEBUG   : origo/js/flatui-radio.js
+2015-10-06 16:49:25,998 DEBUG   : origo/js/application.js
+2015-10-06 16:49:26,000 DEBUG   : origo/js/jquery-2.0.3.min.js
+2015-10-06 16:49:26,004 DEBUG   : origo/js/._dataTables.bootstrap.js
+2015-10-06 16:49:26,006 DEBUG   : origo/js/respond.min.js
+2015-10-06 16:49:26,008 DEBUG   : origo/js/bootstrap-switch.js
+2015-10-06 16:49:26,010 DEBUG   : origo/js/icon-font-ie7.js
+2015-10-06 16:49:26,012 DEBUG   : origo/js/dataTables.bootstrap.js
+2015-10-06 16:49:26,014 DEBUG   : origo/js/jquery-1.8.3.min.js
+2015-10-06 16:49:26,019 DEBUG   : origo/js/i18n/
+2015-10-06 16:49:26,020 DEBUG   : origo/js/i18n/elfinder.pt_BR.js
+2015-10-06 16:49:26,022 DEBUG   : origo/js/i18n/elfinder.ar.js
+2015-10-06 16:49:26,025 DEBUG   : origo/js/i18n/elfinder.pl.js
+2015-10-06 16:49:26,027 DEBUG   : origo/js/i18n/elfinder.zh_CN.js
+2015-10-06 16:49:26,029 DEBUG   : origo/js/i18n/elfinder.jp.js
+2015-10-06 16:49:26,031 DEBUG   : origo/js/i18n/elfinder.de.js
+2015-10-06 16:49:26,033 DEBUG   : origo/js/i18n/elfinder.nl.js
+2015-10-06 16:49:26,035 DEBUG   : origo/js/i18n/elfinder.cs.js
+2015-10-06 16:49:26,037 DEBUG   : origo/js/i18n/elfinder.no.js
+2015-10-06 16:49:26,038 DEBUG   : origo/js/i18n/elfinder.fr.js
+2015-10-06 16:49:26,040 DEBUG   : origo/js/i18n/elfinder.bg.js
+2015-10-06 16:49:26,042 DEBUG   : origo/js/i18n/elfinder.es.js
+2015-10-06 16:49:26,044 DEBUG   : origo/js/i18n/elfinder.ru.js
+2015-10-06 16:49:26,046 DEBUG   : origo/js/i18n/elfinder.hu.js
+2015-10-06 16:49:26,048 DEBUG   : origo/js/i18n/elfinder.ca.js
+2015-10-06 16:49:26,050 DEBUG   : origo/js/i18n/elfinder.LANG.js
+2015-10-06 16:49:26,052 DEBUG   : origo/js/jquery-ui-1.10.3.custom.min.js
+2015-10-06 16:49:26,055 DEBUG   : origo/js/jquery-1.10.2.min.js
+2015-10-06 16:49:26,059 DEBUG   : origo/js/typeahead.js
+2015-10-06 16:49:26,063 DEBUG   : origo/js/Chart.min.js
+2015-10-06 16:49:26,066 DEBUG   : origo/js/jquery.tagsinput.js
+2015-10-06 16:49:26,068 DEBUG   : origo/js/html5shiv.js
+2015-10-06 16:49:26,070 DEBUG   : origo/js/proxy/
+2015-10-06 16:49:26,071 DEBUG   : origo/js/proxy/elFinderSupportVer1.js
+2015-10-06 16:49:26,073 DEBUG   : origo/js/Chart.js
+2015-10-06 16:49:26,078 DEBUG   : origo/js/jquery.ui.touch-punch.min.js
+2015-10-06 16:49:26,080 DEBUG   : origo/js/bootstrap.min.js
+2015-10-06 16:49:26,083 DEBUG   : origo/fonts/
+2015-10-06 16:49:26,085 DEBUG   : origo/fonts/lato/
+2015-10-06 16:49:26,086 DEBUG   : origo/fonts/lato/lato-regular.woff
+2015-10-06 16:49:26,089 DEBUG   : origo/fonts/lato/lato-light.eot
+2015-10-06 16:49:26,092 DEBUG   : origo/fonts/lato/lato-bold.woff
+2015-10-06 16:49:26,095 DEBUG   : origo/fonts/lato/lato-black.eot
+2015-10-06 16:49:26,097 DEBUG   : origo/fonts/lato/lato-black.svg
+2015-10-06 16:49:26,105 DEBUG   : origo/fonts/lato/lato-bolditalic.svg
+2015-10-06 16:49:26,111 DEBUG   : origo/fonts/lato/lato-bold.svg
+2015-10-06 16:49:26,126 DEBUG   : origo/fonts/lato/lato-black.woff
+2015-10-06 16:49:26,126 DEBUG   : origo/fonts/lato/lato-light.ttf
+2015-10-06 16:49:26,126 DEBUG   : origo/fonts/lato/lato-italic.svg
+2015-10-06 16:49:26,132 DEBUG   : origo/fonts/lato/lato-bolditalic.woff
+2015-10-06 16:49:26,135 DEBUG   : origo/fonts/lato/lato-italic.ttf
+2015-10-06 16:49:26,138 DEBUG   : origo/fonts/lato/lato-italic.woff
+2015-10-06 16:49:26,141 DEBUG   : origo/fonts/lato/lato-regular.eot
+2015-10-06 16:49:26,144 DEBUG   : origo/fonts/lato/lato-regular.ttf
+2015-10-06 16:49:26,148 DEBUG   : origo/fonts/lato/lato-bolditalic.eot
+2015-10-06 16:49:26,150 DEBUG   : origo/fonts/lato/lato-bolditalic.ttf
+2015-10-06 16:49:26,154 DEBUG   : origo/fonts/lato/lato-regular.svg
+2015-10-06 16:49:26,161 DEBUG   : origo/fonts/lato/lato-bold.eot
+2015-10-06 16:49:26,164 DEBUG   : origo/fonts/lato/lato-bold.ttf
+2015-10-06 16:49:26,167 DEBUG   : origo/fonts/lato/lato-light.woff
+2015-10-06 16:49:26,172 DEBUG   : origo/fonts/lato/lato-italic.eot
+2015-10-06 16:49:26,175 DEBUG   : origo/fonts/lato/lato-black.ttf
+2015-10-06 16:49:26,179 DEBUG   : origo/fonts/lato/lato-light.svg
+2015-10-06 16:49:26,185 DEBUG   : origo/fonts/flat-ui-icons-regular.ttf
+2015-10-06 16:49:26,187 DEBUG   : origo/fonts/flat-ui-icons-regular.svg
+2015-10-06 16:49:26,189 DEBUG   : origo/fonts/.DS_Store
+2015-10-06 16:49:26,191 DEBUG   : origo/fonts/flat-ui-icons-regular.woff
+2015-10-06 16:49:26,193 DEBUG   : origo/fonts/flat-ui-icons-regular.eot
+2015-10-06 16:49:26,194 DEBUG   : origo/config
+2015-10-06 16:49:26,301 DEBUG   : origo/tabs/commands/
+2015-10-06 16:49:26,303 DEBUG   : origo/tabs/commands/commands-lib.pl
+2015-10-06 16:49:26,305 DEBUG   : origo/tabs/security/
+2015-10-06 16:49:26,306 DEBUG   : origo/tabs/security/security-lib.pl
+2015-10-06 16:49:26,308 DEBUG   : origo/tabs/servers/
+2015-10-06 16:49:26,310 DEBUG   : origo/tabs/servers/servers-lib.pl
+2015-10-06 16:49:26,311 DEBUG   : origo/tabs/servers/shellinaboxd
+2015-10-06 16:49:26,325 DEBUG   : origo/tabs/software/
+2015-10-06 16:49:26,327 DEBUG   : origo/tabs/software/software-lib.pl
+2015-10-06 16:49:52,053 DEBUG   : Installed Origo in /usr/share/webmin/origo (8300 kb)
+2015-10-06 16:49:54,015 INFO    : update-rc.d: warning: ondemand start runlevel arguments (none) do not match LSB Default-Start values (2 3 4 5)
+2015-10-06 16:49:54,096 DEBUG   :  Disabling system startup links for /etc/init.d/ondemand ...
+2015-10-06 16:49:54,096 DEBUG   :  Removing any system startup links for /etc/init.d/ondemand ...
+2015-10-06 16:49:54,096 DEBUG   :    /etc/rc2.d/S99ondemand
+2015-10-06 16:49:54,097 DEBUG   :    /etc/rc3.d/S99ondemand
+2015-10-06 16:49:54,097 DEBUG   :    /etc/rc4.d/S99ondemand
+2015-10-06 16:49:54,097 DEBUG   :    /etc/rc5.d/S99ondemand
+2015-10-06 16:49:54,097 DEBUG   :  Adding system startup for /etc/init.d/ondemand ...
+2015-10-06 16:49:54,097 DEBUG   :    /etc/rc2.d/K01ondemand -> ../init.d/ondemand
+2015-10-06 16:49:54,097 DEBUG   :    /etc/rc3.d/K01ondemand -> ../init.d/ondemand
+2015-10-06 16:49:54,097 DEBUG   :    /etc/rc4.d/K01ondemand -> ../init.d/ondemand
+2015-10-06 16:49:54,097 DEBUG   :    /etc/rc5.d/K01ondemand -> ../init.d/ondemand
+2015-10-06 16:49:54,674 DEBUG   : Module deflate disabled.
+2015-10-06 16:49:54,674 DEBUG   : To activate the new configuration, you need to run:
+2015-10-06 16:49:54,674 DEBUG   :   service apache2 restart
+2015-10-06 16:49:54,709 DEBUG   : Enabling module ssl.
+2015-10-06 16:49:54,709 DEBUG   : See /usr/share/doc/apache2.2-common/README.Debian.gz on how to configure SSL and create self-signed certificates.
+2015-10-06 16:49:54,709 DEBUG   : To activate the new configuration, you need to run:
+2015-10-06 16:49:54,710 DEBUG   :   service apache2 restart
+2015-10-06 16:49:54,732 DEBUG   : Enabling site default-ssl.
+2015-10-06 16:49:54,733 DEBUG   : To activate the new configuration, you need to run:
+2015-10-06 16:49:54,733 DEBUG   :   service apache2 reload
+2015-10-06 16:49:54,753 DEBUG   : Enabling site webmin-ssl.
+2015-10-06 16:49:54,753 DEBUG   : To activate the new configuration, you need to run:
+2015-10-06 16:49:54,753 DEBUG   :   service apache2 reload
+2015-10-06 16:49:54,777 DEBUG   : Enabling module proxy.
+2015-10-06 16:49:54,777 DEBUG   : To activate the new configuration, you need to run:
+2015-10-06 16:49:54,777 DEBUG   :   service apache2 restart
+2015-10-06 16:49:54,800 DEBUG   : Considering dependency proxy for proxy_http:
+2015-10-06 16:49:54,802 DEBUG   : Module proxy already enabled
+2015-10-06 16:49:54,802 DEBUG   : Enabling module proxy_http.
+2015-10-06 16:49:54,802 DEBUG   : To activate the new configuration, you need to run:
+2015-10-06 16:49:54,802 DEBUG   :   service apache2 restart
+2015-10-06 16:49:54,806 INFO    : Substitution replacement not terminated at -e line 1.
+2015-10-06 16:49:55,456 DEBUG   : Calling post_install method in VMBuilder.plugins.firstscripts plugin.
+2015-10-06 16:49:56,040 DEBUG   : Calling post_install method in VMBuilder.plugins.network plugin.
+2015-10-06 16:49:56,040 DEBUG   : Calling post_install method in context plugin VMBuilder.plugins.ubuntu.distro.
+2015-10-06 16:49:56,040 INFO    : Calling hook: unmount_partitions
+2015-10-06 16:49:56,170 DEBUG   : (args=(), kwargs={})
+2015-10-06 16:49:56,170 DEBUG   : Calling unmount_partitions method in VMBuilder.plugins.libvirt plugin.
+2015-10-06 16:49:56,170 DEBUG   : No such method
+2015-10-06 16:49:56,171 DEBUG   : Calling unmount_partitions method in VMBuilder.plugins.network plugin.
+2015-10-06 16:49:56,171 DEBUG   : No such method
+2015-10-06 16:49:56,171 DEBUG   : Calling unmount_partitions method in VMBuilder.plugins.ubuntu.distro plugin.
+2015-10-06 16:49:56,171 DEBUG   : No such method
+2015-10-06 16:49:56,171 DEBUG   : Calling unmount_partitions method in context plugin VMBuilder.plugins.kvm.vm.
+2015-10-06 16:49:56,304 INFO    : Unmounting target filesystem
+2015-10-06 16:49:56,375 DEBUG   : Unmounting /tmp/tmp1PaDwa/
+2015-10-06 16:49:56,699 DEBUG   : ['umount', '/tmp/tmp1PaDwa/']
+2015-10-06 16:50:28,015 DEBUG   : ['kpartx', '-d', '/tmp/tmpOsWgia']
+2015-10-06 16:50:28,408 DEBUG   : loop deleted : /dev/loop0
+2015-10-06 16:50:28,409 DEBUG   : ['kpartx', '-d', '/tmp/tmpOsWgia']
+2015-10-06 16:50:28,414 DEBUG   : Removing partition /dev/mapper/loop0p1
+2015-10-06 16:50:28,415 DEBUG   : ['dmsetup', 'info', 'loop0pp1']
+2015-10-06 16:50:28,419 DEBUG   : Command failed
+2015-10-06 16:50:28,419 DEBUG   : Device does not exist.
+2015-10-06 16:50:28,420 DEBUG   : Removing partition /dev/mapper/loop0p2
+2015-10-06 16:50:28,420 DEBUG   : ['dmsetup', 'info', 'loop0pp2']
+2015-10-06 16:50:28,424 DEBUG   : Command failed
+2015-10-06 16:50:28,425 DEBUG   : Device does not exist.
+2015-10-06 16:50:28,850 INFO    : Calling hook: convert
+2015-10-06 16:50:29,965 DEBUG   : (args=([<VMBuilder.disk.Disk object at 0x2c12a90>], 'ubuntu-kvm'), kwargs={})
+2015-10-06 16:50:29,966 DEBUG   : Calling convert method in VMBuilder.plugins.libvirt plugin.
+2015-10-06 16:50:29,966 DEBUG   : No such method
+2015-10-06 16:50:29,966 DEBUG   : Calling convert method in VMBuilder.plugins.network plugin.
+2015-10-06 16:50:29,966 DEBUG   : No such method
+2015-10-06 16:50:29,966 DEBUG   : Calling convert method in VMBuilder.plugins.ubuntu.distro plugin.
+2015-10-06 16:50:29,967 DEBUG   : No such method
+2015-10-06 16:50:29,967 DEBUG   : Calling convert method in context plugin VMBuilder.plugins.kvm.vm.
+2015-10-06 16:50:29,967 INFO    : Converting /tmp/tmpOsWgia to qcow2, format ubuntu-kvm/tmpOsWgia.qcow2
+2015-10-06 16:50:29,967 DEBUG   : ['/usr/bin/kvm-img', 'convert', '-O', 'qcow2', '/tmp/tmpOsWgia', 'ubuntu-kvm/tmpOsWgia.qcow2']
+2015-10-06 16:53:48,413 INFO    : Calling hook: fix_ownership
+2015-10-06 16:53:48,425 DEBUG   : (args=('ubuntu-kvm/tmpOsWgia.qcow2',), kwargs={})
+2015-10-06 16:53:48,426 DEBUG   : Calling fix_ownership method in VMBuilder.plugins.libvirt plugin.
+2015-10-06 16:53:48,426 DEBUG   : No such method
+2015-10-06 16:53:48,426 DEBUG   : Calling fix_ownership method in VMBuilder.plugins.network plugin.
+2015-10-06 16:53:48,426 DEBUG   : No such method
+2015-10-06 16:53:48,426 DEBUG   : Calling fix_ownership method in VMBuilder.plugins.ubuntu.distro plugin.
+2015-10-06 16:53:48,426 DEBUG   : No such method
+2015-10-06 16:53:48,584 DEBUG   : Calling <bound method CLI.fix_ownership of <VMBuilder.contrib.cli.CLI object at 0x29228d0>>.
+2015-10-06 16:53:48,584 DEBUG   : Calling fix_ownership method in context plugin VMBuilder.plugins.kvm.vm.
+2015-10-06 16:53:48,585 DEBUG   : No such method
+2015-10-06 16:53:48,585 INFO    : Calling hook: deploy
+2015-10-06 16:53:48,585 DEBUG   : (args=('ubuntu-kvm',), kwargs={})
+2015-10-06 16:53:48,585 DEBUG   : Calling deploy method in VMBuilder.plugins.libvirt plugin.
+2015-10-06 16:53:48,617 DEBUG   : Calling deploy method in VMBuilder.plugins.network plugin.
+2015-10-06 16:53:48,617 DEBUG   : No such method
+2015-10-06 16:53:48,617 DEBUG   : Calling deploy method in VMBuilder.plugins.ubuntu.distro plugin.
+2015-10-06 16:53:48,617 DEBUG   : No such method
+2015-10-06 16:53:48,618 DEBUG   : Calling deploy method in context plugin VMBuilder.plugins.kvm.vm.
+2015-10-06 16:53:48,624 INFO    : Calling hook: fix_ownership
+2015-10-06 16:53:48,624 DEBUG   : (args=('ubuntu-kvm/run.sh',), kwargs={})
+2015-10-06 16:53:48,625 DEBUG   : Calling fix_ownership method in VMBuilder.plugins.libvirt plugin.
+2015-10-06 16:53:48,625 DEBUG   : No such method
+2015-10-06 16:53:48,625 DEBUG   : Calling fix_ownership method in VMBuilder.plugins.network plugin.
+2015-10-06 16:53:48,625 DEBUG   : No such method
+2015-10-06 16:53:48,625 DEBUG   : Calling fix_ownership method in VMBuilder.plugins.ubuntu.distro plugin.
+2015-10-06 16:53:48,625 DEBUG   : No such method
+2015-10-06 16:53:48,625 DEBUG   : Calling <bound method CLI.fix_ownership of <VMBuilder.contrib.cli.CLI object at 0x29228d0>>.
+2015-10-06 16:53:48,626 DEBUG   : Calling fix_ownership method in context plugin VMBuilder.plugins.kvm.vm.
+2015-10-06 16:53:48,626 DEBUG   : No such method
+2015-10-06 16:53:48,626 INFO    : Unmounting tmpfs from /tmp/tmp8b2iYCtmpfs
+2015-10-06 16:53:48,626 DEBUG   : Executing: ['umount', '-t', 'tmpfs', '/tmp/tmp8b2iYCtmpfs']
+2015-10-06 16:53:48,626 DEBUG   : ['umount', '-t', 'tmpfs', '/tmp/tmp8b2iYCtmpfs']
+2015-10-06 16:53:50,381 DEBUG   : ['rmdir', '/tmp/tmp8b2iYCtmpfs']

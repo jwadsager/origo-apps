@@ -104,7 +104,7 @@ END
         }
         \$('#nav-tabs li:nth-child(5) a').click();
         if (\$("#" + networkuuid1).length==0)
-            \$("#terminal").html('<iframe src="https://' + location.host + '/steamengine/pipe/http://' + networkuuid1 + ':4200/" style="height:364px; width:710px; border:none;" id="' + networkuuid1 + '">Terminal</iframe>');
+            \$("#terminal").html('<iframe src="https://' + location.host + '/steamengine/pipe/http://' + networkuuid1 + ':4200/" style="height:364px; width:100%; nowidth:710px; border:none;" id="' + networkuuid1 + '">Terminal</iframe>');
         return false;
     }
 
