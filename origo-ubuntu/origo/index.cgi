@@ -4,11 +4,12 @@ use Data::Dumper;
 use Time::Local;
 use Text::ParseWords;
 use String::ShellQuote;
+use File::Glob qw(bsd_glob);
 require 'simplestack-lib.pl';
 
 # Security check
 if ((
-        $ENV{REMOTE_ADDR} && $ENV{REMOTE_ADDR} =~ /(^10\.\d+\.\d+\.\d+)/)
+        $ENV{REMOTE_ADDR} && ($ENV{REMOTE_ADDR} =~ /(^10\.\d+\.\d+\.\d+)/ || $ENV{REMOTE_ADDR} =~ /(^127\.0\.0\.1)/))
         || !$ENV{ANONYMOUS_USER}) {
 ; # OK
 } else {
@@ -71,6 +72,27 @@ if ($in{action} && $in{tab} && $tabsh{$in{tab}}) {
     $message .= `curl -ks "https://10.0.0.1/steamengine/networks?action=dnsdelete\&name=$externalip"` unless ($fname =~ /\./);
     # $message .= "<script>parent.systembuilder.system.close();</script>";
     # Look for more uninstall action at the end of this script
+
+} elsif ($in{action} eq 'mountpools') {
+    print "Content-type: text/html\n\n";
+    my %activepools = mountPools();
+    print "Mounted storage pools:\n" . Dumper(%activepools);
+    exit 0;
+
+} elsif ($in{action} eq 'initapps') {
+    print "Content-type: text/html\n\n";
+    print "Cloning origo-apps from GitHub to /mnt/fuel/pool1\n";
+    mountPools();
+    print `cd /mnt/fuel/pool1; git clone https://github.com/origosys/origo-apps 2>&1`;
+    exit 0;
+
+} elsif ($in{action} eq 'activateapps') {
+    print "Content-type: text/html\n\n";
+    my $gpath = '/mnt/fuel/pool1/origo-apps/origo-ubuntu/*.qcow2';
+    for my $eachFile (glob($gpath)) {
+        print `curl -k "https://10.0.0.1/steamengine/images?action=activate&image=$eachfile"`;
+    }
+    exit 0;
 
 } elsif ($in{action} eq 'upgrade') {
     print "Content-type: application/json\n\n";

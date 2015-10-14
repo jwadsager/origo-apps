@@ -111,6 +111,9 @@ Content-type: text/html
         <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.23/jquery-ui.min.js"></script>
         <link rel="stylesheet" type="text/css" href="elfinder/css/elfinder.min.css">
         <link rel="stylesheet" type="text/css" href="elfinder/css/theme.css">
+        <script>
+            IRIGO = {tktuser: "$user"};
+        </script>
         <script src="elfinder/js/elfinder.full.js"></script>
         <script type="text/javascript" charset="utf-8">
             // Documentation for client options:
