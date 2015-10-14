@@ -8,6 +8,19 @@ my $registered;
 my $internalip;
 my $i;
 
+my $action = shift if $ARGV[0];
+
+if ($action eq 'mountpools') {
+    print `curl --silent http://localhost:10000/origo/index.cgi?action=mountpools`;
+    exit 0;
+} elsif  ($action eq 'initapps') {
+    print `curl --silent http://localhost:10000/origo/index.cgi?action=initapps`;
+    exit 0;
+} elsif  ($action eq 'activateapps') {
+    print `curl --silent http://localhost:10000/origo/index.cgi?action=activateapps`;
+    exit 0;
+}
+
 while (!$registered && $i<20) {
     $internalip = `cat /tmp/internalip` if (-e '/tmp/internalip');
     chomp $internalip;

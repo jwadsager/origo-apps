@@ -74,9 +74,10 @@ if ($in{action} && $in{tab} && $tabsh{$in{tab}}) {
     # Look for more uninstall action at the end of this script
 
 } elsif ($in{action} eq 'mountpools') {
-    print "Content-type: text/html\n\n";
+    print "Content-type: application/json\n\n";
     my %activepools = mountPools();
-    print "Mounted storage pools:\n" . Dumper(%activepools);
+#    print "Mounted storage pools:\n"
+    print to_json(\%activepools, {pretty=>1 });
     exit 0;
 
 } elsif ($in{action} eq 'initapps') {
@@ -88,8 +89,9 @@ if ($in{action} && $in{tab} && $tabsh{$in{tab}}) {
 
 } elsif ($in{action} eq 'activateapps') {
     print "Content-type: text/html\n\n";
-    my $gpath = '/mnt/fuel/pool1/origo-apps/origo-ubuntu/*.qcow2';
-    for my $eachFile (glob($gpath)) {
+    my $gpath = $in{path};
+    $gpath = '/mnt/fuel/pool1/origo-apps/origo-ubuntu/*.qcow2' unless ($gpath);
+    for my $eachfile (glob($gpath)) {
         print `curl -k "https://10.0.0.1/steamengine/images?action=activate&image=$eachfile"`;
     }
     exit 0;
