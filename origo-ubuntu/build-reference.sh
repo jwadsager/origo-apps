@@ -117,6 +117,11 @@ exec /usr/local/bin/origo-networking.pl" > /etc/init/origo-networking.conf'
     chroot $1 a2enmod proxy
     chroot $1 a2enmod proxy_http
 
+# Run netserver under xinetd - this is used by the net test in reference app
+    chroot $1 perl -pi -e 's/(smsqp\s+11201\/udp)/$1\nnetperf         12865\/tcp/' /etc/services
+    chroot $1 perl -pi -e 's/NETSERVER_ENABLE=YES/NETSERVER_ENABLE=NO/' /etc/default/netperf
+    chroot $1 bash -c 'echo "netserver: 10.0.0.0/8" >> /etc/hosts.allow'
+
 # Disable ssh login from outside - reenable from configuration UI
     chroot $1 bash -c 'echo "sshd: ALL" >> /etc/hosts.deny'
     chroot $1 bash -c 'echo "sshd: 10.0.0.0/8 #origo" >> /etc/hosts.allow'
@@ -127,11 +132,6 @@ exec /usr/local/bin/origo-networking.pl" > /etc/init/origo-networking.conf'
 # Set nice color xterm as default
     chroot $1 bash -c 'echo "export TERM=xterm-color" >> /etc/bash.bashrc'
 
-# Run netserver under xinetd - this is used by the net test in reference app
-    chroot $1 perl -pi -e 's/(smsqp\s+11201\/udp)/$1\nnetperf         12865\/tcp/' /etc/services
-    chroot $1 perl -pi -e 's/NETSERVER_ENABLE=YES/NETSERVER_ENABLE=NO/' /etc/default/netperf
-    chroot $1 bash -c 'echo "netserver: 10.0.0.0/8" >> /etc/hosts.allow'
-
 # Make stuff available to elfinder
     chroot $1 ln -s /usr/share/webmin/origo/elfinder/img /usr/share/webmin/origo/
     chroot $1 ln -s /mnt/fuel /usr/share/webmin/origo/elfinder/
@@ -141,7 +141,7 @@ exec /usr/local/bin/origo-networking.pl" > /etc/init/origo-networking.conf'
 
 # If called without parameters, build image
 else
-    vmbuilder kvm ubuntu -o -v --debug --suite precise --components main,universe,multiverse --arch amd64 --rootsize 81920 --user origo --pass origo --hostname $dname --addpkg libjson-perl --addpkg liburi-encode-perl --addpkg curl --addpkg acpid --addpkg openssh-server --addpkg nfs-common --addpkg dmidecode --addpkg man --addpkg libstring-shellquote-perl --addpkg unzip --addpkg sysbench --addpkg netperf --addpkg xinetd --addpkg php5-imagick --addpkg screen --addpkg iptables --addpkg git --addpkg screen --addpkg python-vm-builder --tmpfs - --domain origo.io --ip 10.1.1.2 --execscript="./$me"
+    vmbuilder kvm ubuntu -o -v --debug --suite precise --components main,universe,multiverse --arch amd64 --rootsize 81920 --user origo --pass origo --hostname $dname --addpkg libjson-perl --addpkg liburi-encode-perl --addpkg curl --addpkg acpid --addpkg openssh-server --addpkg nfs-common --addpkg dmidecode --addpkg man --addpkg libstring-shellquote-perl --addpkg unzip --addpkg sysbench --addpkg netperf --addpkg xinetd --addpkg php5-imagick --addpkg screen --addpkg iptables --addpkg git --addpkg python-software-properties --addpkg python-vm-builder --tmpfs - --domain origo.io --ip 10.1.1.2 --execscript="./$me"
 # Clean up
 	mv ubuntu-kvm/*.qcow2 "./$dname-$version.master.qcow2"
 	rm -r ubuntu-kvm
