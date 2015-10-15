@@ -94,6 +94,16 @@ if ($in{action} && $in{tab} && $tabsh{$in{tab}}) {
     for my $eachfile (glob($gpath)) {
         print `curl -k "https://10.0.0.1/steamengine/images?action=activate&image=$eachfile"`;
     }
+    if (-e '/mnt/fuel/pool1/images/') {
+        $gpath = '/mnt/fuel/pool1/images/*.qcow2' unless ($gpath);
+        for my $eachfile (glob($gpath)) {
+            print `curl -k "https://10.0.0.1/steamengine/images?action=activate&image=$eachfile"`;
+        }
+        $gpath = '/mnt/fuel/pool1/images/*.vmdk' unless ($gpath);
+        for my $eachfile (glob($gpath)) {
+            print `curl -k "https://10.0.0.1/steamengine/images?action=activate&image=$eachfile"`;
+        }
+    }
     exit 0;
 
 } elsif ($in{action} eq 'upgrade') {

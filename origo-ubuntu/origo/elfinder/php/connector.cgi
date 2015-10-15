@@ -137,6 +137,7 @@ if ((isset( $_GET ) && isset($_GET['nfs'])) || (isset( $_POST ) && isset($_POST[
         array(
             'driver'        => 'LocalFileSystem',   // driver for accessing file system (REQUIRED)
             'path'          => '../../files',         // path to files (REQUIRED)
+            'disabled'      => array('smbmount', 'btsync'),
             'accessControl' => 'access',             // disable and hide dot starting files (OPTIONAL)
             'uploadMaxSize' => '100M',
             'URL'           => 'files/' // URL to files (REQUIRED)

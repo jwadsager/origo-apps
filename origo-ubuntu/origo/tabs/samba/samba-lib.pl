@@ -469,7 +469,7 @@ Content-type: text/html
         <link rel="stylesheet" type="text/css" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.23/themes/smoothness/jquery-ui.css">
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.0/jquery.min.js"></script>
         <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.23/jquery-ui.min.js"></script>
-        <link rel="stylesheet" type="text/css" href="css/elfinder.min.css">
+        <link rel="stylesheet" type="text/css" href="css/elfinder.full.css">
         <link rel="stylesheet" type="text/css" href="css/theme.css">
         <script src="js/elfinder.full.js"></script>
         <script type="text/javascript" charset="utf-8">

@@ -87,7 +87,7 @@ END
 
     function loadTerm(networkuuid1, name) {
         if (\$("#terminal").length==0) {
-            \$("#nav-tabs").append('<li><a data-toggle="tab" href="#terminal">Terminal: ' + name + '&nbsp;</a> <span class="no-closeText">x</span> </li>');
+            \$("#nav-tabs").append('<li title="' + name + '"><a data-toggle="tab" href="#terminal">terminal&nbsp;</a> <span class="no-closeText">x</span> </li>');
             \$("#tab-content").append('<div id="terminal" class="tab-pane">Terminal</div>');
 
             \$("#nav-tabs").on("click", "a", function(e){
@@ -102,7 +102,7 @@ END
                 });
 
         }
-        \$('#nav-tabs li:nth-child(5) a').click();
+        \$('#nav-tabs li:last-child a').click();
         if (\$("#" + networkuuid1).length==0)
             \$("#terminal").html('<iframe src="https://' + location.host + '/steamengine/pipe/http://' + networkuuid1 + ':4200/" style="height:364px; width:100%; nowidth:710px; border:none;" id="' + networkuuid1 + '">Terminal</iframe>');
         return false;

@@ -135,6 +135,7 @@ exec /usr/local/bin/origo-networking.pl" > /etc/init/origo-networking.conf'
 # Make stuff available to elfinder
     chroot $1 ln -s /usr/share/webmin/origo/elfinder/img /usr/share/webmin/origo/
     chroot $1 ln -s /mnt/fuel /usr/share/webmin/origo/elfinder/
+    chroot $1 mkdir /usr/share/webmin/origo/files
 
 # Start local webmin again
 	`/etc/init.d/webmin start`;

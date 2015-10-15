@@ -109,7 +109,7 @@ Content-type: text/html
         <link rel="stylesheet" type="text/css" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.23/themes/smoothness/jquery-ui.css">
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.0/jquery.min.js"></script>
         <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.23/jquery-ui.min.js"></script>
-        <link rel="stylesheet" type="text/css" href="elfinder/css/elfinder.min.css">
+        <link rel="stylesheet" type="text/css" href="elfinder/css/elfinder.full.css">
         <link rel="stylesheet" type="text/css" href="elfinder/css/theme.css">
         <script>
             IRIGO = {tktuser: "$user"};
@@ -121,7 +121,10 @@ Content-type: text/html
             \$(document).ready(function() {
                 \$('#elfinder').elfinder({
                     url : "$url",  // connector URL (REQUIRED)
-                    height: '600'
+                    height: '600',
+                    commands: ['open', 'reload', 'home', 'up', 'back', 'forward', 'getfile', 'quicklook',
+                                'download', 'rm', 'duplicate', 'rename', 'mkdir', 'mkfile', 'upload', 'copy',
+                                'cut', 'paste', 'edit', 'extract', 'archive', 'search', 'info', 'view', 'help', 'resize', 'sort']
                 });
             });
         </script>
