@@ -12,6 +12,8 @@ cd ${0%/*}
 ## If we are called from vmbuilder, i.e. with parameters, perform post-install operations
 if [ $1 ]; then
 	echo "Performing post-install operations in $1"
+# Stop local webmin from blocking port 10000
+	`/etc/init.d/webmin stop`;
 # Add multiverse
 #    chroot $1 perl -pi -e "s/universe/universe multiverse/;" /etc/apt/sources.list
 # Install Webmin
@@ -129,6 +131,9 @@ exec /usr/local/bin/origo-networking.pl" > /etc/init/origo-networking.conf'
 
 # Set nice color xterm as default
     chroot $1 bash -c 'echo "export TERM=xterm-color" >> /etc/bash.bashrc'
+
+# Start local webmin again
+	`/etc/init.d/webmin start`;
 
 # If called without parameters, build image
 else
