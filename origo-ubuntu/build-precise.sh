@@ -13,7 +13,10 @@ cd ${0%/*}
 if [ $1 ]; then
 	echo "Performing post-install operations in $1"
 # Stop local webmin from blocking port 10000
-	`/etc/init.d/webmin stop`;
+    if [ -e "/etc/init.d/webmin" ]
+    then
+        /etc/init.d/webmin stop
+    fi
 # Add multiverse
 #    chroot $1 perl -pi -e "s/universe/universe multiverse/;" /etc/apt/sources.list
 # Install Webmin
@@ -91,7 +94,8 @@ exec /usr/local/bin/origo-ubuntu.pl" > /etc/init/origo-ubuntu.conf'
 # Configure IP address from address passed to VM through BIOS parameter SKU Number
     cp origo-networking.pl $1/usr/local/bin
     chmod 755 $1/usr/local/bin/origo-networking.pl
-    chroot $1 bash -c 'echo "start on (starting network-interface or starting network-manager or starting networking)
+    chroot $1 bash -c 'echo "start on starting network-interface
+instance eth0
 task
 exec /usr/local/bin/origo-networking.pl" > /etc/init/origo-networking.conf'
 
@@ -117,11 +121,6 @@ exec /usr/local/bin/origo-networking.pl" > /etc/init/origo-networking.conf'
     chroot $1 a2enmod proxy
     chroot $1 a2enmod proxy_http
 
-# Run netserver under xinetd
-    chroot $1 perl -pi -e 's/(smsqp\s+11201\/udp)/$1\nnetperf         12865\/tcp/' /etc/services
-    chroot $1 perl -pi -e 's/NETSERVER_ENABLE=YES/NETSERVER_ENABLE=NO/' /etc/default/netperf
-    chroot $1 bash -c 'echo "netserver: 10.0.0.0/8" >> /etc/hosts.allow'
-
 # Disable ssh login from outside - reenable from configuration UI
     chroot $1 bash -c 'echo "sshd: ALL" >> /etc/hosts.deny'
     chroot $1 bash -c 'echo "sshd: 10.0.0.0/8 #origo" >> /etc/hosts.allow'
@@ -131,9 +130,13 @@ exec /usr/local/bin/origo-networking.pl" > /etc/init/origo-networking.conf'
 
 # Set nice color xterm as default
     chroot $1 bash -c 'echo "export TERM=xterm-color" >> /etc/bash.bashrc'
+    chroot $1 perl -pi -e 's/PS1="/# PS1="/' /home/origo/.bashrc
 
 # Start local webmin again
-	`/etc/init.d/webmin start`;
+    if [ -e "/etc/init.d/webmin" ]
+    then
+        /etc/init.d/webmin start
+    fi
 
 # If called without parameters, build image
 else
