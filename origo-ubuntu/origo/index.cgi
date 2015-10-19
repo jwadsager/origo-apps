@@ -82,26 +82,37 @@ if ($in{action} && $in{tab} && $tabsh{$in{tab}}) {
 
 } elsif ($in{action} eq 'initapps') {
     print "Content-type: text/html\n\n";
-    print "Cloning origo-apps from GitHub to /mnt/fuel/pool1\n";
-    mountPools();
-    print `cd /mnt/fuel/pool1; git clone https://github.com/origosys/origo-apps 2>&1`;
+    for (my $i=0; $i <= 9; $i++) {
+        next unless (-e "/mnt/fuel/pool$i");
+        print "Cloning origo-apps from GitHub to /mnt/fuel/pool$i\n";
+        mountPools();
+        print `cd /mnt/fuel/pool$i; git clone https://github.com/origosys/origo-apps 2>&1`;
+        last;
+    }
     exit 0;
 
 } elsif ($in{action} eq 'activateapps') {
     print "Content-type: text/html\n\n";
+    print "Looking for images to activate\n";
     my $gpath = $in{path};
-    $gpath = '/mnt/fuel/pool1/origo-apps/origo-ubuntu/*.qcow2' unless ($gpath);
-    for my $eachfile (glob($gpath)) {
-        print `curl -k "https://10.0.0.1/steamengine/images?action=activate&image=$eachfile"`;
-    }
-    if (-e '/mnt/fuel/pool1/images/') {
-        $gpath = '/mnt/fuel/pool1/images/*.qcow2' unless ($gpath);
+    for (my $i=0; $i <= 9; $i++) {
+        next unless (-e "/mnt/fuel/pool$i");
+        $gpath = "/mnt/fuel/pool$i/origo-apps/origo-ubuntu/*.qcow2" unless ($gpath);
         for my $eachfile (glob($gpath)) {
+            print "Trying to activate: $eachfile\n";
             print `curl -k "https://10.0.0.1/steamengine/images?action=activate&image=$eachfile"`;
         }
-        $gpath = '/mnt/fuel/pool1/images/*.vmdk' unless ($gpath);
-        for my $eachfile (glob($gpath)) {
-            print `curl -k "https://10.0.0.1/steamengine/images?action=activate&image=$eachfile"`;
+        if (-e "/mnt/fuel/pool$i/images/") {
+            $gpath = "/mnt/fuel/pool$i/images/*.qcow2" unless ($gpath);
+            for my $eachfile (glob($gpath)) {
+            print "Trying to activate: $eachfile\n";
+                print `curl -k "https://10.0.0.1/steamengine/images?action=activate&image=$eachfile"`;
+            }
+            $gpath = "/mnt/fuel/pool$i/images/*.vmdk" unless ($gpath);
+            for my $eachfile (glob($gpath)) {
+                print "Trying to activate: $eachfile\n";
+                print `curl -k "https://10.0.0.1/steamengine/images?action=activate&image=$eachfile"`;
+            }
         }
     }
     exit 0;
