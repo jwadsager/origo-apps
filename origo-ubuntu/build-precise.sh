@@ -131,6 +131,7 @@ exec /usr/local/bin/origo-networking.pl" > /etc/init/origo-networking.conf'
 # Set nice color xterm as default
     chroot $1 bash -c 'echo "export TERM=xterm-color" >> /etc/bash.bashrc'
     chroot $1 perl -pi -e 's/PS1="/# PS1="/' /home/origo/.bashrc
+    chroot $1 perl -pi -e 's/PS1="/# PS1="/' /root/.bashrc
 
 # Start local webmin again
     if [ -e "/etc/init.d/webmin" ]
