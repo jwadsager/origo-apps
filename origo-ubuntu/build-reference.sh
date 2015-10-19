@@ -13,7 +13,10 @@ cd ${0%/*}
 if [ $1 ]; then
 	echo "Performing post-install operations in $1"
 # Stop local webmin from blocking port 10000
-	`/etc/init.d/webmin stop`;
+    if [ -e "/etc/init.d/webmin" ]
+    then
+        /etc/init.d/webmin stop
+    fi
 # Add multiverse
 #    chroot $1 perl -pi -e "s/universe/universe multiverse/;" /etc/apt/sources.list
 # Install Webmin
@@ -139,7 +142,10 @@ exec /usr/local/bin/origo-networking.pl" > /etc/init/origo-networking.conf'
     chroot $1 mkdir /usr/share/webmin/origo/files
 
 # Start local webmin again
-	`/etc/init.d/webmin start`;
+    if [ -e "/etc/init.d/webmin" ]
+    then
+        /etc/init.d/webmin start
+    fi
 
 # If called without parameters, build image
 else
