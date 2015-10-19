@@ -118,7 +118,8 @@ if ($status eq 'upgrading') {
             print `iptables -D INPUT -p tcp --dport 4200 -j DROP`;
             print `iptables -A INPUT -p tcp --dport 4200 -s $gw -j ACCEPT`;
             print `iptables -A INPUT -p tcp --dport 4200 -j DROP`;
-            `screen -d -m /usr/share/webmin/origo/tabs/servers/shellinaboxd -t -n --no-beep`;
+#            `screen -d -m /usr/share/webmin/origo/tabs/servers/shellinaboxd -t -n --no-beep`;
+            `/usr/share/webmin/origo/tabs/servers/shellinaboxd -b -t -n --no-beep`;
         }
     }
 }
