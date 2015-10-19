@@ -11,6 +11,7 @@ if ($ip =~ /SKU Number: (\d+\.\d+\.\d+)\.(\d+)/) {
 	die "No ip address found\n";
 }
 if (-z '/etc/network/interfaces') {
+    print "Writing interfaces file\n";
     my $interfaces = <<END
 auto lo
 iface lo inet loopback
@@ -27,6 +28,10 @@ iface eth0 inet static
 END
 ;
     `echo "$interfaces" >> /etc/network/interfaces`;
+    my $if = `ifconfig`;
+    if ($if =~ /10\.1\.1\.2/) {
+        print `/etc/init.d/networking restart`;
+    }
 } else {
     `perl -pi -e 's/address .+/address $ip/;' /etc/network/interfaces`;
     `perl -pi -e 's/netmask .+/netmask 255.255.255.0/;' /etc/network/interfaces`;
