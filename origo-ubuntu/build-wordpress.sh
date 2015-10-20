@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # The version of the app we are building
-version="1.2"
+version="1.3"
 
 dname="origo-wordpress"
 me=`basename $0`
@@ -12,6 +12,11 @@ cd ${0%/*}
 ## If we are called from vmbuilder, i.e. with parameters, perform post-install operations
 if [ $1 ]; then
 	echo "Performing post-install operations in $1"
+# Stop local webmin from blocking port 10000
+    if [ -e "/etc/init.d/webmin" ]
+    then
+        /etc/init.d/webmin stop
+    fi
 	chroot $1 bash -c 'echo "deb http://download.webmin.com/download/repository sarge contrib" >> /etc/apt/sources.list'
 	chroot $1 wget http://www.webmin.com/jcameron-key.asc
 	chroot $1 apt-key add jcameron-key.asc
@@ -84,7 +89,8 @@ exec /usr/local/bin/origo-ubuntu.pl" > /etc/init/origo-ubuntu.conf'
 # Configure IP address from address passed to VM through BIOS parameter SKU Number
     cp origo-networking.pl $1/usr/local/bin
     chmod 755 $1/usr/local/bin/origo-networking.pl
-    chroot $1 bash -c 'echo "start on (starting network-interface or starting network-manager or starting networking)
+    chroot $1 bash -c 'echo "start on starting network-interface
+instance eth0
 task
 exec /usr/local/bin/origo-networking.pl" > /etc/init/origo-networking.conf'
 
@@ -93,7 +99,7 @@ exec /usr/local/bin/origo-networking.pl" > /etc/init/origo-networking.conf'
     chmod 755 $1/usr/local/bin/origo-wordpress.sh
     chroot $1 bash -c 'echo "start on starting network-interface or starting networking
 task
-exec /usr/local/bin/origo-networking.pl" > /etc/init/origo.conf'
+exec /usr/local/bin/origo-wordpress.sh" > /etc/init/origo-wordpress.conf'
 
 # Configure Apache
 
@@ -199,6 +205,17 @@ default-collation=utf8_general_ci" > /var/lib/mysql/wordpress_default/db.opt'
 
 # Disable Webmin login from outside - reenable from configuration UI
    chroot $1 bash -c 'echo "allow=10.0.0.0/8 127.0.0.0/16" >> /etc/webmin/miniserv.conf'
+
+# Set nice color xterm as default
+    chroot $1 bash -c 'echo "export TERM=xterm-color" >> /etc/bash.bashrc'
+    chroot $1 perl -pi -e 's/PS1="/# PS1="/' /home/origo/.bashrc
+    chroot $1 perl -pi -e 's/PS1="/# PS1="/' /root/.bashrc
+
+# Start local webmin again
+    if [ -e "/etc/init.d/webmin" ]
+    then
+        /etc/init.d/webmin start
+    fi
 
 # If called without parameters, build image
 else
