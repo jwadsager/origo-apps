@@ -28,10 +28,6 @@ iface eth0 inet static
 END
 ;
     `echo "$interfaces" >> /etc/network/interfaces`;
-    my $if = `ifconfig`;
-    if ($if =~ /10\.1\.1\.2/) {
-        print `/etc/init.d/networking restart`;
-    }
 } else {
     `perl -pi -e 's/address .+/address $ip/;' /etc/network/interfaces`;
     `perl -pi -e 's/netmask .+/netmask 255.255.255.0/;' /etc/network/interfaces`;
@@ -39,4 +35,8 @@ END
     `perl -pi -e 's/broadcast .+/broadcast $net.255/;' /etc/network/interfaces`;
     `perl -pi -e 's/gateway .+/gateway $net.1/;' /etc/network/interfaces`;
     `perl -pi -e 's/dns-nameservers .+/dns-nameservers $net.1/;' /etc/network/interfaces`;
+}
+my $if = `ifconfig`;
+if ($if =~ /10\.1\.1\.2/) {
+    print `/etc/init.d/networking restart`;
 }
