@@ -3284,6 +3284,9 @@ fieldset[disabled] .twitter-typeahead .tt-hint {
   -webkit-transition: 0.25s;
   transition: 0.25s;
 }
+#nav-tabs .open > .dropdown-menu {
+    margin-top: 8px !important;
+}
 .open > .dropdown-menu {
   margin-top: 18px !important;
   opacity: 1;
@@ -3397,6 +3400,10 @@ fieldset[disabled] .twitter-typeahead .tt-hint {
 }
 .open.dropup > .dropdown-arrow.dropdown-arrow-inverse {
   border-top-color: #34495e;
+}
+#nav-tabs .open > .dropdown-arrow {
+    margin-top: 41px;
+    margin-right: 7px;
 }
 .open > .dropdown-arrow {
   margin-top: 11px;

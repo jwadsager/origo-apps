@@ -12,14 +12,12 @@ sub wordpress {
 
     # First let's make sure install.php has been patched - WP may have been upgraded
         unless (`grep "HTTP_HOST" /usr/share/wordpress/wp-admin/install.php`) {
-            system(q|perl -pi -e 's/(\/\/ Sanity check\.)/$1\n\$showsite=( (strpos(\$_SERVER[HTTP_HOST], ".origo.io")===FALSE)? \$_SERVER[HTTP_HOST] : substr(\$_SERVER[HTTP_HOST], 0, strpos(\$_SERVER[HTTP_HOST], ".origo.io")) );\n/' /usr/share/wordpress/wp-admin/install.php|);
-
-            system(q|perl -pi -e 's/(^<p class="step"><a href="\.\.\/wp-login\.php".+<\/a>)/<!-- $1 --><script>var pipeloc=location\.href\.substring(0,location.href.indexOf("\/home")); location=pipeloc \+ ":10000\/origo\/?show=<?php echo \$showsite; ?>-site";<\/script>/;'  /usr/share/wordpress/wp-admin/install.php|);
-
+            `/usr/local/bin/origo-wordpress.sh`;
+#            system(q|perl -pi -e 's/(\/\/ Sanity check\.)/$1\n\$showsite=( (strpos(\$_SERVER[HTTP_HOST], ".origo.io")===FALSE)? \$_SERVER[HTTP_HOST] : substr(\$_SERVER[HTTP_HOST], 0, strpos(\$_SERVER[HTTP_HOST], ".origo.io")) );\n/' /usr/share/wordpress/wp-admin/install.php|);
+#            system(q|perl -pi -e 's/(^<p class="step"><a href="\.\.\/wp-login\.php".+<\/a>)/<!-- $1 --><script>var pipeloc=location\.href\.substring(0,location.href.indexOf("\/home")); location=pipeloc \+ ":10000\/origo\/?show=<?php echo \$showsite; ?>-site";<\/script>/;'  /usr/share/wordpress/wp-admin/install.php|);
             # Crazy amount of escaping required
-            system(qq|perl -pi -e "s/(step=1)/\\\$1\&host=' \. \\\\\\\$_SERVER[HTTP_HOST] \.'/;" /usr/share/wordpress/wp-admin/install.php|);
-
-            system(q|perl -pi -e 's/(step=2)/$1\&host=<?php echo \$_SERVER[HTTP_HOST]; ?>/;' /usr/share/wordpress/wp-admin/install.php|);
+#            system(qq|perl -pi -e "s/(step=1)/\\\$1\&host=' \. \\\\\\\$_SERVER[HTTP_HOST] \.'/;" /usr/share/wordpress/wp-admin/install.php|);
+#            system(q|perl -pi -e 's/(step=2)/$1\&host=<?php echo \$_SERVER[HTTP_HOST]; ?>/;' /usr/share/wordpress/wp-admin/install.php|);
         } else {
             ;# "Already patched\n";
         }
@@ -83,6 +81,10 @@ sub wordpress {
                 \$("#currentwpadmin").attr("href", "https://" + siteaddr + "/home/wp-admin/");
                 \$("#currentwpadmin").text("to " + site + " administration");
             }
+//            console.log("resetting", match[1]);
+            if (\$("#wpaliases_" + match[1]).val() == '--')
+                \$("#wpaliases_" + match[1]).val("");
+            \$("#wppassword_" + match[1]).val("");
         })
 
         \$(".wpdomain").keypress(function(event){
@@ -266,7 +268,7 @@ END
             # Remove DNS entry if not a FQDN
             $message .= `curl -k --max-time 5 "https://10.0.0.1/steamengine/networks?action=dnsdelete\&name=$wp"` unless ($wp =~ /\./);
 
-    #        $postscript .= qq|\$('#nav-tabs a[href="#default-site"]').tab('show');\n|;
+            $postscript .= qq|\$('#nav-tabs a[href="#default-site"]').tab('show');\n|;
             $message .=  "<div class=\"message\">Website $dom was removed!</div>";
             opendir(DIR,"/etc/wordpress") or die "Cannot open /etc/wordpress\n";
             @wpfiles = readdir(DIR);
@@ -541,6 +543,7 @@ END
     my $resetbutton = qq|<button class="btn btn-danger" rel="tooltip" data-placement="top" title="This will remove your website and wipe your database - be absolutely sure this is what you want to do!" onclick="confirmWPAction('wpremove', '$wpname');" type="button">Remove website</button>|;
 
     my $backup_tooltip = "Click to back up your WordPress database";
+    $wpaliases = '--' unless ($wpaliases);
 
     my $manageform = <<END
     <div class="tab-pane" id="$wpname-site">
@@ -588,7 +591,6 @@ END
     <div style="height:10px;"></div>
 END
 ;
-
         $backupbutton = qq|<button class="btn btn-primary disabled" rel="tooltip" data-placement="top" title="$backup_tooltip" onclick="return false;">Backup database</button>|;
     }
 

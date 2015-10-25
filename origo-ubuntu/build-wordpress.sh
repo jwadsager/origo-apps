@@ -135,29 +135,29 @@ Alias /home/wp-content /var/lib/wordpress/wp-content
 ?>" >> $1/etc/wordpress/config-default.php
 
 # Fix link to install.css
-    chroot $1 perl -pi -e 's/(<\?php wp_admin_css\(.+install.+ true \); \?>)/<link rel="stylesheet" id="install-css"  href="css\/install\.css" type="text\/css" media="all" \/>/;' /usr/share/wordpress/wp-admin/install.php
+#    chroot $1 perl -pi -e 's/(<\?php wp_admin_css\(.+install.+ true \); \?>)/<link rel="stylesheet" id="install-css"  href="css\/install\.css" type="text\/css" media="all" \/>/;' /usr/share/wordpress/wp-admin/install.php
 
 # Make install page prettier in Steamengine configure dialog
-    chroot $1 perl -pi -e 's/margin:2em auto/margin:0 auto/;' /usr/share/wordpress/wp-admin/css/install.css
+#    chroot $1 perl -pi -e 's/margin:2em auto/margin:0 auto/;' /usr/share/wordpress/wp-admin/css/install.css
 
 # Redirect to Webmin when WordPress is installed
 # We need to to a bit of gymnastics because of problems with escaping quotes
 
-    chroot $1 perl -pi -e 's/(\/\/ Sanity check\.)/$1\n\$showsite=( (strpos(\$_SERVER[HTTP_HOST], ".origo.io")===FALSE)? \$_SERVER[HTTP_HOST] : substr(\$_SERVER[HTTP_HOST], 0, strpos(\$_SERVER[HTTP_HOST], ".origo.io")) );\n/' /usr/share/wordpress/wp-admin/install.php
+#    chroot $1 perl -pi -e 's/(\/\/ Sanity check\.)/$1\n\$showsite=( (strpos(\$_SERVER[HTTP_HOST], ".origo.io")===FALSE)? \$_SERVER[HTTP_HOST] : substr(\$_SERVER[HTTP_HOST], 0, strpos(\$_SERVER[HTTP_HOST], ".origo.io")) );\n/' /usr/share/wordpress/wp-admin/install.php
 
 # Replace button with link to login page with redirect to our app page
-    chroot $1 perl -pi -e 's/(<a href="\.\.\/wp-login\.php".+<\/a>)/<!-- $1 --><script>var pipeloc=location\.href\.substring(0,location.href.indexOf("\/home")); location=pipeloc \+ ":10000\/origo\/?show=showdummy-site";<\/script>/;' /usr/share/wordpress/wp-admin/install.php
+#    chroot $1 perl -pi -e 's/(<a href="\.\.\/wp-login\.php".+<\/a>)/<!-- $1 --><script>var pipeloc=location\.href\.substring(0,location.href.indexOf("\/home")); location=pipeloc \+ ":10000\/origo\/?show=showdummy-site";<\/script>/;' /usr/share/wordpress/wp-admin/install.php
 
-    chroot $1 perl -pi -e "unless (\$match) {\$match = s/showdummy/' . \\\$showsite . '/;}" /usr/share/wordpress/wp-admin/install.php
-    chroot $1 perl -pi -e 'if (!$match) {$match = s/showdummy/<?php echo \$showsite; ?>/;}' /usr/share/wordpress/wp-admin/install.php
+#    chroot $1 perl -pi -e "unless (\$match) {\$match = s/showdummy/' . \\\$showsite . '/;}" /usr/share/wordpress/wp-admin/install.php
+#    chroot $1 perl -pi -e 'if (!$match) {$match = s/showdummy/<?php echo \$showsite; ?>/;}' /usr/share/wordpress/wp-admin/install.php
 
 # Make link to virtual host work, even if not registered in DNS, by adding host=, which is interpreted by Steamengine proxy
-    chroot $1 perl -pi -e 's/(action="install.php\?step=2)/$1&host=<?php echo \$_SERVER[HTTP_HOST]; ?>/;' /usr/share/wordpress/wp-admin/install.php
+#    chroot $1 perl -pi -e 's/(action="install.php\?step=2)/$1&host=<?php echo \$_SERVER[HTTP_HOST]; ?>/;' /usr/share/wordpress/wp-admin/install.php
 
 # Ask Steamengine to change the managementlink from Wordpress install page, so the above redirect is not needed on subsequent loads
-#    chroot $1 perl -pi -e 's/(if \( is_blog_installed\(\) \) \{)/$1\n    \`curl -k -X PUT --data-urlencode "PUTDATA={\\"uuid\\":\\"this\\",\\"managementlink\\":\\"\/steamengine\/pipe\/http:\/\/{uuid}:10000\/origo\/\\"}" https:\/\/10.0.0.1\/steamengine\/images\`;/;' /usr/share/wordpress/wp-admin/install.php
+##    chroot $1 perl -pi -e 's/(if \( is_blog_installed\(\) \) \{)/$1\n    \`curl -k -X PUT --data-urlencode "PUTDATA={\\"uuid\\":\\"this\\",\\"managementlink\\":\\"\/steamengine\/pipe\/http:\/\/{uuid}:10000\/origo\/\\"}" https:\/\/10.0.0.1\/steamengine\/images\`;/;' /usr/share/wordpress/wp-admin/install.php
 
-#    chroot $1 perl -pi -e 's/(<h1>.+Success!.+<\/h1>)/$1\n    <?php\n\`curl -k -X PUT --data-urlencode "PUTDATA={\\"uuid\\":\\"this\\",\\"managementlink\\":\\"\/steamengine\/pipe\/http:\/\/{uuid}:10000\/origo\/\\"}" https:\/\/10.0.0.1\/steamengine\/images\`;\n    ?>/;' /usr/share/wordpress/wp-admin/install.php
+##    chroot $1 perl -pi -e 's/(<h1>.+Success!.+<\/h1>)/$1\n    <?php\n\`curl -k -X PUT --data-urlencode "PUTDATA={\\"uuid\\":\\"this\\",\\"managementlink\\":\\"\/steamengine\/pipe\/http:\/\/{uuid}:10000\/origo\/\\"}" https:\/\/10.0.0.1\/steamengine\/images\`;\n    ?>/;' /usr/share/wordpress/wp-admin/install.php
 
 # Make homepage redirect to blog
     chroot $1 bash -c 'echo "<META HTTP-EQUIV=\"Refresh\" Content=\"0; URL=/home/\">" > /var/www/index.html'
