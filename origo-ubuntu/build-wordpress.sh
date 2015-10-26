@@ -179,11 +179,10 @@ default-collation=utf8_general_ci" > /var/lib/mysql/wordpress_default/db.opt'
 
 # Install newest WordPress
     echo "Upgrading WordPress to latest version..."
-    mkdir $1/usr/local/bin
     cd $1/usr/local/bin; curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
     chmod 755 $1/usr/local/bin/wp-cli.phar
     mv $1/usr/local/bin/wp-cli.phar $1/usr/local/bin/wp
-    cd $1/usr/share/wordpress; sudo -u www-data wp core download --force
+    cd $1/usr/share/wordpress; sudo -u www-data $1/usr/local/bin/wp core download --force
 
 # Set up SSL access to Webmin on port 10001
     chroot $1 cp /etc/apache2/sites-available/default-ssl /etc/apache2/sites-available/webmin-ssl
