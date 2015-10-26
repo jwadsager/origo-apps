@@ -6,7 +6,7 @@ else
 	echo "Modifying WordPress files"
 # Fix link to install.css
 	perl -pi -e 's/(<\?php(\n)?\s+wp_admin_css\(.+install.+ true \);(\n)?\s+\?>)/<link rel="stylesheet" id="install-css"  href="css\/install\.css" type="text\/css" media="all" \/>/;' /usr/share/wordpress/wp-admin/install.php
-    perl -pi -e 's/wp_admin_css\(.+install.+ true \);/echo "<link rel=\\"stylesheet\\" id=\\"install-css\\"  href=\\"css\/install\.css\\" type=\\"text\/css\\" media=\\"all\\" \/>"/g;' /usr/share/wordpress/wp-admin/install.php
+    perl -pi -e 's/wp_admin_css\(.+install.+ true \);/echo "<link rel=\\"stylesheet\\" id=\\"install-css\\"  href=\\"css\/install\.css\\" type=\\"text\/css\\" media=\\"all\\" \/>";/g;' /usr/share/wordpress/wp-admin/install.php
 
 # Make install page prettier in Steamengine configure dialog
 	perl -pi -e 's/margin:2em auto/margin:0 auto/;' /usr/share/wordpress/wp-admin/css/install.css
@@ -26,6 +26,7 @@ else
     perl -pi -e 's/(\/\/ Sanity check\.)/$1\n\$showsite=( (strpos(\$_SERVER[HTTP_HOST], ".origo.io")===FALSE)? "default" : substr(\$_SERVER[HTTP_HOST], 0, strpos(\$_SERVER[HTTP_HOST], ".origo.io")) );\n/' /usr/share/wordpress/wp-admin/install.php
 
 # Make link to virtual host work, even if not registered in DNS, by adding host=, which is interpreted by Steamengine proxy
+    perl -pi -e "s/(step=1)/\$1\&host=' . \\\$_SERVER[HTTP_HOST] .'/;" /usr/share/wordpress/wp-admin/install.php
 	perl -pi -e 's/(action="install.php\?step=2)/$1&host=<?php echo \$_SERVER[HTTP_HOST]; ?>/;' /usr/share/wordpress/wp-admin/install.php
 
 # Ask Steamengine to change the managementlink from Wordpress install page, so the above redirect is not needed on subsequent loads

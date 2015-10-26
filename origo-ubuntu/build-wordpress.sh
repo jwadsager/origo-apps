@@ -177,6 +177,12 @@ default-collation=utf8_general_ci" > /var/lib/mysql/wordpress_default/db.opt'
     chroot $1 chown -R www-data:www-data /usr/share/php
     chroot $1 chown -R www-data:www-data /usr/share/tinymce
 
+# Install newest WordPress
+    chroot $1 cd /usr/local/bin; curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
+    chroot $1 chmod 755 /usr/local/bin/wp-cli.phar
+    chroot $1 mv /usr/local/bin/wp-cli.phar /usr/local/bin/wp
+    chroot $1 cd /usr/share/wordpress; sudo -u www-data wp core download --force
+
 # Set up SSL access to Webmin on port 10001
     chroot $1 cp /etc/apache2/sites-available/default-ssl /etc/apache2/sites-available/webmin-ssl
     chroot $1 perl -pi -e 's/<VirtualHost _default_:443>/<VirtualHost _default_:10001>/;' /etc/apache2/sites-available/webmin-ssl

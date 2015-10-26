@@ -23,6 +23,9 @@ $internalip = get_internalip();
 $externalip = get_externalip();
 $appid = get_appid();
 
+my $message;
+#my $postscript;
+
 # Read in libs for tabs
 opendir(DIR,"tabs") or die "Cannot open tabs directory\n";
 my @dir = readdir(DIR);
@@ -37,8 +40,6 @@ foreach my $tab (@dir) {
     require "tabs/$tab/$tab-lib.pl";
 }
 
-my $message;
-my $postscript;
 my $appurl;
 my $upgradeurl;
 my $appinfo_ref = get_appinfo();
@@ -284,8 +285,8 @@ my $head = <<END
         .alert {
             margin-top: 10px;
             position:absolute;
-            top:345px;
-            left: 36px;
+            top:420px;
+            left: 12px;
             width: 90%
         }
         td {
@@ -344,6 +345,11 @@ my $head = <<END
                 <li>
                     <a href="http://$externalip/" target="_blank" id="currentwp">
                         to default website
+                    </a>
+                </li>
+                <li style="display:none;">
+                    <a href="http://$externalip/" target="_blank" id="currentwpadmin">
+                        to default website management console
                     </a>
                 </li>
                 <li>
@@ -484,6 +490,11 @@ $alert
             return true;
         }
     };
+
+    function spinner(item) {
+        \$(item).prop("disabled", true ).html(\$(item).html() + ' <i class="fa fa-cog fa-spin"></i>');
+        return false;
+    }
 
     $tabs_js;
 

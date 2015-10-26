@@ -68,6 +68,7 @@ sub wordpress {
             if (href.indexOf('#new')!=-1) { // set standard grey border in case it has failed validation previously
                 \$('#wpdomain_new').css('border','1px solid #CCCCCC'); \$('#wpdomain_new').focus();
             }
+            \$("#currentwpadmin").parent().show();
             if (!match || match[1] == 'default' || match[1] == 'new') {
                 \$("#currentwp").attr("href", "http://$externalip/");
                 \$("#currentwp").text("to default WordPress website");
@@ -81,10 +82,11 @@ sub wordpress {
                 \$("#currentwpadmin").attr("href", "https://" + siteaddr + "/home/wp-admin/");
                 \$("#currentwpadmin").text("to " + site + " administration");
             }
-//            console.log("resetting", match[1]);
-            if (\$("#wpaliases_" + match[1]).val() == '--')
-                \$("#wpaliases_" + match[1]).val("");
-            \$("#wppassword_" + match[1]).val("");
+            if (match) {
+                if (\$("#wpaliases_" + match[1]).val() == '--')
+                    \$("#wpaliases_" + match[1]).val("");
+                \$("#wppassword_" + match[1]).val("");
+            }
         })
 
         \$(".wpdomain").keypress(function(event){
@@ -527,7 +529,7 @@ sub getWPtab {
         <small>Limit wordpress login for all sites to:</small>
         <input id="wplimit" type="text" name="wplimit" value="$wplimit" placeholder="IP address or network, e.g. '192.168.0.0/24 127.0.0.1'">
         $curipwp
-        <button class="btn btn-default" type="submit">Set!</button>
+        <button class="btn btn-default" type="submit" onclick="spinner(this);">Set!</button>
     </form>
 </div>
 END
@@ -555,22 +557,22 @@ END
         <div>
             <small>Aliases for the website:</small>
             <input class="wpalias" id="wpaliases_$wpname" type="text" name="wpaliases_$wpname" value="$wpaliases" autocomplete="off">
-            <button class="btn btn-default" onclick="\$('#action_$wpname').val('wpaliases');" rel="tooltip" data-placement="top" title="Aliases that are not FQDNs will be created in the origo.io domain as [alias].origo.io">Set!</button>
+            <button class="btn btn-default" onclick="spinner(this); \$('#action_$wpname').val('wpaliases');" rel="tooltip" data-placement="top" title="Aliases that are not FQDNs will be created in the origo.io domain as [alias].origo.io">Set!</button>
         </div>
         <div>
             <small>Set password for WordPress user '$wpuser':</small>
             <input id="wppassword_$wpname" type="password" name="wppassword" autocomplete="off" value="" class="password">
-            <button class="btn btn-default" onclick="\$('#action_$wpname').val('wppassword');">Set!</button>
+            <button class="btn btn-default" onclick="spinner(this); \$('#action_$wpname').val('wppassword');">Set!</button>
         </div>
     <div style="height:10px;"></div>
 END
 ;
 
-    my $backupbutton = qq|<button class="btn btn-primary" rel="tooltip" data-placement="top" title="$backup_tooltip" onclick="\$('#action_$wpname').val('wpbackup'); \$('#wpform_$wpname').submit();">Backup database</button>|;
+    my $backupbutton = qq|<button class="btn btn-primary" rel="tooltip" data-placement="top" title="$backup_tooltip" onclick="\$('#action_$wpname').val('wpbackup'); \$('#wpform_$wpname').submit(); spinner(this);">Backup database</button>|;
 
     if ($wp eq 'new') {
         $backup_tooltip = "You must save before you can back up";
-        $resetbutton = qq|<button class="btn btn-info" type="button" rel="tooltip" data-placement="top" title="Click to create your new website!" onclick="if (\$('#wpdomain_new').val()) {\$('#action_$wpname').val('wpcreate'); \$('#wpform_$wpname').submit();} else {\$('#wpdomain_new').css('border','1px solid #f39c12'); \$('#wpdomain_new').focus(); return false;}">Create website</button>|;
+        $resetbutton = qq|<button class="btn btn-info" type="button" rel="tooltip" data-placement="top" title="Click to create your new website!" onclick="if (\$('#wpdomain_new').val()) {spinner(this); \$('#action_$wpname').val('wpcreate'); \$('#wpform_$wpname').submit();} else {\$('#wpdomain_new').css('border','1px solid #f39c12'); \$('#wpdomain_new').focus(); return false;}">Create website</button>|;
 
         $manageform = <<END
     <div class="tab-pane" id="$wp-site">
@@ -591,15 +593,15 @@ END
     <div style="height:10px;"></div>
 END
 ;
-        $backupbutton = qq|<button class="btn btn-primary disabled" rel="tooltip" data-placement="top" title="$backup_tooltip" onclick="return false;">Backup database</button>|;
+        $backupbutton = qq|<button class="btn btn-primary disabled" rel="tooltip" data-placement="top" title="$backup_tooltip" onclick="spinner(this); return false;">Backup database</button>|;
     }
 
-    my $restorebutton = qq|<button class="btn btn-primary disabled" rel="tooltip" data-placement="top" title="You must back up before you can restore" onclick="return false;">Restore database</button>|;
+    my $restorebutton = qq|<button class="btn btn-primary disabled" rel="tooltip" data-placement="top" title="You must back up before you can restore" onclick="spinner(this); return false;">Restore database</button>|;
     my $ftime;
 
     if (-e "/var/lib/wordpress/wordpress_$wpname.sql") {
         $ftime = make_date( (stat("/var/lib/wordpress/wordpress_$wpname.sql"))[9] ) . ' ' . `date +%Z`;
-        $restorebutton = qq|<button class="btn btn-primary" rel="tooltip" data-placement="top" title="Restore database from backup made $ftime" onclick="\$('#action_$wpname').val('wprestore'); \$('#wpform_$wpname').submit();">Restore database</button>|;
+        $restorebutton = qq|<button class="btn btn-primary" rel="tooltip" data-placement="top" title="Restore database from backup made $ftime" onclick="spinner(this); \$('#action_$wpname').val('wprestore'); \$('#wpform_$wpname').submit();">Restore database</button>|;
     }
 
     my $backupform .= <<END
