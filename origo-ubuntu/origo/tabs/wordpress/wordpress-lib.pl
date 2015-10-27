@@ -37,7 +37,7 @@ sub wordpress {
 
         foreach my $file (@wpfiles) {
             next if (-l "/etc/wordpress/$file");
-            next unless ($file =~ /config-(.+)\.php/);
+            next unless ($file =~ /config-(.+)\.php$/);
             my $wp = $1;
             my $wpname = $wp;
             $wpname = $1 if ($wpname =~ /(.+)\.origo\.io/);
