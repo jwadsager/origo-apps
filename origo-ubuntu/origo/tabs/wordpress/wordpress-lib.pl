@@ -83,9 +83,14 @@ sub wordpress {
                 \$("#currentwpadmin").text("to " + site + " administration");
             }
             if (match) {
-                if (\$("#wpaliases_" + match[1]).val() == '--')
-                    \$("#wpaliases_" + match[1]).val("");
-                \$("#wppassword_" + match[1]).val("");
+                setTimeout(
+                    function() {
+                        if (\$("#wpaliases_h_" + match[1]).val() == '')
+                            \$("#wpaliases_" + match[1]).val("");
+                        \$("#wppassword_" + match[1]).val("--");
+                        \$("#wppassword_" + match[1]).val("");
+                    }, 100
+                )
             }
         })
 
@@ -525,7 +530,7 @@ sub getWPtab {
 
         my $wpsecurityform = <<END
 <div class="tab-pane" id="wp-security">
-    <form class="passwordform" action="index.cgi?action=wplimit\&tab=wordpress\&show=wp-security" method="post" accept-charset="utf-8" style="margin-bottom:36px;">
+    <form class="passwordform" action="index.cgi?action=wplimit\&tab=wordpress\&show=wp-security" method="post" accept-charset="utf-8" style="margin-bottom:36px;" autocomplete="off">
         <small>Limit wordpress login for all sites to:</small>
         <input id="wplimit" type="text" name="wplimit" value="$wplimit" placeholder="IP address or network, e.g. '192.168.0.0/24 127.0.0.1'">
         $curipwp
@@ -545,24 +550,24 @@ END
     my $resetbutton = qq|<button class="btn btn-danger" rel="tooltip" data-placement="top" title="This will remove your website and wipe your database - be absolutely sure this is what you want to do!" onclick="confirmWPAction('wpremove', '$wpname');" type="button">Remove website</button>|;
 
     my $backup_tooltip = "Click to back up your WordPress database";
-    $wpaliases = '--' unless ($wpaliases);
 
     my $manageform = <<END
     <div class="tab-pane" id="$wpname-site">
-    <form class="passwordform wpform" id="wpform_$wpname" action="index.cgi?tab=wordpress\&show=$wpname-site" method="post" accept-charset="utf-8">
+    <form class="passwordform wpform" id="wpform_$wpname" action="index.cgi?tab=wordpress\&show=$wpname-site" method="post" accept-charset="utf-8" autocomplete="off">
         <div>
             <small>The website's domain name:</small>
             <input class="wpdomain" id="wpdomain_$wpname" type="text" name="wpdomain_$wpname" value="$wp" disabled autocomplete="off">
         </div>
         <div>
             <small>Aliases for the website:</small>
-            <input class="wpalias" id="wpaliases_$wpname" type="text" name="wpaliases_$wpname" value="$wpaliases" autocomplete="off">
-            <button class="btn btn-default" onclick="spinner(this); \$('#action_$wpname').val('wpaliases');" rel="tooltip" data-placement="top" title="Aliases that are not FQDNs will be created in the origo.io domain as [alias].origo.io">Set!</button>
+            <input class="wpalias" id="wpaliases_$wpname" type="text" name="wpaliases_$wpname" value="$wpaliases" autocomplete="off" />
+            <input type="hidden" id="wpaliases_h_$wpname" name="wpaliases_h_$wpname" value="$wpaliases" autocomplete="off" />
+            <button type="submit" class="btn btn-default" onclick="spinner(this); \$('#action_$wpname').val('wpaliases'); submit();" rel="tooltip" data-placement="top" title="Aliases that are not FQDNs will be created in the origo.io domain as [alias].origo.io">Set!</button>
         </div>
         <div>
             <small>Set password for WordPress user '$wpuser':</small>
             <input id="wppassword_$wpname" type="password" name="wppassword" autocomplete="off" value="" class="password">
-            <button class="btn btn-default" onclick="spinner(this); \$('#action_$wpname').val('wppassword');">Set!</button>
+            <button type="submit" class="btn btn-default" onclick="spinner(this); \$('#action_$wpname').val('wppassword'); submit();">Set!</button>
         </div>
     <div style="height:10px;"></div>
 END
@@ -576,7 +581,7 @@ END
 
         $manageform = <<END
     <div class="tab-pane" id="$wp-site">
-    <form class="passwordform wpform" id="wpform_$wpname" action="index.cgi?tab=wordpress\&show=$wpname-site" method="post" accept-charset="utf-8">
+    <form class="passwordform wpform" id="wpform_$wpname" action="index.cgi?tab=wordpress\&show=$wpname-site" method="post" accept-charset="utf-8" autocomplete="off">
         <div>
             <small>The website's domain name:</small>
             <input class="wpdomain required" id="wpdomain_$wpname" type="text" name="wpdomain_$wpname" value="" autocomplete="off">
