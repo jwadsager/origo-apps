@@ -150,7 +150,7 @@ exec /usr/local/bin/origo-networking.pl" > /etc/init/origo-networking.conf'
 
 # If called without parameters, build image
 else
-    vmbuilder kvm ubuntu -o -v --debug --suite precise --components main,universe,multiverse --arch amd64 --rootsize 81920 --user origo --pass origo --hostname $dname --addpkg libjson-perl --addpkg liburi-encode-perl --addpkg curl --addpkg acpid --addpkg openssh-server --addpkg nfs-common --addpkg dmidecode --addpkg man --addpkg libstring-shellquote-perl --addpkg unzip --addpkg sysbench --addpkg netperf --addpkg xinetd --addpkg php5-imagick --addpkg screen --addpkg iptables --addpkg git --addpkg python-software-properties --addpkg python-vm-builder --tmpfs - --domain origo.io --ip 10.1.1.2 --execscript="./$me"
+    vmbuilder kvm ubuntu -o -v --debug --suite precise --components main,universe,multiverse --arch amd64 --rootsize 81920 --user origo --pass origo --hostname $dname --addpkg libjson-perl --addpkg liburi-encode-perl --addpkg curl --addpkg acpid --addpkg openssh-server --addpkg nfs-common --addpkg dmidecode --addpkg man --addpkg libstring-shellquote-perl --addpkg unzip --addpkg sysbench --addpkg netperf --addpkg xinetd --addpkg php5-imagick --addpkg screen --addpkg iptables --addpkg git --addpkg python-software-properties --addpkg python-vm-builder --addpkg libguestfs-tools --tmpfs - --domain origo.io --ip 10.1.1.2 --execscript="./$me"
 # Clean up
 	mv ubuntu-kvm/*.qcow2 "./$dname-$version.master.qcow2"
 	rm -r ubuntu-kvm

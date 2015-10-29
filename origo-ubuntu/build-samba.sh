@@ -314,6 +314,19 @@ vmbuilder kvm ubuntu -o -v --debug --suite precise --components main,universe,mu
 # Create data image
     [ -f ./samba/users ] || mkdir -p ./samba/users/administrator ./samba/groups ./samba/shared
     chmod -R 777 ./samba/users ./samba/groups ./samba/shared
-    [ -f ./$dname-$version-data.master.qcow2 ] || virt-make-fs --format=qcow2 --type=ext4 --size=100G samba "./$dname-$version-data.master.qcow2"
+# Creating qcow2 image this way requires nested virtualization
+#    [ -f ./$dname-$version-data.master.qcow2 ] || virt-make-fs --format=qcow2 --type=ext4 --size=100G samba "./$dname-$version-data.master.qcow2"
+# So let's create an image the old way
+    if [ ! -f ./$dname-$version-data.master.qcow2 ]
+    then
+        dd if=/dev/null of=example.img bs=1M seek=102400
+        mkfs.ext4 -F $dname-$version-data.master.img
+        mkdir /mnt/samba-data
+        mount -t ext4 -o loop $dname-$version-data.master.img /mnt/samba-data
+        cp -a samba/* /mnt/samba-data
+        umount /mnt/samba-data
+        kvm-img convert $dname-$version-data.master.img -O qcow2 $dname-$version-data.master.qcow2
+        rm $dname-$version-data.master.img
+    fi
 fi
 
