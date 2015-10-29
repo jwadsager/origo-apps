@@ -319,7 +319,7 @@ vmbuilder kvm ubuntu -o -v --debug --suite precise --components main,universe,mu
 # So let's create an image the old way
     if [ ! -f ./$dname-$version-data.master.qcow2 ]
     then
-        dd if=/dev/null of=example.img bs=1M seek=102400
+        dd if=/dev/null of=$dname-$version-data.master.img bs=1M seek=102400
         mkfs.ext4 -F $dname-$version-data.master.img
         mkdir /mnt/samba-data
         mount -t ext4 -o loop $dname-$version-data.master.img /mnt/samba-data
