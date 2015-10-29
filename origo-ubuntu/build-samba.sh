@@ -319,14 +319,14 @@ vmbuilder kvm ubuntu -o -v --debug --suite precise --components main,universe,mu
 # So let's create an image the old way
     if [ ! -f ./$dname-$version-data.master.qcow2 ]
     then
-        dd if=/dev/null of=$dname-$version-data.master.img bs=1M seek=102400
-        mkfs.ext4 -F $dname-$version-data.master.img
+        kvm-img create -f qcow2 $dname-$version-data.master.qcow2 107374182400
+        qemu-nbd -c /dev/nbd0 $PWD/$dname-$version-data.master.qcow2
+        mkfs.ext4 /dev/nbd0
+        mount /dev/nbd0 /mnt/samba-data
         mkdir /mnt/samba-data
-        mount -t ext4 -o loop $dname-$version-data.master.img /mnt/samba-data
         cp -a samba/* /mnt/samba-data
         umount /mnt/samba-data
-        kvm-img convert $dname-$version-data.master.img -O qcow2 $dname-$version-data.master.qcow2
-        rm $dname-$version-data.master.img
+        qemu-nbd -d /dev/nbd0
     fi
 fi
 
