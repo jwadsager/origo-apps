@@ -214,6 +214,8 @@ SetEnv MOD_AUTH_TKT_CONF \"/etc/apache2/conf.d/auth_tkt.conf\"
 
 # Configure Samba
     chroot $1 samba-tool domain provision --realm=origo.lan --domain=origo --host-name=$dname --dnspass="Passw0rd" --adminpass="Passw0rd" --server-role=dc --dns-backend=SAMBA_INTERNAL --use-rfc2307 --use-xattrs=yes
+# Prevent passwords from expiring
+    chroot $1 samba-tool domain passwordsettings set --max-pwd-age=0
 
     chroot $1 perl -pi -e 's/(\[global\])/$1\n   root preexec = \/bin\/mkdir \/mnt\/data\/users\/%U\n   dns forwarder = 10.0.0.1\n   log level = 2\n   log file = \/var\/log\/samba\/samba.log.%m\n   max log size = 50\n   debug timestamp = yes\n   idmap_ldb:use rfc2307 = yes\n   veto files = \/.groupaccess_*\/.tmb\/.quarantine\//' /etc/samba/smb.conf
     chroot $1 perl -pi -e 's/(\[netlogon\])/$1\n   browseable = no/' /etc/samba/smb.conf
