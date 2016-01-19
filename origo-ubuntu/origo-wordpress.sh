@@ -18,7 +18,9 @@ else
 # We need to to a bit of gymnastics because of problems with escaping quotes
 
 # Replace button with link to login page with redirect to our app page
-    perl -pi -e 's/(<a href="\.\.\/wp-login\.php".+<\/a>)/<!-- $1 --><script>var pipeloc=location\.href\.substring(0,location.href.indexOf("\/home")); location=pipeloc \+ ":10000\/origo\/?show=showdummy-site";<\/script>/;' /usr/share/wordpress/wp-admin/install.php
+#  Old version
+#    perl -pi -e 's/(<a href="\.\.\/wp-login\.php".+<\/a>)/<!-- $1 --><script>var pipeloc=location\.href\.substring(0,location.href.indexOf("\/home")); location=pipeloc \+ ":10000\/origo\/?show=showdummy-site";<\/script>/;' /usr/share/wordpress/wp-admin/install.php
+    perl -pi -e 's/(<a href=".+wp_login_url.+">.+<\/a>)/<!-- $1 --><script>var pipeloc=location\.href\.substring(0,location.href.indexOf("\/home")); location=pipeloc \+ ":10000\/origo\/?show=showdummy-site";<\/script>/;' /usr/share/wordpress/wp-admin/install.php
 
     perl -pi -e "unless (\$match) {\$match = s/showdummy/' . \\\$showsite . '/;}" /usr/share/wordpress/wp-admin/install.php
     perl -pi -e 'if (!$match) {$match = s/showdummy/<?php echo \$showsite; ?>/;}' /usr/share/wordpress/wp-admin/install.php

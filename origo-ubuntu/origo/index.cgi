@@ -45,7 +45,7 @@ my $upgradeurl;
 my $appinfo_ref = get_appinfo();
 my %appinfo = %$appinfo_ref;
 if ($appid) {
-    $appurl = "https://origo.io/?app=$appid";
+    $appurl = "https://www.origo.io/?app=$appid";
     $upgradeurl = $appinfo{upgradelink};
 }
 
