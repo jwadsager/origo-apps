@@ -2,7 +2,7 @@
 Apps for the Origo infrastructure platform.
 
 The Origo infrastruture platform (OIP) is a platform for managing VM's, storage and networking.
-OIP runs the cloud computing offering from Origo Systems (available at https://origo.io), and also runs the
+OIP runs the cloud computing offering from Origo Systems (available at https://www.origo.io), and also runs the
 boxes we sell to install a private compute cloud in your own server room.
 
 One of the unique things about OIP is the ability to run pre-packaged "apps", i.e. a set of imaster mages and
