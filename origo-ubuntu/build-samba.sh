@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # The version of the app we are building
-version="1.3"
+version="1.4"
 #dname=`basename "$PWD"`
 dname="origo-samba"
 me=`basename $0`
@@ -308,7 +308,7 @@ exec /usr/share/webmin/origo/tabs/samba/bittorrent_sync_x64/btsync --nodaemon --
 
 # If called without parameters, build image
 else
-vmbuilder kvm ubuntu -o -v --debug --suite precise --components main,universe,multiverse --arch amd64 --rootsize 81920 --user origo --pass origo --hostname $dname --addpkg libjson-perl --addpkg liburi-encode-perl --addpkg curl --addpkg acpid --addpkg openssh-server --addpkg nfs-common --addpkg dmidecode --addpkg man --addpkg unzip --addpkg python-software-properties --addpkg php5-imagick --addpkg heimdal-clients --addpkg libauthen-simple-ldap-perl --addpkg libstring-shellquote-perl --addpkg libexpect-perl --addpkg libapache2-mod-perl2 --tmpfs - --domain origo.io --ip 10.1.1.2 --execscript="./$me"
+vmbuilder kvm ubuntu -o -v --debug --suite precise --components main,universe,multiverse --arch amd64 --rootsize 9216 --user origo --pass origo --hostname $dname --addpkg libjson-perl --addpkg liburi-encode-perl --addpkg curl --addpkg acpid --addpkg openssh-server --addpkg nfs-common --addpkg dmidecode --addpkg man --addpkg unzip --addpkg python-software-properties --addpkg php5-imagick --addpkg heimdal-clients --addpkg libauthen-simple-ldap-perl --addpkg libstring-shellquote-perl --addpkg libexpect-perl --addpkg libapache2-mod-perl2 --tmpfs - --domain origo.io --ip 10.1.1.2 --execscript="./$me"
 # --mirror=http://us-east-1.ec2.archive.ubuntu.com/ubuntu
 # Clean up
 	mv ubuntu-kvm/*.qcow2 "./$dname-$version.master.qcow2"
