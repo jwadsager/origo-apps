@@ -226,7 +226,7 @@ default-collation=utf8_general_ci" > /var/lib/mysql/wordpress_default/db.opt'
 
 # If called without parameters, build image, sizes 9216, 81920, 10240
 else
-	vmbuilder kvm ubuntu -o -v --suite precise --arch amd64 --rootsize 81920 --user origo --pass origo --hostname $dname --addpkg libjson-perl --addpkg liburi-encode-perl --addpkg curl --addpkg acpid --addpkg openssh-server --addpkg wordpress --addpkg memcached --addpkg php5-memcache --addpkg nfs-common --addpkg dmidecode --addpkg unzip --addpkg mysql-server --addpkg libstring-shellquote-perl --tmpfs - --domain origo.io --ip 10.1.1.2 --execscript="./$me"
+	vmbuilder kvm ubuntu -o -v --suite precise --arch amd64 --rootsize 9216 --user origo --pass origo --hostname $dname --addpkg libjson-perl --addpkg liburi-encode-perl --addpkg curl --addpkg acpid --addpkg openssh-server --addpkg wordpress --addpkg memcached --addpkg php5-memcache --addpkg nfs-common --addpkg dmidecode --addpkg unzip --addpkg mysql-server --addpkg libstring-shellquote-perl --tmpfs - --domain origo.io --ip 10.1.1.2 --execscript="./$me"
 # Clean up
 	mv ubuntu-kvm/*.qcow2 "./$dname-$version.master.qcow2"
 	rm -r ubuntu-kvm
