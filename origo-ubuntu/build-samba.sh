@@ -289,6 +289,8 @@ include = /etc/samba/smb.conf.groups
 
     chroot $1 ln -sf /opt/samba4/private/krb5.conf /etc/krb5.conf
 
+    chroot $1 /usr/sbin/adduser www-data users
+
 # Set up btsync
     chroot $1 bash -c 'echo "start on started networking
 expect fork
@@ -321,6 +323,7 @@ vmbuilder kvm ubuntu -o -v --debug --suite precise --components main,universe,mu
 # So let's create an image the old way
     if [ ! -f ./$dname-$version-data.master.qcow2 ]
     then
+        modprobe nbd
         kvm-img create -f qcow2 $dname-$version-data.master.qcow2 107374182400
         qemu-nbd -c /dev/nbd0 $PWD/$dname-$version-data.master.qcow2
         mkfs.ext4 /dev/nbd0
