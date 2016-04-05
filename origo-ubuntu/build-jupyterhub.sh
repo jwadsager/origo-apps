@@ -36,8 +36,8 @@ if [ $1 ]; then
 	chroot $1 npm install -g configurable-http-proxy
 	LD_LIBRARY_PATH='/miniconda/pkgs/python-3.5.1-0/lib' chroot $1 /miniconda/bin/pip install --upgrade --ignore-installed ipython[notebook]
 	LD_LIBRARY_PATH='/miniconda/pkgs/python-3.5.1-0/lib' chroot $1 /miniconda/bin/pip install --upgrade --ignore-installed jupyterhub
-	echo 'export $PATH=/miniconda/bin:$PATH' >> $1/root/.bashrc
-	echo 'export $LD_LIBRARY_PATH=/miniconda/pkgs/python-3.5.1-0/lib' >> $1/root/.bashrc
+	echo 'export PATH="/miniconda/bin:$PATH"' >> $1/root/.bashrc
+	echo 'export LD_LIBRARY_PATH="/miniconda/pkgs/python-3.5.1-0/lib"' >> $1/root/.bashrc
 	cp ./jupyterhub_config
 
 # Set up automatic scanning for other Webmin servers
