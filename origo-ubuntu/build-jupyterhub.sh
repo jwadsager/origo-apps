@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # The version of the app we are building
-version="beta2"
+version="beta3"
 
 dname="origo-jupyterhub"
 me=`basename $0`
