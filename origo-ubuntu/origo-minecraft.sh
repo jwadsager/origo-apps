@@ -12,4 +12,6 @@ setgid minecraft
 respawn
 respawn limit 20 5
 
-exec /usr/bin/java -Xmx4096M -Xms4096M -jar minecraft_server.jar nogui
+memory=`awk '/MemTotal/ {printf( "%.2d\n", $2 / 1024 )}' /proc/meminfo`
+
+exec /usr/bin/java -Xmx${memory}M -Xms${memory}M -jar minecraft_server.jar nogui
