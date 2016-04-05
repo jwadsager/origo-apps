@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # The version of the app we are building
-version="beta"
+version="beta2"
 
 dname="origo-jupyterhub"
 me=`basename $0`
@@ -36,6 +36,9 @@ if [ $1 ]; then
 	chroot $1 npm install -g configurable-http-proxy
 	LD_LIBRARY_PATH='/miniconda/pkgs/python-3.5.1-0/lib' chroot $1 /miniconda/bin/pip install --upgrade --ignore-installed ipython[notebook]
 	LD_LIBRARY_PATH='/miniconda/pkgs/python-3.5.1-0/lib' chroot $1 /miniconda/bin/pip install --upgrade --ignore-installed jupyterhub
+	echo 'export $PATH=/miniconda/bin:$PATH' >> $1/root/.bashrc
+	echo 'export $LD_LIBRARY_PATH=/miniconda/pkgs/python-3.5.1-0/lib' >> $1/root/.bashrc
+	cp ./jupyterhub_config
 
 # Set up automatic scanning for other Webmin servers
 	chroot $1 bash -c 'echo "auto_pass=origo
@@ -110,9 +113,10 @@ task
 exec /usr/local/bin/origo-networking.pl" > /etc/init/origo-networking.conf'
 
 # Utility script for setting up WordPress to work with this app
-    cp origo-jupyterhub.sh $1/etc/init.d/jupyterhub
+    cp jupyterhub/jupyterhub.sh $1/etc/init.d/jupyterhub
     chmod +x $1/etc/init.d/jupyterhub
     chroot $1 update-rc.d jupyterhub defaults
+    cp jupyterhub/jupyterhub_config.py $1/jupyterhub_config.py
     #chroot $1 bash -c 'echo "start on (started origo-networking)
 #task
 #exec /etc/init.d/jupyterhub start" > /etc/init/jupyterhub.conf'
