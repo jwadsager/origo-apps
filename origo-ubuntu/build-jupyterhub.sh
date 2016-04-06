@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # The version of the app we are building
-version="beta3"
+version="beta4"
 
 dname="origo-jupyterhub"
 me=`basename $0`
@@ -27,18 +27,34 @@ if [ $1 ]; then
 	chroot $1 wget -q https://repo.continuum.io/miniconda/Miniconda3-3.19.0-Linux-x86_64.sh -O /miniconda.sh
 	chroot $1 sed -e '/unset LD_LIBRARY_PATH/s/^/#/g' -i /miniconda.sh
 	chroot $1 sed -e '/verify the size of the installer/,+5 s/^/#/g' -i /miniconda.sh
-	LD_LIBRARY_PATH='/miniconda/pkgs/python-3.5.1-0/lib' chroot $1 bash /miniconda.sh -f -b -p /miniconda
-	LD_LIBRARY_PATH='/miniconda/pkgs/python-3.5.1-0/lib' chroot $1 /miniconda/bin/conda install --yes python=3.5 sqlalchemy tornado jinja2 traitlets requests pip
-	LD_LIBRARY_PATH='/miniconda/pkgs/python-3.5.1-0/lib' chroot $1 /miniconda/bin/pip install --upgrade pip
+	echo 'export PATH="/miniconda/bin:$PATH"' >> $1/root/.bashrc
+	echo 'export LD_LIBRARY_PATH="/miniconda/pkgs/python-3.5.1-0/lib"' >> $1/root/.bashrc
+	
+	# install python
+	chroot $1 bash /miniconda.sh -f -b -p /miniconda
+
+	chroot $1 create -n py2 python=2
+	chroot $1 source activate py2
+	chroot $1 conda install notebook ipykernel
+	chroot $1 ipython kernel install
+
+	chroot $1 create -n py3 python=3
+	chroot $1 source activate py3
+	chroot $1 conda install notebook ipykernel
+	chroot $1 ipython kernel install
+
+	# jupyterhub deps
+	chroot $1 source activate py3 && conda install --yes python=3.5 sqlalchemy tornado jinja2 traitlets requests pip
+	chroot $1 source activate py3 && pip install --upgrade pip
 	chroot $1 wget -q https://deb.nodesource.com/setup_0.12 -O /node.sh
 	chroot $1 bash /node.sh
 	chroot $1 apt-get install -y nodejs build-essential
 	chroot $1 npm install -g configurable-http-proxy
-	LD_LIBRARY_PATH='/miniconda/pkgs/python-3.5.1-0/lib' chroot $1 /miniconda/bin/pip install --upgrade --ignore-installed ipython[notebook]
-	LD_LIBRARY_PATH='/miniconda/pkgs/python-3.5.1-0/lib' chroot $1 /miniconda/bin/pip install --upgrade --ignore-installed jupyterhub
-	echo 'export PATH="/miniconda/bin:$PATH"' >> $1/root/.bashrc
-	echo 'export LD_LIBRARY_PATH="/miniconda/pkgs/python-3.5.1-0/lib"' >> $1/root/.bashrc
-	cp ./jupyterhub_config
+
+	# install jupyterhub itself
+	chroot $1 source activate py3 && pip install --upgrade --ignore-installed ipython[notebook]
+	chroot $1 source activate py3 && pip install --upgrade --ignore-installed jupyterhub
+	cp ./jupyterhub_config $1/
 
 # Set up automatic scanning for other Webmin servers
 	chroot $1 bash -c 'echo "auto_pass=origo
