@@ -100,7 +100,7 @@
 
 # Confirm that JupyterHub should be run without SSL. This is **NOT RECOMMENDED**
 # unless SSL termination is being handled by another layer.
-# c.JupyterHub.confirm_no_ssl = False
+c.JupyterHub.confirm_no_ssl = True
 
 # Number of days for a login cookie to be valid. Default is two weeks.
 # c.JupyterHub.cookie_max_age_days = 14
@@ -148,7 +148,7 @@ c.JupyterHub.hub_ip = '127.0.0.1'
 # c.JupyterHub.hub_prefix = '/hub/'
 
 # The public facing ip of the whole application (the proxy)
-# c.JupyterHub.ip = ''
+# c.JupyterHub.ip = '127.0.0.1'
 
 # Supply extra arguments that will be passed to Jinja environment.
 # c.JupyterHub.jinja_environment_options = {}
@@ -163,7 +163,7 @@ c.JupyterHub.hub_ip = '127.0.0.1'
 # c.JupyterHub.pid_file = ''
 
 # The public facing port of the proxy
-c.JupyterHub.port = 80
+c.JupyterHub.port = 8000
 
 # The ip for the proxy API handlers
 # c.JupyterHub.proxy_api_ip = '127.0.0.1'

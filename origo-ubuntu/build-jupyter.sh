@@ -126,12 +126,18 @@ exec /usr/local/bin/origo-networking.pl" > /etc/init/origo-networking.conf'
     cp jupyter/jupyterhub.sh $1/etc/init.d/jupyterhub
     chmod +x $1/etc/init.d/jupyterhub
     chroot $1 update-rc.d jupyterhub defaults
-    cp jupyter/jupyterhub_config.py $1/jupyterhub_config.py
     #chroot $1 bash -c 'echo "start on (started origo-networking)
 #task
 #exec /etc/init.d/jupyterhub start" > /etc/init/jupyterhub.conf'
 
 # Configure Apache
+
+    chroot $1 bash -c 'echo "<Location />
+                ProxyPass http://localhost:8000/
+                ProxyPassReverse http://localhost:8000/
+        </Location>" >> /etc/apache2/sites-available/default-ssl'
+
+
 
 #    chroot $1 bash -c 'echo "Alias /home /usr/share/wordpress
 #Alias /home/wp-content /var/lib/wordpress/wp-content

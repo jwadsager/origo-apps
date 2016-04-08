@@ -19,7 +19,7 @@ LD_LIBRARY_PATH="/anaconda/pkgs/python-3.5.1-0/lib"
 DESC="Multi-user server for Jupyter notebooks"
 NAME=jupyterhub
 DAEMON=/anaconda/envs/py3/bin/jupyterhub
-DAEMON_ARGS="--config=/jupyterhub_config.py --no-ssl"
+DAEMON_ARGS="--config=/jupyterhub_config.py"
 PIDFILE=/var/run/$NAME.pid
 SCRIPTNAME=/etc/init.d/$NAME
 
