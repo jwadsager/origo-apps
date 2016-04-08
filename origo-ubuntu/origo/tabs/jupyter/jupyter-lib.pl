@@ -5,7 +5,7 @@ use MIME::Base64 qw( decode_base64 );
 @userprops = ("username", "firstName", "lastName", "email", "phoneNumber");
 @userpropnames = ("Username", "First name", "Last name", "Email", "Phone");
 
-sub jupyterhub {
+sub jupyter {
     my $action = shift;
     my $in_ref = shift;
     my %in = %{$in_ref};
@@ -27,7 +27,7 @@ END
             $i++;
         }
         my $form = <<END
-<div class="tab-pane" id="jupyterhub">
+<div class="tab-pane" id="jupyter">
     <div style="width:100%; height:310px; overflow-y:scroll;">
       <table class="table table-condensed table-striped small" id="users_table" style="width: 100%; border:none;">
         <thead>
@@ -51,7 +51,7 @@ $dheaders
     <div class="modal-content">
       <div class="modal-body">
         <h4 class="modal-title" id="user_label">Edit user</h4>
-        <form id="edit_user_form" class="small" method="post" action="index.cgi?action=savelinuxuser\&tab=jupyterhub" autocomplete="off">
+        <form id="edit_user_form" class="small" method="post" action="index.cgi?action=savelinuxuser\&tab=jupyter" autocomplete="off">
             <table width="100\%" style="padding:2px;">
 $drows
                 <tr>
@@ -110,7 +110,7 @@ END
                 }
             ],
             ajax: {
-                url: "index.cgi?tab=jupyterhub\&action=listlinuxusers",
+                url: "index.cgi?tab=jupyter\&action=listlinuxusers",
                 dataSrc: ""
             }
         });
@@ -164,7 +164,7 @@ END
             if (!newval && oldval) \$("#edituser_" + prop).val("--");
         });
 
-        \$.post( "index.cgi?action=savelinuxuser\&tab=jupyterhub", \$("#edit_user_form").serialize())
+        \$.post( "index.cgi?action=savelinuxuser\&tab=jupyter", \$("#edit_user_form").serialize())
         .done(function( data ) {
             salert(data);
             updateLinuxUsers();
@@ -182,7 +182,7 @@ END
         var editrow = [];
         console.log("Deleting user", \$("#edituser_cn").val());
 
-        \$.post( "index.cgi?action=deletelinuxuser\&tab=jupyterhub", \$("#edit_user_form").serialize())
+        \$.post( "index.cgi?action=deletelinuxuser\&tab=jupyter", \$("#edit_user_form").serialize())
         .done(function( data ) {
             salert(data);
             updateLinuxUsers();

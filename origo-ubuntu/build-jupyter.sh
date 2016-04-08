@@ -1,9 +1,9 @@
 #!/bin/bash
 
 # The version of the app we are building
-version="beta4"
+version="beta5"
 
-dname="origo-jupyterhub"
+dname="origo-jupyter"
 me=`basename $0`
 
 # Change working directory to script's directory
@@ -24,37 +24,31 @@ if [ $1 ]; then
 	chroot $1 apt-get  -q -y --force-yes install apache2-mpm-prefork libapache2-mod-php5
 	chroot $1 apt-get  -q -y --force-yes install webmin
 
-	chroot $1 wget -q https://repo.continuum.io/miniconda/Miniconda3-3.19.0-Linux-x86_64.sh -O /miniconda.sh
-	chroot $1 sed -e '/unset LD_LIBRARY_PATH/s/^/#/g' -i /miniconda.sh
-	chroot $1 sed -e '/verify the size of the installer/,+5 s/^/#/g' -i /miniconda.sh
-	echo 'export PATH="/miniconda/bin:$PATH"' >> $1/root/.bashrc
-	echo 'export LD_LIBRARY_PATH="/miniconda/pkgs/python-3.5.1-0/lib"' >> $1/root/.bashrc
+	chroot $1 wget -q https://3230d63b5fc54e62148e-c95ac804525aac4b6dba79b00b39d1d3.ssl.cf1.rackcdn.com/Anaconda3-4.0.0-Linux-x86_64.sh -O /anaconda.sh
+	chroot $1 sed -e '/unset LD_LIBRARY_PATH/s/^/#/g' -i /anaconda.sh
+	chroot $1 sed -e '/verify the size of the installer/,+5 s/^/#/g' -i /anaconda.sh
 	
 	# install python
-	chroot $1 bash /miniconda.sh -f -b -p /miniconda
+	LD_LIBRARY_PATH='/anaconda/pkgs/python-3.5.1-0/lib' PATH=/anaconda/bin:$PATH chroot $1 bash /anaconda.sh -f -b -p /anaconda
 
-	chroot $1 create -n py2 python=2
-	chroot $1 source activate py2
-	chroot $1 conda install notebook ipykernel
-	chroot $1 ipython kernel install
-
-	chroot $1 create -n py3 python=3
-	chroot $1 source activate py3
-	chroot $1 conda install notebook ipykernel
-	chroot $1 ipython kernel install
+	# kernels
+	# TODO: Add julialang and R
+	LD_LIBRARY_PATH='/anaconda/pkgs/python-3.5.1-0/lib' PATH=/anaconda/bin:$PATH chroot $1 /anaconda/bin/conda create --yes -n py3 python=3 anaconda
+	LD_LIBRARY_PATH='/anaconda/pkgs/python-3.5.1-0/lib' PATH=/anaconda/bin:$PATH chroot $1 /anaconda/bin/conda create --yes -n py2 python=2 anaconda
+	LD_LIBRARY_PATH='/anaconda/pkgs/python-3.5.1-0/lib' PATH=/anaconda/bin:$PATH chroot $1 bash -c 'source /anaconda/bin/activate py3;ipython kernel install'
+	LD_LIBRARY_PATH='/anaconda/pkgs/python-3.5.1-0/lib:/anaconda/pkgs/python-2.7.11-0/lib' PATH=/anaconda/bin:$PATH chroot $1 bash -c 'source /anaconda/bin/activate py2;ipython kernel install'
 
 	# jupyterhub deps
-	chroot $1 source activate py3 && conda install --yes python=3.5 sqlalchemy tornado jinja2 traitlets requests pip
-	chroot $1 source activate py3 && pip install --upgrade pip
+	LD_LIBRARY_PATH='/anaconda/pkgs/python-3.5.1-0/lib' PATH=/anaconda/bin:$PATH chroot $1 bash -c 'source /anaconda/bin/activate py3;/anaconda/bin/conda install --yes python=3 sqlalchemy tornado jinja2 traitlets requests pip'
+	LD_LIBRARY_PATH='/anaconda/pkgs/python-3.5.1-0/lib' PATH=/anaconda/bin:$PATH chroot $1 bash -c 'source /anaconda/bin/activate py3;/anaconda/bin/pip install --upgrade pip'
 	chroot $1 wget -q https://deb.nodesource.com/setup_0.12 -O /node.sh
 	chroot $1 bash /node.sh
 	chroot $1 apt-get install -y nodejs build-essential
 	chroot $1 npm install -g configurable-http-proxy
 
 	# install jupyterhub itself
-	chroot $1 source activate py3 && pip install --upgrade --ignore-installed ipython[notebook]
-	chroot $1 source activate py3 && pip install --upgrade --ignore-installed jupyterhub
-	cp ./jupyterhub_config $1/
+	LD_LIBRARY_PATH='/anaconda/pkgs/python-3.5.1-0/lib' PATH=/anaconda/envs/py3/bin:$PATH chroot $1 bash -c 'source /anaconda/bin/activate py3; pip install --upgrade --ignore-installed jupyterhub'
+	cp ./jupyter/jupyterhub_config.py $1/
 
 # Set up automatic scanning for other Webmin servers
 	chroot $1 bash -c 'echo "auto_pass=origo
@@ -103,7 +97,7 @@ referers=" >> /etc/webmin/config'
 # First exclude all, then include all the modules we want installed for this app
 	tar cvf $dname.wbm.tar origo --exclude=origo/tabs/*
 	#tar rvf $dname.wbm.tar origo/tabs/security origo/tabs/software origo/tabs/wordpress
-	tar rvf $dname.wbm.tar origo/tabs/security origo/tabs/software origo/tabs/servers origo/tabs/jupyterhub
+	tar rvf $dname.wbm.tar origo/tabs/security origo/tabs/software origo/tabs/servers origo/tabs/jupyter
 	mv $dname.wbm.tar $dname.wbm
 	gzip -f $dname.wbm
 	cp -a $dname.wbm.gz $1/tmp/origo.wbm.gz
@@ -129,72 +123,72 @@ task
 exec /usr/local/bin/origo-networking.pl" > /etc/init/origo-networking.conf'
 
 # Utility script for setting up WordPress to work with this app
-    cp jupyterhub/jupyterhub.sh $1/etc/init.d/jupyterhub
+    cp jupyter/jupyterhub.sh $1/etc/init.d/jupyterhub
     chmod +x $1/etc/init.d/jupyterhub
     chroot $1 update-rc.d jupyterhub defaults
-    cp jupyterhub/jupyterhub_config.py $1/jupyterhub_config.py
+    cp jupyter/jupyterhub_config.py $1/jupyterhub_config.py
     #chroot $1 bash -c 'echo "start on (started origo-networking)
 #task
 #exec /etc/init.d/jupyterhub start" > /etc/init/jupyterhub.conf'
 
 # Configure Apache
 
-    chroot $1 bash -c 'echo "Alias /home /usr/share/wordpress
-Alias /home/wp-content /var/lib/wordpress/wp-content
-<Directory /usr/share/wordpress>
-    Options FollowSymLinks
-    AllowOverride Limit Options FileInfo
-    DirectoryIndex index.php
-    Order allow,deny
-    Allow from all
-</Directory>
-<Directory /var/lib/wordpress/wp-content>
-    Options FollowSymLinks
-    Order allow,deny
-    Allow from all
-</Directory>" >> /etc/apache2/sites-available/default'
-
-# Configure WordPress
-
-    chroot $1 mkdir /etc/wordpress
-    echo  "<?php
-    define('DB_NAME', 'wordpress_default');
-    define('DB_USER', 'root');
-    define('DB_PASSWORD', '');
-    define('DB_HOST', 'localhost');
-    define('WP_CONTENT_DIR', '/usr/share/wordpress/wp-content');
-    define('WP_CONTENT_URL', '/home/wp-content');
-    define('WP_HOME','/home');
-    define('WP_SITEURL','/home');
-    define('WP_CACHE', true);
-    define('WP_CORE_UPDATE', true);
-?>" >> $1/etc/wordpress/config-default.php
-
+#    chroot $1 bash -c 'echo "Alias /home /usr/share/wordpress
+#Alias /home/wp-content /var/lib/wordpress/wp-content
+#<Directory /usr/share/wordpress>
+#    Options FollowSymLinks
+#    AllowOverride Limit Options FileInfo
+#    DirectoryIndex index.php
+#    Order allow,deny
+#    Allow from all
+#</Directory>
+#<Directory /var/lib/wordpress/wp-content>
+#    Options FollowSymLinks
+#    Order allow,deny
+#    Allow from all
+#</Directory>" >> /etc/apache2/sites-available/default'
+#
+## Configure WordPress
+#
+#    chroot $1 mkdir /etc/wordpress
+#    echo  "<?php
+#    define('DB_NAME', 'wordpress_default');
+#    define('DB_USER', 'root');
+#    define('DB_PASSWORD', '');
+#    define('DB_HOST', 'localhost');
+#    define('WP_CONTENT_DIR', '/usr/share/wordpress/wp-content');
+#    define('WP_CONTENT_URL', '/home/wp-content');
+#    define('WP_HOME','/home');
+#    define('WP_SITEURL','/home');
+#    define('WP_CACHE', true);
+#    define('WP_CORE_UPDATE', true);
+#?>" >> $1/etc/wordpress/config-default.php
+#
 # Make homepage redirect to blog
-    chroot $1 bash -c 'echo "<META HTTP-EQUIV=\"Refresh\" Content=\"0; URL=/home/\">" > /var/www/index.html'
-
-# Create WordPress database
-    chroot $1 mkdir -p /var/lib/mysql/wordpress_default
-    chroot $1 bash -c 'echo "default-character-set=utf8
-default-collation=utf8_general_ci" > /var/lib/mysql/wordpress_default/db.opt'
-
-    chroot $1 chown -R mysql:mysql /var/lib/mysql/wordpress_default
-
- #Allow theme installation automatic upgrades etc
-    chroot $1 chown -R www-data:www-data /var/lib/wordpress
-    chroot $1 chown -R www-data:www-data /usr/share/wordpress
-    chroot $1 chown -R www-data:www-data /usr/share/javascript/cropper/
-    chroot $1 chown -R www-data:www-data /usr/share/javascript/prototype/
-    chroot $1 chown -R www-data:www-data /usr/share/php
-    chroot $1 chown -R www-data:www-data /usr/share/tinymce
-
-# Install newest WordPress
-    echo "Upgrading WordPress to latest version..."
-    cd $1/usr/local/bin; curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
-    chmod 755 $1/usr/local/bin/wp-cli.phar
-    mv $1/usr/local/bin/wp-cli.phar $1/usr/local/bin/wp
-    cd $1/usr/share/wordpress; sudo -u www-data $1/usr/local/bin/wp core download --force
-
+#    chroot $1 bash -c 'echo "<META HTTP-EQUIV=\"Refresh\" Content=\"0; URL=/home/\">" > /var/www/index.html'
+#
+## Create WordPress database
+#    chroot $1 mkdir -p /var/lib/mysql/wordpress_default
+#    chroot $1 bash -c 'echo "default-character-set=utf8
+#default-collation=utf8_general_ci" > /var/lib/mysql/wordpress_default/db.opt'
+#
+#    chroot $1 chown -R mysql:mysql /var/lib/mysql/wordpress_default
+#
+# #Allow theme installation automatic upgrades etc
+#    chroot $1 chown -R www-data:www-data /var/lib/wordpress
+#    chroot $1 chown -R www-data:www-data /usr/share/wordpress
+#    chroot $1 chown -R www-data:www-data /usr/share/javascript/cropper/
+#    chroot $1 chown -R www-data:www-data /usr/share/javascript/prototype/
+#    chroot $1 chown -R www-data:www-data /usr/share/php
+#    chroot $1 chown -R www-data:www-data /usr/share/tinymce
+#
+## Install newest WordPress
+#    echo "Upgrading WordPress to latest version..."
+#    cd $1/usr/local/bin; curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
+#    chmod 755 $1/usr/local/bin/wp-cli.phar
+#    mv $1/usr/local/bin/wp-cli.phar $1/usr/local/bin/wp
+#    cd $1/usr/share/wordpress; sudo -u www-data $1/usr/local/bin/wp core download --force
+#
 # Set up SSL access to Webmin on port 10001
     chroot $1 cp /etc/apache2/sites-available/default-ssl /etc/apache2/sites-available/webmin-ssl
     chroot $1 perl -pi -e 's/<VirtualHost _default_:443>/<VirtualHost _default_:10001>/;' /etc/apache2/sites-available/webmin-ssl
@@ -204,7 +198,6 @@ default-collation=utf8_general_ci" > /var/lib/mysql/wordpress_default/db.opt'
 
 # Disable ondemand CPU-scaling service
     chroot $1 update-rc.d ondemand disable
-
 
 # Disable gzip compression in Apache (enable it manually if desired)
     chroot $1 a2dismod deflate

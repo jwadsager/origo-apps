@@ -139,7 +139,7 @@
 # c.JupyterHub.generate_config = False
 
 # The ip for this process
-# c.JupyterHub.hub_ip = '127.0.0.1'
+c.JupyterHub.hub_ip = '127.0.0.1'
 
 # The port for this process
 # c.JupyterHub.hub_port = 8081
@@ -163,7 +163,7 @@
 # c.JupyterHub.pid_file = ''
 
 # The public facing port of the proxy
-# c.JupyterHub.port = 8000
+c.JupyterHub.port = 80
 
 # The ip for the proxy API handlers
 # c.JupyterHub.proxy_api_ip = '127.0.0.1'

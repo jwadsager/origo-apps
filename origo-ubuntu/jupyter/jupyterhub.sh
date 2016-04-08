@@ -14,11 +14,11 @@
 # Do NOT "set -e"
 
 # PATH should only include /usr/* if it runs after the mountnfs.sh script
-PATH=/sbin:/usr/sbin:/bin:/usr/bin:/usr/local/bin:/miniconda/bin
-LD_LIBRARY_PATH="/miniconda/pkgs/python-3.5.1-0/lib"
+PATH=/sbin:/usr/sbin:/bin:/usr/bin:/usr/local/bin:/anaconda/bin:/anaconda/envs/py3/bin
+LD_LIBRARY_PATH="/anaconda/pkgs/python-3.5.1-0/lib"
 DESC="Multi-user server for Jupyter notebooks"
 NAME=jupyterhub
-DAEMON=/miniconda/bin/jupyterhub
+DAEMON=/anaconda/envs/py3/bin/jupyterhub
 DAEMON_ARGS="--config=/jupyterhub_config.py --no-ssl"
 PIDFILE=/var/run/$NAME.pid
 SCRIPTNAME=/etc/init.d/$NAME
