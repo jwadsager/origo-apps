@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # The version of the app we are building
-version="beta5"
+version="beta7"
 
 dname="origo-jupyter"
 me=`basename $0`
@@ -21,7 +21,7 @@ if [ $1 ]; then
 	chroot $1 wget http://www.webmin.com/jcameron-key.asc
 	chroot $1 apt-key add jcameron-key.asc
 	chroot $1 apt-get update
-	chroot $1 apt-get  -q -y --force-yes install apache2-mpm-prefork libapache2-mod-php5
+	chroot $1 apt-get  -q -y --force-yes install apache2-mpm-prefork libapache2-mod-php5 nginx
 	chroot $1 apt-get  -q -y --force-yes install webmin
 
 	chroot $1 wget -q https://3230d63b5fc54e62148e-c95ac804525aac4b6dba79b00b39d1d3.ssl.cf1.rackcdn.com/Anaconda3-4.0.0-Linux-x86_64.sh -O /anaconda.sh
@@ -49,6 +49,12 @@ if [ $1 ]; then
 	# install jupyterhub itself
 	LD_LIBRARY_PATH='/anaconda/pkgs/python-3.5.1-0/lib' PATH=/anaconda/envs/py3/bin:$PATH chroot $1 bash -c 'source /anaconda/bin/activate py3; pip install --upgrade --ignore-installed jupyterhub'
 	cp ./jupyter/jupyterhub_config.py $1/
+
+	# Configure nginx proxy
+    	cp jupyter/nginx.conf $1/etc/nginx/nginx.conf
+	chroot $1 sed -e '/80/ s/^/#/g' -i /etc/apache2/ports.conf
+	chroot $1 sed -e '/443/ s/^/#/g' -i /etc/apache2/ports.conf
+	rm $1/etc/apache2/sites-enabled/000-default
 
 # Set up automatic scanning for other Webmin servers
 	chroot $1 bash -c 'echo "auto_pass=origo
@@ -130,12 +136,13 @@ exec /usr/local/bin/origo-networking.pl" > /etc/init/origo-networking.conf'
 #task
 #exec /etc/init.d/jupyterhub start" > /etc/init/jupyterhub.conf'
 
-# Configure Apache
 
-    chroot $1 bash -c 'echo "<Location />
-                ProxyPass http://localhost:8000/
-                ProxyPassReverse http://localhost:8000/
-        </Location>" >> /etc/apache2/sites-available/default-ssl'
+# Configure Apache
+#
+#    chroot $1 bash -c 'echo "<Location />
+#                ProxyPass http://localhost:8000/
+#                ProxyPassReverse http://localhost:8000/
+#        </Location>" >> /etc/apache2/sites-available/default-ssl'
 
 
 
