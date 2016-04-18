@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # The version of the app we are building
-version="beta7"
+version="beta9"
 
 dname="origo-jupyter"
 me=`basename $0`
@@ -21,8 +21,17 @@ if [ $1 ]; then
 	chroot $1 wget http://www.webmin.com/jcameron-key.asc
 	chroot $1 apt-key add jcameron-key.asc
 	chroot $1 apt-get update
-	chroot $1 apt-get  -q -y --force-yes install apache2-mpm-prefork libapache2-mod-php5 nginx
+	chroot $1 apt-get  -q -y --force-yes install apache2-mpm-prefork libapache2-mod-php5
 	chroot $1 apt-get  -q -y --force-yes install webmin
+	
+	chroot $1 cd /etc/apache2/sites-enabled; rm 000-default default-ssl
+
+	# Set up apache proxy to webmin
+   	chroot $1 cp /etc/apache2/sites-available/default-ssl /etc/apache2/sites-available/webmin-ssl
+    	chroot $1 perl -pi -e 's/<VirtualHost _default_:443>/<VirtualHost _default_:10001>/;' /etc/apache2/sites-available/webmin-ssl
+    	chroot $1 perl -pi -e 's/(<\/VirtualHost>)/    ProxyPass \/ http:\/\/127.0.0.1:10000\/\n    ProxyPassReverse \/ http:\/\/127.0.0.1:10000\/\n$1/;' /etc/apache2/sites-available/webmin-ssl
+    	chroot $1 perl -pi -e 's/(DocumentRoot \/var\/www)/$1\n        <Location \/>\n            deny from all\n            allow from 10.0.0.0\/8 #origo\n            satisfy any\n        <\/Location>/;' /etc/apache2/sites-available/webmin-ssl
+    	chroot $1 perl -pi -e 's/Listen 443/Listen 443\n    Listen 10001/;' /etc/apache2/ports.conf
 
 	chroot $1 wget -q https://3230d63b5fc54e62148e-c95ac804525aac4b6dba79b00b39d1d3.ssl.cf1.rackcdn.com/Anaconda3-4.0.0-Linux-x86_64.sh -O /anaconda.sh
 	chroot $1 sed -e '/unset LD_LIBRARY_PATH/s/^/#/g' -i /anaconda.sh
@@ -49,12 +58,6 @@ if [ $1 ]; then
 	# install jupyterhub itself
 	LD_LIBRARY_PATH='/anaconda/pkgs/python-3.5.1-0/lib' PATH=/anaconda/envs/py3/bin:$PATH chroot $1 bash -c 'source /anaconda/bin/activate py3; pip install --upgrade --ignore-installed jupyterhub'
 	cp ./jupyter/jupyterhub_config.py $1/
-
-	# Configure nginx proxy
-    	cp jupyter/nginx.conf $1/etc/nginx/nginx.conf
-	chroot $1 sed -e '/80/ s/^/#/g' -i /etc/apache2/ports.conf
-	chroot $1 sed -e '/443/ s/^/#/g' -i /etc/apache2/ports.conf
-	rm $1/etc/apache2/sites-enabled/000-default
 
 # Set up automatic scanning for other Webmin servers
 	chroot $1 bash -c 'echo "auto_pass=origo
@@ -203,11 +206,6 @@ exec /usr/local/bin/origo-networking.pl" > /etc/init/origo-networking.conf'
 #    cd $1/usr/share/wordpress; sudo -u www-data $1/usr/local/bin/wp core download --force
 #
 # Set up SSL access to Webmin on port 10001
-    chroot $1 cp /etc/apache2/sites-available/default-ssl /etc/apache2/sites-available/webmin-ssl
-    chroot $1 perl -pi -e 's/<VirtualHost _default_:443>/<VirtualHost _default_:10001>/;' /etc/apache2/sites-available/webmin-ssl
-    chroot $1 perl -pi -e 's/(<\/VirtualHost>)/    ProxyPass \/ http:\/\/127.0.0.1:10000\/\n    ProxyPassReverse \/ http:\/\/127.0.0.1:10000\/\n$1/;' /etc/apache2/sites-available/webmin-ssl
-    chroot $1 perl -pi -e 's/(DocumentRoot \/var\/www)/$1\n        <Location \/>\n            deny from all\n            allow from 10.0.0.0\/8 #origo\n            satisfy any\n        <\/Location>/;' /etc/apache2/sites-available/webmin-ssl
-    chroot $1 perl -pi -e 's/Listen 443/Listen 443\n    Listen 10001/;' /etc/apache2/ports.conf
 
 # Disable ondemand CPU-scaling service
     chroot $1 update-rc.d ondemand disable
@@ -244,7 +242,7 @@ exec /usr/local/bin/origo-networking.pl" > /etc/init/origo-networking.conf'
 
 # If called without parameters, build image, sizes 9216, 81920, 10240
 else
-	vmbuilder kvm ubuntu -o -v --suite precise --arch amd64 --rootsize 9216 --user origo --pass origo --hostname $dname --addpkg libjson-perl --addpkg liburi-encode-perl --addpkg curl --addpkg acpid --addpkg openssh-server --addpkg memcached --addpkg php5-memcache --addpkg nfs-common --addpkg dmidecode --addpkg unzip --addpkg default-jdk --addpkg mysql-server  --addpkg libstring-shellquote-perl --tmpfs - --domain origo.io --ip 10.1.1.2 --execscript="./$me"
+	vmbuilder kvm ubuntu -o -v --suite precise --mirror http://archive.ubuntu.com/ubuntu --arch amd64 --rootsize 9216 --user origo --pass origo --hostname $dname --addpkg libjson-perl --addpkg liburi-encode-perl --addpkg curl --addpkg acpid --addpkg openssh-server --addpkg memcached --addpkg php5-memcache --addpkg nfs-common --addpkg dmidecode --addpkg unzip --addpkg default-jdk --addpkg mysql-server  --addpkg libstring-shellquote-perl --tmpfs - --domain origo.io --ip 10.1.1.2 --execscript="./$me"
 # Clean up
 	mv ubuntu-kvm/*.qcow2 "./$dname-$version.master.qcow2"
 	rm -r ubuntu-kvm

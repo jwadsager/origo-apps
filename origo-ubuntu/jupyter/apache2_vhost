@@ -1,0 +1,11 @@
+<VirtualHost *:80>
+        ServerName "jupyter.xxxxxxxxxxx.com"
+        ProxyPreserveHost On
+        ProxyRequests off
+
+        ProxyPass /api/kernels/ ws://192.168.254.23:8888/api/kernels/
+        ProxyPassReverse /api/kernels/ http://192.168.254.23:8888/api/kernels/
+
+        ProxyPass / http://192.168.254.23:8888/
+        ProxyPassReverse / http://192.168.254.23:8888/
+</VirtualHost>

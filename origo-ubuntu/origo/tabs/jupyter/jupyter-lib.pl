@@ -284,66 +284,10 @@ END
 
 # This is called from index.cgi (the UI)
     } elsif ($action eq 'upgrade') {
-        my $res;
-        my $srcloc = "/home";
-        my $dumploc = $in{targetdir};
-
-        if (-d $dumploc) {
-            # Stop services
-            `/etc/init.d/jupyterhub stop`;
-            `/etc/init.d/nginx stop`;
-            unless (-e "$srcloc/var/run/jupyterhub.pid") {
-                # Copy configuration
-                `rm -r "$dumploc/home.tgz"`;
-                `(cd /; tar -zcf "$dumploc/home.tgz" home)`;
-                `rm -r "$dumploc/jupyterhub_config.py"`;
-                # Also copy /etc/samba
-                `cp -r "/jupyterhub_config.py" "$dumploc/jupyterhub_config.py"`;
-            }
-        }
-
-        my $dumpsize = `du -bs $dumploc/home.tgz`;
-       $dumpsize = $1 if ($dumpsize =~ /(\d+)/);
-        if ($dumpsize > 10000000) {
-            $res = "OK: User home directories dumped successfully to $dumploc";
-        } else {
-            $res = "There was a problem dumping user directories to $dumploc ($dumpsize)!";
-        }
-        return $res;
 
 # This is called from origo-ubuntu.pl when rebooting and with status "upgrading"
     } elsif ($action eq 'restore') {
-        my $srcloc = $in{sourcedir};
-        my $res;
-        my $dumploc  = "/home";
-        `bash -c "service jupyterhub stop"`;
-        `bash -c "service nginx stop"`;
-        if ($srcloc && -d $srcloc && -d $dumploc && !(-e "$srcloc/var/run/jupyterhub.pid")) {
-            $res = "OK: ";
-
-            my $srcfile = "home.tgz";
-            $res .= qq|restoring $srcloc/$srcfile -> $dumploc, |;
-            $res .= `bash -c "tar -zcf /tmp/home.bak.tgz /home"`;
-           $res .= `bash -c "mv --backup /tmp/home.bak.tgz /home.bak.tgz"`;
-            $res .= `bash -c "(cd /; tar -zxf $srcloc/$srcfile)"`;
-
-            my $srcdir = "jupyterhub_config.py";
-            $dumploc  = "/";
-            $res .= qq|copying $srcloc/$srcdir -> $dumploc, |;
-            $res .= `cp --backup -a $srcloc/$srcdir "$dumploc"`;
-
-            chomp $res;
-        }
-
-        if ($res) {
-            `service nginx start`;
-            `service jupyterhub start`;
-        } else {
-            $res = "Not copying $srcloc -> $dumploc";
-        }
-#        `umount /mnt/fuel/*`;
-        return $res;
-
+    }
 }
 
 sub getUsers {
