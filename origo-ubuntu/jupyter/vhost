@@ -1,5 +1,13 @@
 <VirtualHost *:80>
-        ServerName "195.41.32.166"
+	RewriteEngine On
+	RewriteCond %{HTTPS} off
+	RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI}
+</VirtualHost>
+
+<VirtualHost _default_:443>
+	SSLEngine on
+	SSLCertificateFile /etc/ssl/certs/ssl-cert-snakeoil.pem
+	SSLCertificateKeyFile /etc/ssl/private/ssl-cert-snakeoil.key
         ProxyPreserveHost On
         ProxyRequests off
 
