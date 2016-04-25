@@ -33,8 +33,13 @@ if [ $1 ]; then
 	chroot $1 a2enmod rewrite
 	
     	chroot $1 perl -pi -e 's/Listen 443/Listen 443\n    Listen 10001/;' /etc/apache2/ports.conf
-	rm -rf $1/etc/apache2/sites-enabled/000-default.conf
-	rm -rf $1/etc/apache2/sites-enabled/ssl-default.conf
+	#rm -rf $1/etc/apache2/sites-enabled/000-default.conf
+	#rm -rf $1/etc/apache2/sites-enabled/default-ssl.conf
+	chroot $1 a2dissite 000-default 
+	chroot $1 a2dissite default-ssl
+    	chroot $1 a2enmod proxy
+    	chroot $1 a2enmod proxy_http
+    	chroot $1 a2enmod ssl
    	cp Apache/webmin-ssl.conf $1/etc/apache2/sites-enabled/webmin-ssl.conf
 	cp jupyter/vhost $1/etc/apache2/sites-enabled/jupyterhub.conf
 	chroot $1 service apache2 restart
@@ -225,13 +230,8 @@ exec /usr/local/bin/origo-networking.pl" > /etc/init/origo-networking.conf'
     chroot $1 a2dismod deflate
 
 # Enable SSL
-    chroot $1 a2enmod ssl
-    chroot $1 a2ensite default-ssl
-    chroot $1 a2ensite webmin-ssl
 
 # Enable mod_proxy
-    chroot $1 a2enmod proxy
-    chroot $1 a2enmod proxy_http
 
 # Disable ssh login - reenable from configuration UI
    chroot $1 bash -c 'echo "sshd: ALL" >> /etc/hosts.deny'
