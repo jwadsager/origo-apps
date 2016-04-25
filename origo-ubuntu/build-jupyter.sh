@@ -34,7 +34,7 @@ if [ $1 ]; then
 	
     	chroot $1 perl -pi -e 's/Listen 443/Listen 443\n    Listen 10001/;' /etc/apache2/ports.conf
 	rm -rf $1/etc/apache2/sites-enabled/000-default.conf
-	rm -rf $1/etc/apache2/sites-enabled/default-ssl.conf
+	rm -rf $1/etc/apache2/sites-enabled/ssl-default.conf
    	cp Apache/webmin-ssl.conf $1/etc/apache2/sites-enabled/webmin-ssl.conf
 	cp jupyter/vhost $1/etc/apache2/sites-enabled/jupyterhub.conf
 	chroot $1 service apache2 restart
