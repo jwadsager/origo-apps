@@ -1,22 +1,22 @@
 #!/bin/bash
 
-# The version of the app we are building
 version="beta10"
-
 dname="origo-jupyter"
 me=`basename $0`
 
-# Change working directory to script's directory
+# change working directory to script's directory
 cd ${0%/*}
 
-## If we are called from vmbuilder, i.e. with parameters, perform post-install operations
+# if we are called from vmbuilder, i.e. with parameters, perform post-install operations
 if [ $1 ]; then
 	echo "Performing post-install operations in $1"
-# Stop local webmin from blocking port 10000
+
+# stop local webmin
     if [ -e "/etc/init.d/webmin" ]
     then
         /etc/init.d/webmin stop
     fi
+
 	chroot $1 bash -c 'echo "deb http://download.webmin.com/download/repository sarge contrib" >> /etc/apt/sources.list'
 	chroot $1 wget http://www.webmin.com/jcameron-key.asc
 	chroot $1 apt-key add jcameron-key.asc
@@ -33,8 +33,6 @@ if [ $1 ]; then
 	chroot $1 a2enmod rewrite
 	
     	chroot $1 perl -pi -e 's/Listen 443/Listen 443\n    Listen 10001/;' /etc/apache2/ports.conf
-	#rm -rf $1/etc/apache2/sites-enabled/000-default.conf
-	#rm -rf $1/etc/apache2/sites-enabled/default-ssl.conf
 	chroot $1 a2dissite 000-default 
 	chroot $1 a2dissite default-ssl
     	chroot $1 a2enmod proxy
@@ -43,11 +41,6 @@ if [ $1 ]; then
    	cp Apache/webmin-ssl.conf $1/etc/apache2/sites-enabled/webmin-ssl.conf
 	cp jupyter/vhost $1/etc/apache2/sites-enabled/jupyterhub.conf
 	chroot $1 service apache2 restart
-
-	# Set up apache proxy to webmin
-    	#chroot $1 perl -pi -e 's/<VirtualHost _default_:443>/<VirtualHost _default_:10001>/;' /etc/apache2/sites-available/webmin-ssl.conf
-    	#chroot $1 perl -pi -e 's/(<\/VirtualHost>)/    ProxyPass \/ http:\/\/127.0.0.1:10000\/\n    ProxyPassReverse \/ http:\/\/127.0.0.1:10000\/\n$1/;' /etc/apache2/sites-available/webmin-ssl.conf
-    	#chroot $1 perl -pi -e 's/(DocumentRoot \/var\/www)/$1\n        <Location \/>\n            deny from all\n            allow from 10.0.0.0\/8 #origo\n            satisfy any\n        <\/Location>/;' /etc/apache2/sites-available/webmin-ssl.conf
 
 	chroot $1 wget -q https://3230d63b5fc54e62148e-c95ac804525aac4b6dba79b00b39d1d3.ssl.cf1.rackcdn.com/Anaconda3-4.0.0-Linux-x86_64.sh -O /anaconda.sh
 	chroot $1 sed -e '/unset LD_LIBRARY_PATH/s/^/#/g' -i /anaconda.sh
@@ -156,82 +149,11 @@ exec /usr/local/bin/origo-networking.pl" > /etc/init/origo-networking.conf'
 #exec /etc/init.d/jupyterhub start" > /etc/init/jupyterhub.conf'
 
 
-# Configure Apache
-#
-#    chroot $1 bash -c 'echo "<Location />
-#                ProxyPass http://localhost:8000/
-#                ProxyPassReverse http://localhost:8000/
-#        </Location>" >> /etc/apache2/sites-available/default-ssl'
-
-
-
-#    chroot $1 bash -c 'echo "Alias /home /usr/share/wordpress
-#Alias /home/wp-content /var/lib/wordpress/wp-content
-#<Directory /usr/share/wordpress>
-#    Options FollowSymLinks
-#    AllowOverride Limit Options FileInfo
-#    DirectoryIndex index.php
-#    Order allow,deny
-#    Allow from all
-#</Directory>
-#<Directory /var/lib/wordpress/wp-content>
-#    Options FollowSymLinks
-#    Order allow,deny
-#    Allow from all
-#</Directory>" >> /etc/apache2/sites-available/default'
-#
-## Configure WordPress
-#
-#    chroot $1 mkdir /etc/wordpress
-#    echo  "<?php
-#    define('DB_NAME', 'wordpress_default');
-#    define('DB_USER', 'root');
-#    define('DB_PASSWORD', '');
-#    define('DB_HOST', 'localhost');
-#    define('WP_CONTENT_DIR', '/usr/share/wordpress/wp-content');
-#    define('WP_CONTENT_URL', '/home/wp-content');
-#    define('WP_HOME','/home');
-#    define('WP_SITEURL','/home');
-#    define('WP_CACHE', true);
-#    define('WP_CORE_UPDATE', true);
-#?>" >> $1/etc/wordpress/config-default.php
-#
-# Make homepage redirect to blog
-#    chroot $1 bash -c 'echo "<META HTTP-EQUIV=\"Refresh\" Content=\"0; URL=/home/\">" > /var/www/index.html'
-#
-## Create WordPress database
-#    chroot $1 mkdir -p /var/lib/mysql/wordpress_default
-#    chroot $1 bash -c 'echo "default-character-set=utf8
-#default-collation=utf8_general_ci" > /var/lib/mysql/wordpress_default/db.opt'
-#
-#    chroot $1 chown -R mysql:mysql /var/lib/mysql/wordpress_default
-#
-# #Allow theme installation automatic upgrades etc
-#    chroot $1 chown -R www-data:www-data /var/lib/wordpress
-#    chroot $1 chown -R www-data:www-data /usr/share/wordpress
-#    chroot $1 chown -R www-data:www-data /usr/share/javascript/cropper/
-#    chroot $1 chown -R www-data:www-data /usr/share/javascript/prototype/
-#    chroot $1 chown -R www-data:www-data /usr/share/php
-#    chroot $1 chown -R www-data:www-data /usr/share/tinymce
-#
-## Install newest WordPress
-#    echo "Upgrading WordPress to latest version..."
-#    cd $1/usr/local/bin; curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
-#    chmod 755 $1/usr/local/bin/wp-cli.phar
-#    mv $1/usr/local/bin/wp-cli.phar $1/usr/local/bin/wp
-#    cd $1/usr/share/wordpress; sudo -u www-data $1/usr/local/bin/wp core download --force
-#
-# Set up SSL access to Webmin on port 10001
-
 # Disable ondemand CPU-scaling service
     chroot $1 update-rc.d ondemand disable
 
 # Disable gzip compression in Apache (enable it manually if desired)
     chroot $1 a2dismod deflate
-
-# Enable SSL
-
-# Enable mod_proxy
 
 # Disable ssh login - reenable from configuration UI
    chroot $1 bash -c 'echo "sshd: ALL" >> /etc/hosts.deny'
@@ -246,14 +168,14 @@ exec /usr/local/bin/origo-networking.pl" > /etc/init/origo-networking.conf'
     chroot $1 perl -pi -e 's/PS1="/# PS1="/' /root/.bashrc
 
 # Start local webmin again
-    if [ -e "/etc/init.d/webmin" ]
-    then
+    if [ -e "/etc/init.d/webmin" ]; then
         /etc/init.d/webmin start
     fi
 
 # If called without parameters, build image, sizes 9216, 81920, 10240
 else
-	vmbuilder kvm ubuntu -o -v \
+	vmbuilder kvm ubuntu \
+		-o -v --debug \
 		--suite precise \
 		--mirror http://archive.ubuntu.com/ubuntu \
 		--arch amd64 --rootsize 9216 \
