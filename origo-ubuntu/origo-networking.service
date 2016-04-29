@@ -1,0 +1,14 @@
+[Unit]
+DefaultDependencies=no
+Description=mount/repair remaining filesystems (all persistent fs beyond "/")
+Before=network-pre.target
+Wants=network-pre.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/origo-networking.pl
+TimeoutSec=0
+RemainAfterExit=yes
+
+[Install]
+WantedBy=network.target
