@@ -31,7 +31,7 @@ if ($action eq 'smbmount') {
     my $res = <<END
 Content-type: text/html; charset=utf-8
 
-cifs://$tktuser\@$hostname/$path
+smb://$tktuser\@$hostname/$path
 END
 ;
     print $res;
