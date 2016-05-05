@@ -1,0 +1,204 @@
+#!/bin/bash
+
+version="alpha"
+dname="os2loop"
+me=`basename $0`
+
+# change working directory to script's directory
+cd ${0%/*}
+
+# if we are called from vmbuilder, i.e. with parameters, perform post-install operations
+if [ $1 ]; then
+	echo "Performing post-install operations in $1"
+
+# stop local webmin
+	if [ -e "/etc/init.d/webmin" ]; then
+        	/etc/init.d/webmin stop
+    	fi
+
+	# setup networking
+	cp /dev/null $1/etc/network/interfaces
+	cp origo-networking.service $1/etc/systemd/system/
+	chmod 664 $1/etc/systemd/system/origo-networking.service
+	chroot $1 systemctl daemon-reload
+	chroot $1 systemctl enable origo-networking.service
+
+	# install webmin
+	chroot $1 apt-get -q -y install perl libnet-ssleay-perl openssl libauthen-pam-perl libpam-runtime libio-pty-perl apt-show-versions python
+	wget http://prdownloads.sourceforge.net/webadmin/webmin_1.791_all.deb -O $1/webmin_1.791_all.deb
+	chroot $1 dpkg --install /webmin_1.791_all.deb
+
+# Set up automatic scanning for other Webmin servers
+	chroot $1 bash -c 'echo "auto_pass=origo
+auto_self=1
+auto_smtp=
+auto_net=ens3
+auto_type=ubuntu
+auto_cluster-software=1
+auto_remove=1
+auto_user=origo
+scan_time=10
+resolve=0
+auto_email=" > /etc/webmin/servers/config'
+# Allow unauthenticated access to wordpress module "origo" as user "origo"
+	chroot $1 bash -c 'echo "anonymous=/origo=origo" >> /etc/webmin/miniserv.conf'
+# Disable Webmin SSL
+	chroot $1 perl -pi -e "s/ssl=1/ssl=0/g;" /etc/webmin/miniserv.conf
+# Scan every 5 minutes for other Webmin servers
+	chroot $1 perl -pi -e "s/(\{\'notfound\'\}\+\+ >=) 3/\$1 0/;" /usr/share/webmin/servers/auto.pl
+	chroot $1 bash -c 'echo "#!/usr/bin/perl
+open(CONF, qq[/etc/webmin/miniserv.conf]) || die qq[Failed to open /etc/webmin/miniserv.conf : \$!];
+while(<CONF>) {
+        \$root = \$1 if (/^root=(.*)/);
+        }
+close(CONF);
+\$root || die qq[No root= line found in /etc/webmin/miniserv.conf];
+\$ENV{PERLLIB} = \$root;
+\$ENV{WEBMIN_CONFIG} = qq[/etc/webmin];
+\$ENV{WEBMIN_VAR} = qq[/var/webmin];
+chdir(qq[\$root/servers]);
+exec(qq[\$root/servers/auto.pl], @ARGV) || die qq[Failed to run \$root/servers/auto.pl : \$!];" > /etc/webmin/servers/auto.pl'
+
+    chroot $1 chmod 755 /etc/webmin/servers/auto.pl
+# For now - disable automatic scanning
+#	chroot $1 bash -c 'crontab -l | (cat;echo "0,5,10,15,20,25,30,35,40,45,50,55 * * * * /etc/webmin/servers/auto.pl") | crontab'
+# Enable auto registering instead
+	chroot $1 bash -c 'crontab -l | (cat;echo "0,5,10,15,20,25,30,35,40,45,50,55 * * * * /usr/local/bin/origo-ubuntu.pl") | crontab'
+# Disable Webmin referer check
+	chroot $1 perl -pi -e "s/referers_none=1/referers_none=0/;" /etc/webmin/config
+	chroot $1 bash -c 'echo "webprefix=
+referer=1
+referers=" >> /etc/webmin/config'
+# Change fstab since we are using virtio
+	chroot $1 perl -pi -e "s/sda/vda/g;" /etc/fstab
+# Install webmin module
+# First exclude all, then include all the modules we want installed for this app
+	tar cvf $dname.wbm.tar origo --exclude=origo/tabs/*
+	#tar rvf $dname.wbm.tar origo/tabs/security origo/tabs/software origo/tabs/wordpress
+	tar rvf $dname.wbm.tar origo/tabs/security origo/tabs/software origo/tabs/servers
+	mv $dname.wbm.tar $dname.wbm
+	gzip -f $dname.wbm
+	cp -a $dname.wbm.gz $1/tmp/origo.wbm.gz
+	chroot $1 bash -c '/usr/share/webmin/install-module.pl /tmp/origo.wbm.gz'
+# Kill off webmin, which unfortunately get's started from the chroot, preventing it from being unmounted
+	pkill -f webmin
+
+# Simple script to register this server with admin webmin server when webmin starts
+# This script is also responsible for mounting nfs-share, copy back data, etc. if upgrading/reinstalling
+# started network-interface and started portmap and runlevel [2345]
+    cp origo-ubuntu.pl $1/usr/local/bin
+    chmod 755 $1/usr/local/bin/origo-ubuntu.pl
+    chroot $1 bash -c 'echo "start on (started origo-networking)
+task
+exec /usr/local/bin/origo-ubuntu.pl" > /etc/init/origo-ubuntu.conf'
+
+# Configure IP address from address passed to VM through BIOS parameter SKU Number
+    cp origo-trusty-networking.pl $1/usr/local/bin/origo-networking.pl
+    chmod 755 $1/usr/local/bin/origo-networking.pl
+    chroot $1 bash -c 'echo "start on starting network-interface
+instance ens3
+task
+exec /usr/local/bin/origo-networking.pl" > /etc/init/origo-networking.conf'
+
+# Disable ondemand CPU-scaling service
+    chroot $1 update-rc.d ondemand disable
+
+# Disable gzip compression in Apache (enable it manually if desired)
+    chroot $1 a2dismod deflate
+
+# Disable ssh login - reenable from configuration UI
+   chroot $1 bash -c 'echo "sshd: ALL" >> /etc/hosts.deny'
+   chroot $1 bash -c 'echo "sshd: 10.0.0.0/8 #origo" >> /etc/hosts.allow'
+
+# Disable Webmin login from outside - reenable from configuration UI
+   chroot $1 bash -c 'echo "allow=10.0.0.0/8 127.0.0.0/16" >> /etc/webmin/miniserv.conf'
+
+# Set nice color xterm as default
+    chroot $1 bash -c 'echo "export TERM=xterm-color" >> /etc/bash.bashrc'
+    chroot $1 perl -pi -e 's/PS1="/# PS1="/' /home/origo/.bashrc
+    chroot $1 perl -pi -e 's/PS1="/# PS1="/' /root/.bashrc
+
+# Start local webmin again
+    if [ -e "/etc/init.d/webmin" ]; then
+        /etc/init.d/webmin start
+    fi
+
+    # install composer
+    chroot $1 php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
+    chroot $1 php -r "if (hash_file('SHA384', 'composer-setup.php') === '92102166af5abdb03f49ce52a40591073a7b859a86e8ff13338cf7db58a19f7844fbc0bb79b2773bf30791e935dbd938') { echo 'Installer verified'; } else { echo 'Installer corrupt'; unlink('composer-setup.php'); } echo PHP_EOL;"
+    chroot $1 php composer-setup.php
+    chroot $1 php -r "unlink('composer-setup.php');"
+    chroot $1 mv composer.phar /usr/local/bin/composer
+
+    # install drush
+    chroot $1 mkdir --parents /opt/drush-6.1.0
+    chroot $1 cd /opt/drush-6.1.0
+    chroot $1 composer init --require=drush/drush:6.1.0 -n
+    chroot $1 composer config bin-dir /usr/local/bin
+    chroot $1 composer install
+
+    # install drupal profile
+    chroot $1 rm -rf /var/www
+    chroot $1 drush make --no-cache https://raw.github.com/jwadsager/profile/test/drupal.make /var/www
+
+    # setup tomcat and solr
+    chroot $1 sed --in-place '/\<Connector port="8080" protocol="HTTP\/1.1"/c \<Connector port="8983" protocol="HTTP\/1.1"' /var/lib/tomcat7/conf/server.xml
+    chroot $1 sed --in-place 's@.*JAVA_HOME.*@JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64@' /etc/default/tomcat7
+    chroot $1 wget http://archive.apache.org/dist/lucene/solr/4.9.1/solr-4.9.1.tgz -O /solr.tgz
+    chroot $1 tar xzf /solr.tgz
+    chroot $1 rm /solr.tgz
+    chroot $1 cp /solr-*/example/lib/ext/* /usr/share/tomcat7/lib/
+    chroot $1 cp /solr-*/dist/solr-*.war /var/lib/tomcat7/webapps/solr.war
+    chroot $1 cp -R /solr-*/example/solr /var/lib/tomcat7
+    chroot $1 rm -rf /solr-*
+    chroot $1 chown -R tomcat7:tomcat7 /var/lib/tomcat7/solr
+
+    # add solr core
+    chroot $1 cp -r /var/lib/tomcat7/solr/collection1 /var/lib/tomcat7/solr/loop
+    chroot $1 sed -i 's/collection1/loop/' /var/lib/tomcat7/solr/loop/core.properties
+    chroot $1 drush pm-download search_api_solr
+    chroot $1 cp ~/search_api_solr/solr-conf/4.x/* /var/lib/tomcat7/solr/loop/conf/
+    chroot $1 rm -rf ~/search_api_solr
+    chroot $1 chown -R tomcat7:tomcat7 /var/lib/tomcat7/solr
+
+# If called without parameters, build image, sizes 9216, 81920, 10240
+else
+	vmbuilder kvm ubuntu \
+		-o -v --debug \
+		--suite xenial \
+		--arch amd64 \
+		--rootsize 81920 \
+		--user origo --pass origo \
+		--hostname $dname \
+		--domain origo.io \
+		--ip 10.1.1.2 \
+		--execscript="./$me" \
+		--addpkg linux-image-generic \
+		--addpkg libjson-perl \
+		--addpkg liburi-encode-perl \
+		--addpkg curl \
+		--addpkg acpid \
+		--addpkg openssh-server \
+		--addpkg memcached \
+		--addpkg nfs-common \
+		--addpkg dmidecode \
+		--addpkg unzip \
+		--addpkg apache2 \
+		--addpkg libstring-shellquote-perl \
+		--addpkg python-software-properties \
+		--addpkg git \
+		--addpkg mysql-server \
+		--addpkg libapache2-mod-php7.0 \
+		--addpkg php-mysql \
+		--addpkg php-gd \
+		--addpkg php-curl \
+		--addpkg tomcat7 \
+		--addpkg openjdk-8-jre
+	# clean up
+	mv ubuntu-kvm/*.qcow2 "./$dname-$version.master.qcow2"
+	rm -r ubuntu-kvm
+
+        # convert to qcow2
+        qemu-img amend -f qcow2 -o compat=0.10 ./$dname-$version.master.qcow2
+fi
+
