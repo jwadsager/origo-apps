@@ -26,7 +26,7 @@ if [ $1 ]; then
 
 	chroot $1 apt-get -q -y remove apache2*
 	chroot $1 apt-get -q -y purge apache2*
-	chroot $1 add-apt-repository -y ppa:ondrej/php5
+	chroot $1 add-apt-repository -y ppa:ondrej/apache2
 	chroot $1 apt-get update
 	chroot $1 apt-get -q -y install apache2
 	chroot $1 a2enmod proxy_wstunnel
