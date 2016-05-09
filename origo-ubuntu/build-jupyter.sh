@@ -39,7 +39,7 @@ if [ $1 ]; then
     	chroot $1 a2enmod proxy_http
     	chroot $1 a2enmod ssl
    	cp Apache/webmin-ssl.conf $1/etc/apache2/sites-enabled/webmin-ssl.conf
-	cp jupyter/vhost $1/etc/apache2/sites-enabled/jupyterhub.conf
+	cp ./origo/tabs/jupyter/vhost $1/etc/apache2/sites-enabled/jupyterhub.conf
 	chroot $1 service apache2 restart
 
 	chroot $1 wget -q https://3230d63b5fc54e62148e-c95ac804525aac4b6dba79b00b39d1d3.ssl.cf1.rackcdn.com/Anaconda3-4.0.0-Linux-x86_64.sh -O /anaconda.sh
@@ -66,7 +66,7 @@ if [ $1 ]; then
 
 	# install jupyterhub itself
 	LD_LIBRARY_PATH='/anaconda/pkgs/python-3.5.1-0/lib' PATH=/anaconda/envs/py3/bin:$PATH chroot $1 bash -c 'source /anaconda/bin/activate py3; pip install --upgrade --ignore-installed jupyterhub'
-	cp ./jupyter/jupyterhub_config.py $1/
+	cp ./origo/tabs/jupyter/jupyterhub_config.py $1/
 
 # Set up automatic scanning for other Webmin servers
 	chroot $1 bash -c 'echo "auto_pass=origo
@@ -141,7 +141,7 @@ task
 exec /usr/local/bin/origo-networking.pl" > /etc/init/origo-networking.conf'
 
 # Utility script for setting up WordPress to work with this app
-    cp jupyter/jupyterhub.sh $1/etc/init.d/jupyterhub
+    cp ./origo/tabs/jupyter/jupyterhub.sh $1/etc/init.d/jupyterhub
     chmod +x $1/etc/init.d/jupyterhub
     chroot $1 update-rc.d jupyterhub defaults
     #chroot $1 bash -c 'echo "start on (started origo-networking)
