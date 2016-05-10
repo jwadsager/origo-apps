@@ -75,6 +75,7 @@ referers=" >> /etc/webmin/config'
 # Install webmin module
 # First exclude all, then include all the modules we want installed for this app
 	tar cvf $dname.wbm.tar origo --exclude=origo/tabs/*
+	tar rvf $dname.wbm.tar origo/tabs/security origo/tabs/software origo/tabs/servers
 	mv $dname.wbm.tar $dname.wbm
 	gzip -f $dname.wbm
 	cp -a $dname.wbm.gz $1/tmp/origo.wbm.gz
