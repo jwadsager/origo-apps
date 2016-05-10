@@ -153,6 +153,7 @@ else
 		--addpkg unzip \
 		--addpkg apache2 \
 		--addpkg libstring-shellquote-perl \
+		--addpkg git \
 		--domain origo.io \
 		--ip 10.1.1.2 \
 		--execscript="./$me"
