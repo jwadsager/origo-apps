@@ -1,6 +1,6 @@
 #!/bin/bash
 
-version="beta"
+version="1.0"
 dname="origo-reference-xenial"
 me=`basename $0`
 
