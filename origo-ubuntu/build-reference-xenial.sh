@@ -1,6 +1,6 @@
 #!/bin/bash
 
-version="1.0"
+version="beta"
 dname="origo-reference-xenial"
 me=`basename $0`
 
@@ -28,6 +28,14 @@ if [ $1 ]; then
 	chroot $1 apt-get -q -y install perl libnet-ssleay-perl openssl libauthen-pam-perl libpam-runtime libio-pty-perl apt-show-versions python
 	wget http://prdownloads.sourceforge.net/webadmin/webmin_1.791_all.deb -O $1/webmin_1.791_all.deb
 	chroot $1 dpkg --install /webmin_1.791_all.deb
+
+	chroot $1 perl -pi -e 's/Listen 443/Listen 443\n    Listen 10001/;' /etc/apache2/ports.conf
+        chroot $1 a2dissite 000-default
+        chroot $1 a2dissite default-ssl
+        chroot $1 a2enmod proxy
+        chroot $1 a2enmod proxy_http
+        chroot $1 a2enmod ssl
+        cp Apache/webmin-ssl.conf $1/etc/apache2/sites-enabled/webmin-ssl.conf
 
 # Set up automatic scanning for other Webmin servers
 	chroot $1 bash -c 'echo "auto_pass=origo
@@ -138,6 +146,7 @@ else
 		--addpkg curl \
 		--addpkg acpid \
 		--addpkg openssh-server \
+		--addpkg python-vm-builder \
 		--addpkg memcached \
 		--addpkg nfs-common \
 		--addpkg dmidecode \
@@ -147,8 +156,12 @@ else
 		--domain origo.io \
 		--ip 10.1.1.2 \
 		--execscript="./$me"
-# Clean up
+
+	# clean up
 	mv ubuntu-kvm/*.qcow2 "./$dname-$version.master.qcow2"
 	rm -r ubuntu-kvm
+
+	# convert to qcow2
+	qemu-img amend -f qcow2 -o compat=0.10 ./$dname-$version.master.qcow2
 fi
 
