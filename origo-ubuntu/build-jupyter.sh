@@ -61,7 +61,6 @@ if [ $1 ]; then
 	LD_LIBRARY_PATH='/anaconda/pkgs/python-3.5.1-0/lib' PATH=/anaconda/bin:$PATH chroot $1 bash -c 'source /anaconda/bin/activate py3;/anaconda/bin/pip install --upgrade pip'
 	chroot $1 wget -q https://deb.nodesource.com/setup_0.12 -O /node.sh
 	chroot $1 bash /node.sh
-	chroot $1 apt-get -q -y install nodejs build-essential
 	chroot $1 npm install -g configurable-http-proxy
 
 	# install jupyterhub itself
@@ -195,6 +194,8 @@ else
 		--addpkg mysql-server \
 		--addpkg libstring-shellquote-perl \
 		--addpkg python-software-properties \
+		--addpkg build-essential \
+		--addpkg nodejs \
 		--tmpfs - --domain origo.io --ip 10.1.1.2 --execscript="./$me"
 # Clean up
 	mv ubuntu-kvm/*.qcow2 "./$dname-$version.master.qcow2"
