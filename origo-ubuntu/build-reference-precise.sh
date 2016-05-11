@@ -3,7 +3,7 @@
 # The version of the app we are building
 version="1.4"
 #dname=`basename "$PWD"`
-dname="origo-reference"
+dname="origo-reference-precise"
 me=`basename $0`
 
 # Change working directory to script's directory
