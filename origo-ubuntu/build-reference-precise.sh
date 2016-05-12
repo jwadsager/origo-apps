@@ -17,8 +17,7 @@ if [ $1 ]; then
     then
         /etc/init.d/webmin stop
     fi
-# Add multiverse
-#    chroot $1 perl -pi -e "s/universe/universe multiverse/;" /etc/apt/sources.list
+
 # Install Webmin
 	chroot $1 bash -c 'echo "deb http://download.webmin.com/download/repository sarge contrib" >> /etc/apt/sources.list'
 	chroot $1 wget http://www.webmin.com/jcameron-key.asc
@@ -72,7 +71,7 @@ referers=" >> /etc/webmin/config'
 # Change fstab since we are using virtio
 	chroot $1 perl -pi -e "s/sda/vda/g;" /etc/fstab
 # Install webmin module
-# Include all the modules we want installed for this app
+# First exclude all, then include all the modules we want installed for this app
 	tar cvf $dname.wbm.tar origo --exclude=origo/tabs/*
 	tar rvf $dname.wbm.tar origo/tabs/commands origo/tabs/files origo/tabs/security origo/tabs/servers origo/tabs/software origo/tabs/tests
 	mv $dname.wbm.tar $dname.wbm
