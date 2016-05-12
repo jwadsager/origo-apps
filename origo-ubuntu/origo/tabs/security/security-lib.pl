@@ -175,7 +175,11 @@ sub validate_limit {
 
 sub get_limit {
     my $limit;
-    open FILE, "</etc/apache2/sites-available/webmin-ssl";
+    my $conf = "/etc/apache2/sites-available/webmin-ssl";
+    # Handle name change in Xenial
+    $conf .= '.conf' if (-e "$conf.conf");
+
+    open FILE, "<$conf";
     my @lines = <FILE>;
     for (@lines) {
         if ($_ =~ /allow from (.*) \#origo/) {
@@ -197,7 +201,10 @@ sub set_limit {
     # Configure webmin on admin server
     $cmd = qq|perl -pi -e "s/allow=(.*)/allow=$iip\\/24 127.0.0.1 $validlimit/;" /etc/webmin/miniserv.conf|;
     $message .= `$cmd`;
-    $cmd = qq|perl -pi -e 's/allow from (.*) \#origo/allow from $validlimit #origo/;' /etc/apache2/sites-available/webmin-ssl|;
+    my $conf = "/etc/apache2/sites-available/webmin-ssl";
+    # Handle name change in Xenial
+    $conf .= '.conf' if (-e "$conf.conf");
+    $cmd = qq|perl -pi -e 's/allow from (.*) \#origo/allow from $validlimit #origo/;' $conf|;
     $message .= `$cmd`;
     # Configure ssh on admin server
     $cmd = qq|perl -pi -e 's/sshd: ?(.*) \#origo/sshd: $validlimit #origo/;' /etc/hosts.allow|;

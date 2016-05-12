@@ -21,18 +21,23 @@ if ($action eq 'mountpools') {
     exit 0;
 }
 
-while (!$registered && $i<20) {
-    $internalip = `cat /tmp/internalip` if (-e '/tmp/internalip');
-    chomp $internalip;
-    my $res = `curl http://$internalip:10000/origo/index.cgi?action=registerwebminserver`;
-    $registered = ($res =~ /Registered at \S+/);
-    if ($registered) {
-        `echo "$res" >> /tmp/origo-registered`;
-    } else {
-        `echo "$res" >> /tmp/origo-registered`;
-        sleep 5;
-    };
-    $i++;
+if (-e '/etc/webmin/') {
+    while (!$registered && $i<20) {
+        $internalip = `cat /tmp/internalip` if (-e '/tmp/internalip');
+        $internalip = `cat /etc/internalip` if (-e '/etc/internalip');
+        chomp $internalip;
+        my $res = `curl http://$internalip:10000/origo/index.cgi?action=registerwebminserver`;
+        $registered = ($res =~ /Registered at \S+/);
+        if ($registered) {
+            `echo "$res" >> /tmp/origo-registered`;
+        } else {
+            `echo "$res" >> /tmp/origo-registered`;
+            sleep 5;
+        };
+        $i++;
+    }
+} else {
+    print "Webmin not installed, not registering server\n";
 }
 
 my $appinfo = `curl -ks "https://10.0.0.1/steamengine/servers?action=getappinfo"`;
