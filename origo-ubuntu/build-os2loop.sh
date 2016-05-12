@@ -123,6 +123,54 @@ exec /usr/local/bin/origo-networking.pl" > /etc/init/origo-networking.conf'
         /etc/init.d/webmin start
     fi
 
+    # configure php
+    chroot $1 bash -c 'sed -i "/memory_limit = 128M/c memory_limit = 512M" /etc/php/7.0/apache2/php.ini'
+    chroot $1 bash -c 'sed -i "/;date.timezone =/c date.timezone = Europe\/Copenhagen" /etc/php/7.0/apache2/php.ini'
+    chroot $1 bash -c 'sed -i "/;date.timezone =/c date.timezone = Europe\/Copenhagen" /etc/php/7.0/cli/php.ini'
+    chroot $1 bash -c 'sed -i "/upload_max_filesize = 2M/c upload_max_filesize = 16M" /etc/php/7.0/apache2/php.ini'
+    chroot $1 bash -c 'sed -i "/post_max_size = 8M/c post_max_size = 20M" /etc/php/7.0/apache2/php.ini'
+    chroot $1 bash -c 'sed -i "/;realpath_cache_size = 16k/c realpath_cache_size = 256k" /etc/php/7.0/apache2/php.ini'
+    chroot $1 pecl install uploadprogress
+    chroot $1 bash -c 'echo "extension=uploadprogress.so" > /etc/php/7.0/conf.d/uploadprogress.ini'
+
+    # configure mysql
+    #chroot $1 bash -c 'cat > /etc/mysql/conf.d/innodb.cnf <<DELIM
+#[mysqld]
+#innodb_buffer_pool_size=256M
+#innodb_flush_method=O_DIRECT
+#innodb_additional_mem_pool_size=10M
+#innodb_flush_log_at_trx_commit=0
+#innodb_thread_concurrency=6
+#DELIM'
+    #chroot $1 bash -c 'mysql -e "create database loop;"'
+    #chroot $1 bash -c 'mysql -e "create user loop@localhost identified by loop;"'
+    #chroot $1 bash -c 'mysql -e "grant all privileges on loop.* to loop@localhost;"'
+
+    # configure varnish
+    chroot $1 bash -c 'cat > /etc/default/varnish <<DELIM
+START=yes
+NFILES=131072
+MEMLOCK=82000
+DAEMON_OPTS="-a :80 \
+             -T localhost:6082 \
+             -f /etc/varnish/default.vcl \
+             -S /etc/varnish/secret \
+             -s malloc,256m"
+DELIM'
+    chroot $1 bash -c 'cat > /etc/varnish/default.vcl <<DELIM
+vcl 4.0;
+
+backend default {
+    .host = "127.0.0.1";
+    .port = "8080";
+}
+DELIM'
+
+    # configure apache
+    cp ./os2loop.conf $1/etc/apache2/sites-available/
+    chroot $1 rm -rf /etc/apache2/sites-enabled/*
+    chroot $1 a2ensite os2loop
+
     # install composer
     chroot $1 php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
     chroot $1 php -r "if (hash_file('SHA384', 'composer-setup.php') === '92102166af5abdb03f49ce52a40591073a7b859a86e8ff13338cf7db58a19f7844fbc0bb79b2773bf30791e935dbd938') { echo 'Installer verified'; } else { echo 'Installer corrupt'; unlink('composer-setup.php'); } echo PHP_EOL;"
@@ -140,12 +188,13 @@ exec /usr/local/bin/origo-networking.pl" > /etc/init/origo-networking.conf'
     # install drupal profile
     chroot $1 rm -rf /var/www
     chroot $1 drush make --no-cache https://raw.github.com/jwadsager/profile/test/drupal.make /var/www
+    chroot $1 chown -R www-data:www-data /var/www
 
     # setup tomcat and solr
     chroot $1 sed --in-place '/\<Connector port="8080" protocol="HTTP\/1.1"/c \<Connector port="8983" protocol="HTTP\/1.1"' /var/lib/tomcat7/conf/server.xml
     chroot $1 sed --in-place 's@.*JAVA_HOME.*@JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64@' /etc/default/tomcat7
-    chroot $1 wget http://archive.apache.org/dist/lucene/solr/4.9.1/solr-4.9.1.tgz -O /solr.tgz
-    chroot $1 tar xzf /solr.tgz
+    chroot $1 wget https://archive.apache.org/dist/lucene/solr/4.9.1/solr-4.9.1.tgz -O /solr.tgz
+    chroot $1 tar xzf /solr.tgz -C /
     chroot $1 rm /solr.tgz
     chroot $1 cp /solr-*/example/lib/ext/* /usr/share/tomcat7/lib/
     chroot $1 cp /solr-*/dist/solr-*.war /var/lib/tomcat7/webapps/solr.war
@@ -155,45 +204,53 @@ exec /usr/local/bin/origo-networking.pl" > /etc/init/origo-networking.conf'
 
     # add solr core
     chroot $1 cp -r /var/lib/tomcat7/solr/collection1 /var/lib/tomcat7/solr/loop
-    chroot $1 sed -i 's/collection1/loop/' /var/lib/tomcat7/solr/loop/core.properties
-    chroot $1 drush pm-download search_api_solr
-    chroot $1 cp ~/search_api_solr/solr-conf/4.x/* /var/lib/tomcat7/solr/loop/conf/
-    chroot $1 rm -rf ~/search_api_solr
+    chroot $1 bash -c 'sed -i "s/collection1/loop/" /var/lib/tomcat7/solr/loop/core.properties'
+    chroot $1 bash -c 'cd / && drush dl search_api_solr'
+    chroot $1 bash -c 'cp /search_api_solr/solr-conf/4.x/* /var/lib/tomcat7/solr/loop/conf/'
+    chroot $1 rm -rf /search_api_solr
     chroot $1 chown -R tomcat7:tomcat7 /var/lib/tomcat7/solr
 
-# If called without parameters, build image, sizes 9216, 81920, 10240
+# if called without parameters, build image, sizes 9216, 81920, 10240
 else
-	vmbuilder kvm ubuntu \
-		-o -v --debug \
+	vmbuilder kvm ubuntu -o -v \
+		--debug \
 		--suite xenial \
 		--arch amd64 \
+		--components main,universe,multiverse
 		--rootsize 81920 \
 		--user origo --pass origo \
 		--hostname $dname \
 		--domain origo.io \
 		--ip 10.1.1.2 \
 		--execscript="./$me" \
-		--addpkg linux-image-generic \
+		--addpkg acpid \
+		--addpkg apache2 \
+		--addpkg curl \
+		--addpkg dmidecode \
+		--addpkg git \
+		--addpkg libapache2-mod-php7.0 \
 		--addpkg libjson-perl \
 		--addpkg liburi-encode-perl \
-		--addpkg curl \
-		--addpkg acpid \
-		--addpkg openssh-server \
-		--addpkg memcached \
-		--addpkg nfs-common \
-		--addpkg dmidecode \
-		--addpkg unzip \
-		--addpkg apache2 \
 		--addpkg libstring-shellquote-perl \
-		--addpkg python-software-properties \
-		--addpkg git \
+		--addpkg linux-image-generic \
+		--addpkg memcached \
 		--addpkg mysql-server \
-		--addpkg libapache2-mod-php7.0 \
-		--addpkg php-mysql \
-		--addpkg php-gd \
+		--addpkg nfs-common \
+		--addpkg openjdk-8-jre \
+		--addpkg openssh-server \
 		--addpkg php-curl \
+		--addpkg php-dev \
+		--addpkg php-gd \
+		--addpkg php-mbstring \
+		--addpkg php-memcached \
+		--addpkg php-mysql \
+		--addpkg php-pear \
+		--addpkg php-xml \
+		--addpkg python-software-properties \
 		--addpkg tomcat7 \
-		--addpkg openjdk-8-jre
+		--addpkg unzip \
+		--addpkg varnish
+
 	# clean up
 	mv ubuntu-kvm/*.qcow2 "./$dname-$version.master.qcow2"
 	rm -r ubuntu-kvm
