@@ -10,24 +10,20 @@ cd ${0%/*}
 # if we are called from vmbuilder, i.e. with parameters, perform post-install operations
 if [ $1 ]; then
 	echo "Performing post-install operations in $1"
-
-# stop local webmin
-	if [ -e "/etc/init.d/webmin" ]; then
+# stop local webmin from blocking port 10000
+	if [ -e "/etc/init.d/webmin" ]
+    	then
         	/etc/init.d/webmin stop
     	fi
 
-	# setup networking
-	cp /dev/null $1/etc/network/interfaces
-	cp origo-networking.service $1/etc/systemd/system/
-	chmod 664 $1/etc/systemd/system/origo-networking.service
-	chroot $1 systemctl daemon-reload
-	chroot $1 systemctl enable origo-networking.service
-
-	# install webmin
-	chroot $1 apt-get -q -y install perl libnet-ssleay-perl openssl libauthen-pam-perl libpam-runtime libio-pty-perl apt-show-versions python
-	wget http://prdownloads.sourceforge.net/webadmin/webmin_1.791_all.deb -O $1/webmin_1.791_all.deb
-	chroot $1 dpkg --install /webmin_1.791_all.deb
-
+# install webmin
+	chroot $1 bash -c 'echo "deb http://download.webmin.com/download/repository sarge contrib" >> /etc/apt/sources.list'
+	chroot $1 wget http://www.webmin.com/jcameron-key.asc
+	chroot $1 apt-key add jcameron-key.asc
+	chroot $1 apt-get update
+	chroot $1 apt-get -q -y --force-yes install webmin
+# Install IOzone
+	chroot $1 apt-get  -q -y --force-yes install iozone3
 # Set up automatic scanning for other Webmin servers
 	chroot $1 bash -c 'echo "auto_pass=origo
 auto_self=1
@@ -45,7 +41,7 @@ auto_email=" > /etc/webmin/servers/config'
 # Disable Webmin SSL
 	chroot $1 perl -pi -e "s/ssl=1/ssl=0/g;" /etc/webmin/miniserv.conf
 # Scan every 5 minutes for other Webmin servers
-	chroot $1 perl -pi -e "s/(\{\'notfound\'\}\+\+ >=) 3/\$1 0/;" /usr/share/webmin/servers/auto.pl
+	chroot $1 perl -pi -e "s/(\{\'notfound\'\}\+\+ >=) 3/\$1 1/;" /usr/share/webmin/servers/auto.pl
 	chroot $1 bash -c 'echo "#!/usr/bin/perl
 open(CONF, qq[/etc/webmin/miniserv.conf]) || die qq[Failed to open /etc/webmin/miniserv.conf : \$!];
 while(<CONF>) {
@@ -74,8 +70,7 @@ referers=" >> /etc/webmin/config'
 # Install webmin module
 # First exclude all, then include all the modules we want installed for this app
 	tar cvf $dname.wbm.tar origo --exclude=origo/tabs/*
-	#tar rvf $dname.wbm.tar origo/tabs/security origo/tabs/software origo/tabs/wordpress
-	tar rvf $dname.wbm.tar origo/tabs/security origo/tabs/software origo/tabs/servers origo/tabs/os2loop
+	tar rvf $dname.wbm.tar origo/tabs/security origo/tabs/servers origo/tabs/os2loop
 	mv $dname.wbm.tar $dname.wbm
 	gzip -f $dname.wbm
 	cp -a $dname.wbm.gz $1/tmp/origo.wbm.gz
@@ -88,23 +83,57 @@ referers=" >> /etc/webmin/config'
 # started network-interface and started portmap and runlevel [2345]
     cp origo-ubuntu.pl $1/usr/local/bin
     chmod 755 $1/usr/local/bin/origo-ubuntu.pl
+    ln -s $1/usr/local/bin/origo-ubuntu.pl /usr/local/bin/origo-helper
     chroot $1 bash -c 'echo "start on (started origo-networking)
 task
 exec /usr/local/bin/origo-ubuntu.pl" > /etc/init/origo-ubuntu.conf'
 
 # Configure IP address from address passed to VM through BIOS parameter SKU Number
-    cp origo-trusty-networking.pl $1/usr/local/bin/origo-networking.pl
+    cp origo-xenial-networking.pl $1/usr/local/bin/origo-networking.pl
     chmod 755 $1/usr/local/bin/origo-networking.pl
-    chroot $1 bash -c 'echo "start on starting network-interface
-instance ens3
-task
-exec /usr/local/bin/origo-networking.pl" > /etc/init/origo-networking.conf'
+	> $1/etc/network/interfaces
+    chroot $1 bash -c 'echo "[Unit]
+DefaultDependencies=no
+Description=Setup network for Origo Compute
+Before=network-pre.target
+Wants=network-pre.target
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/origo-networking.pl
+TimeoutSec=0
+RemainAfterExit=yes
+[Install]
+WantedBy=network.target" > /etc/systemd/system/origo-networking.service'
+	chmod 664 $1/etc/systemd/system/origo-networking.service
+	chroot $1 systemctl daemon-reload
+	chroot $1 systemctl enable origo-networking.service
+
+# Set up SSL access to Webmin on port 10001
+    chroot $1 cp /etc/apache2/sites-available/default-ssl.conf /etc/apache2/sites-available/webmin-ssl.conf
+    chroot $1 perl -pi -e 's/<VirtualHost _default_:443>/<VirtualHost _default_:10001>/;' /etc/apache2/sites-available/webmin-ssl.conf
+    chroot $1 perl -pi -e 's/(<\/VirtualHost>)/    ProxyPass \/ http:\/\/127.0.0.1:10000\/\n            ProxyPassReverse \/ http:\/\/127.0.0.1:10000\/\n$1/;' /etc/apache2/sites-available/webmin-ssl.conf
+    chroot $1 perl -pi -e 's/(DocumentRoot \/var\/www\/html)/$1\n        <Location \/>\n            deny from all\n            allow from 10.0.0.0\/8 #origo\n        <\/Location>/;' /etc/apache2/sites-available/webmin-ssl.conf
+    chroot $1 perl -pi -e 's/Listen 443/Listen 443\n    Listen 10001/;' /etc/apache2/ports.conf
 
 # Disable ondemand CPU-scaling service
     chroot $1 update-rc.d ondemand disable
 
 # Disable gzip compression in Apache (enable it manually if desired)
     chroot $1 a2dismod deflate
+
+# Enable SSL
+    chroot $1 a2enmod ssl
+    chroot $1 a2ensite default-ssl
+    chroot $1 a2ensite webmin-ssl
+
+# Enable mod_proxy
+    chroot $1 a2enmod proxy
+    chroot $1 a2enmod proxy_http
+
+# Run netserver under xinetd - this is used by the net test in reference app
+    chroot $1 perl -pi -e 's/(smsqp\s+11201\/udp)/$1\nnetperf         12865\/tcp/' /etc/services
+    chroot $1 perl -pi -e 's/NETSERVER_ENABLE=YES/NETSERVER_ENABLE=NO/' /etc/default/netperf
+    chroot $1 bash -c 'echo "netserver: 10.0.0.0/8" >> /etc/hosts.allow'
 
 # Disable ssh login - reenable from configuration UI
    chroot $1 bash -c 'echo "sshd: ALL" >> /etc/hosts.deny'
@@ -117,6 +146,11 @@ exec /usr/local/bin/origo-networking.pl" > /etc/init/origo-networking.conf'
     chroot $1 bash -c 'echo "export TERM=xterm-color" >> /etc/bash.bashrc'
     chroot $1 perl -pi -e 's/PS1="/# PS1="/' /home/origo/.bashrc
     chroot $1 perl -pi -e 's/PS1="/# PS1="/' /root/.bashrc
+
+# Make stuff available to elfinder
+    chroot $1 ln -s /usr/share/webmin/origo/elfinder/img /usr/share/webmin/origo/
+    chroot $1 ln -s /mnt/fuel /usr/share/webmin/origo/elfinder/
+    chroot $1 mkdir /usr/share/webmin/origo/files
 
 # Start local webmin again
     if [ -e "/etc/init.d/webmin" ]; then
@@ -244,42 +278,53 @@ else
 		--domain origo.io \
 		--ip 10.1.1.2 \
 		--execscript="./$me" \
+		--mirror http://mirror.easyspeedy.com/ubuntu/ \
 		--addpkg acpid \
 		--addpkg apache2 \
+		--addpkg apt-show-versions \
 		--addpkg curl \
 		--addpkg dmidecode \
 		--addpkg git \
+		--addpkg iptables \
 		--addpkg libapache2-mod-php7.0 \
+		--addpkg libauthen-pam-perl \
+		--addpkg libio-pty-perl \
 		--addpkg libjson-perl \
+		--addpkg libpam-runtime \
 		--addpkg liburi-encode-perl \
 		--addpkg libstring-shellquote-perl \
+		--addpkg libnet-ssleay-perl \
 		--addpkg linux-image-generic \
 		--addpkg memcached \
 		--addpkg mysql-server \
 		--addpkg nfs-common \
 		--addpkg openjdk-8-jre \
 		--addpkg openssh-server \
+		--addpkg openssl \
 		--addpkg php-curl \
 		--addpkg php-dev \
 		--addpkg php-gd \
+		--addpkg php-imagick \
 		--addpkg php-mbstring \
 		--addpkg php-memcached \
 		--addpkg php-mysql \
 		--addpkg php-pear \
 		--addpkg php-xml \
+		--addpkg python \
 		--addpkg python-software-properties \
 		--addpkg tomcat7 \
 		--addpkg unzip \
-		--addpkg varnish
+		--addpkg varnish \
+		--addpkg xinetd
 
 	# clean up
 	mv ubuntu-kvm/*.qcow2 "./$dname-$version.master.qcow2"
 	rm -r ubuntu-kvm
 
-	qemu-img create -f qcow2 $dname-data.qcow2 80G
+	#qemu-img create -f qcow2 $dname-data.qcow2 80G
 
         # convert to qcow2
         qemu-img amend -f qcow2 -o compat=0.10 ./$dname-$version.master.qcow2
-        qemu-img amend -f qcow2 -o compat=0.10 ./$dname-data.qcow2
+        #qemu-img amend -f qcow2 -o compat=0.10 ./$dname-data.qcow2
 fi
 
