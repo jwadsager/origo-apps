@@ -75,7 +75,7 @@ referers=" >> /etc/webmin/config'
 # First exclude all, then include all the modules we want installed for this app
 	tar cvf $dname.wbm.tar origo --exclude=origo/tabs/*
 	#tar rvf $dname.wbm.tar origo/tabs/security origo/tabs/software origo/tabs/wordpress
-	tar rvf $dname.wbm.tar origo/tabs/security origo/tabs/software origo/tabs/servers
+	tar rvf $dname.wbm.tar origo/tabs/security origo/tabs/software origo/tabs/servers origo/tabs/os2loop
 	mv $dname.wbm.tar $dname.wbm
 	gzip -f $dname.wbm
 	cp -a $dname.wbm.gz $1/tmp/origo.wbm.gz
@@ -133,30 +133,28 @@ exec /usr/local/bin/origo-networking.pl" > /etc/init/origo-networking.conf'
     chroot $1 pecl install uploadprogress
     chroot $1 bash -c 'echo "extension=uploadprogress.so" > /etc/php/7.0/conf.d/uploadprogress.ini'
 
-    # configure mysql
-    #chroot $1 bash -c 'cat > /etc/mysql/conf.d/innodb.cnf <<DELIM
-#[mysqld]
-#innodb_buffer_pool_size=256M
-#innodb_flush_method=O_DIRECT
-#innodb_additional_mem_pool_size=10M
-#innodb_flush_log_at_trx_commit=0
-#innodb_thread_concurrency=6
-#DELIM'
-    #chroot $1 bash -c 'mysql -e "create database loop;"'
-    #chroot $1 bash -c 'mysql -e "create user loop@localhost identified by loop;"'
-    #chroot $1 bash -c 'mysql -e "grant all privileges on loop.* to loop@localhost;"'
-
     # configure varnish
-    chroot $1 bash -c 'cat > /etc/default/varnish <<DELIM
-START=yes
-NFILES=131072
-MEMLOCK=82000
-DAEMON_OPTS="-a :80 \
-             -T localhost:6082 \
-             -f /etc/varnish/default.vcl \
-             -S /etc/varnish/secret \
-             -s malloc,256m"
+    # workaround for varnish on xenial, put in /etc/default/varnish when fixed by varnish/ubuntu
+    chroot $1 bash -c 'cat > /lib/systemd/system/varnish.service <<DELIM
+[Unit]
+Description=Varnish HTTP accelerator
+Documentation=https://www.varnish-cache.org/docs/4.1/ man:varnishd
+
+[Service]
+Type=simple
+LimitNOFILE=131072
+LimitMEMLOCK=82000
+ExecStart=/usr/sbin/varnishd -j unix,user=vcache -F -a :80 -T localhost:6082 -f /etc/varnish/default.vcl -S /etc/varnish/secret -s malloc,256m
+ExecReload=/usr/share/varnish/reload-vcl
+ProtectSystem=full
+ProtectHome=true
+PrivateTmp=true
+PrivateDevices=true
+
+[Install]
+WantedBy=multi-user.target
 DELIM'
+
     chroot $1 bash -c 'cat > /etc/varnish/default.vcl <<DELIM
 vcl 4.0;
 
@@ -167,9 +165,32 @@ backend default {
 DELIM'
 
     # configure apache
-    cp ./os2loop.conf $1/etc/apache2/sites-available/
-    chroot $1 rm -rf /etc/apache2/sites-enabled/*
-    chroot $1 a2ensite os2loop
+    chroot $1 bash -c 'cat > /etc/apache2/ports.conf <<DELIM
+Listen 8080
+
+<IfModule ssl_module>
+        Listen 443
+        Listen 10001
+</IfModule>
+
+<IfModule mod_gnutls.c>
+        Listen 443
+        Listen 10001
+</IfModule>
+DELIM'
+    chroot $1 rm -rf /etc/apache2/sites-enabled/{000-default.conf,default-ssl.conf}
+    chroot $1 bash -c 'cat > /etc/apache2/sites-available/os2loop.conf <<DELIM
+<VirtualHost *:8080>
+    ServerName OS2Loop
+    DocumentRoot /var/www/html
+
+    <Directory /var/www/html>
+        AllowOverride All
+    </Directory>
+</VirtualHost>
+DELIM'
+    cp Apache/webmin-ssl.conf $1/etc/apache2/sites-available
+    chroot $1 a2ensite os2loop webmin-ssl
 
     # install composer
     chroot $1 php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
@@ -186,9 +207,9 @@ DELIM'
     chroot $1 composer install
 
     # install drupal profile
-    chroot $1 rm -rf /var/www
-    chroot $1 drush make --no-cache https://raw.github.com/jwadsager/profile/test/drupal.make /var/www
-    chroot $1 chown -R www-data:www-data /var/www
+    chroot $1 rm -rf /var/www/html
+    chroot $1 drush make --no-cache https://raw.github.com/jwadsager/profile/test/drupal.make /var/www/html
+    chroot $1 chown -R www-data:www-data /var/www/html
 
     # setup tomcat and solr
     chroot $1 sed --in-place '/\<Connector port="8080" protocol="HTTP\/1.1"/c \<Connector port="8983" protocol="HTTP\/1.1"' /var/lib/tomcat7/conf/server.xml
@@ -216,7 +237,7 @@ else
 		--debug \
 		--suite xenial \
 		--arch amd64 \
-		--components main,universe,multiverse
+		--components main,universe,multiverse \
 		--rootsize 81920 \
 		--user origo --pass origo \
 		--hostname $dname \
@@ -255,7 +276,10 @@ else
 	mv ubuntu-kvm/*.qcow2 "./$dname-$version.master.qcow2"
 	rm -r ubuntu-kvm
 
+	qemu-img create -f qcow2 $dname-data.qcow2 80G
+
         # convert to qcow2
         qemu-img amend -f qcow2 -o compat=0.10 ./$dname-$version.master.qcow2
+        qemu-img amend -f qcow2 -o compat=0.10 ./$dname-data.qcow2
 fi
 
