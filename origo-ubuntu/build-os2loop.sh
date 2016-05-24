@@ -3,6 +3,7 @@
 version="alpha"
 dname="os2loop"
 me=`basename $0`
+
 php_version="5.5"
 
 # change working directory to script's directory
@@ -162,7 +163,7 @@ WantedBy=network.target" > /etc/systemd/system/origo-networking.service'
     # the os2loop drupal version doesn't support mysql 5.7, so we use the wily version
     chroot $1 bash -c 'echo "deb http://ppa.launchpad.net/ondrej/mysql-5.6/ubuntu wily main" >> /etc/apt/sources.list'
     chroot $1 apt-get update
-    chroot $1 apt-get install -y mysql-server-5.6
+    chroot $1 apt-get install -y --allow-unauthenticated mysql-server-5.6
 
     # configure php
     chroot $1 update-alternatives --set php /usr/bin/php${php_version}
