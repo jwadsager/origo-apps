@@ -1,6 +1,6 @@
 #!/bin/bash
 
-version="alpha"
+version="alpha-`date +%Y_%m_%d_%H_%M_%S`"
 dname="os2loop"
 me=`basename $0`
 
@@ -159,23 +159,16 @@ WantedBy=network.target" > /etc/systemd/system/origo-networking.service'
         /etc/init.d/webmin start
     fi
 
-    # mysql
-    # the os2loop drupal version doesn't support mysql 5.7, so we use the wily version
-    chroot $1 bash -c 'echo "deb http://ppa.launchpad.net/ondrej/mysql-5.6/ubuntu wily main" >> /etc/apt/sources.list'
-    chroot $1 apt-get update
-    chroot $1 apt-get install -y --allow-unauthenticated mysql-server-5.6
-
     # configure php
     chroot $1 update-alternatives --set php /usr/bin/php${php_version}
-    chroot $1 bash -c 'sed -i "/memory_limit = 128M/c memory_limit = 512M" /etc/php/5.5/apache2/php.ini'
+    chroot $1 bash -c 'sed -i "/memory_limit = 128M/c memory_limit = 256M" /etc/php/5.5/apache2/php.ini'
     chroot $1 bash -c 'sed -i "/;date.timezone =/c date.timezone = Europe\/Copenhagen" /etc/php/5.5/apache2/php.ini'
     chroot $1 bash -c 'sed -i "/;date.timezone =/c date.timezone = Europe\/Copenhagen" /etc/php/5.5/cli/php.ini'
     chroot $1 bash -c 'sed -i "/upload_max_filesize = 2M/c upload_max_filesize = 16M" /etc/php/5.5/apache2/php.ini'
     chroot $1 bash -c 'sed -i "/post_max_size = 8M/c post_max_size = 20M" /etc/php/5.5/apache2/php.ini'
     chroot $1 bash -c 'sed -i "/;realpath_cache_size = 16k/c realpath_cache_size = 256k" /etc/php/5.5/apache2/php.ini'
     chroot $1 pecl install uploadprogress
-    chroot $1 bash -c 'echo "extension=uploadprogress.so" > /etc/php/5.5/mods-available/uploadprogress.ini'
-    chroot $1 bash -c 'echo "apc.rfc1867 = 1" >> /etc/php/5.5/apache2/php.ini'
+    chroot $1 bash -c 'echo "extension=uploadprogress.so" >> /etc/php/5.5/apache2/php.ini'
 
     chroot $1 bash -c 'cat > /etc/php/5.5/mods-available/apc.ini <<DELIM
 apc.enabled=1
@@ -305,6 +298,7 @@ else
 		--execscript="./$me" \
 		--mirror http://mirror.easyspeedy.com/ubuntu/ \
 		--ppa ondrej/php \
+		--ppa ondrej/mysql-5.6 \
 		--addpkg acpid \
 		--addpkg apache2 \
 		--addpkg apt-show-versions \
@@ -322,6 +316,7 @@ else
 		--addpkg libnet-ssleay-perl \
 		--addpkg linux-image-generic \
 		--addpkg memcached \
+		--addpkg mysql-server-5.6 \
 		--addpkg nfs-common \
 		--addpkg openjdk-8-jre \
 		--addpkg openssh-server \
