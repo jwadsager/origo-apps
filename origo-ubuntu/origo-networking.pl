@@ -6,7 +6,8 @@ if ($ip =~ /SKU Number: (\d+\.\d+\.\d+)\.(\d+)/) {
 	$ip = "$1.$2";
 	$net = "$1";
 	print "Configuring IP address with $ip\n";
-	`echo "$ip" > /tmp/internalip` if ($net =~ /^10\./);
+	`mkdir /etc/origo` unless (-e '/etc/origo');
+	`echo "$ip" > /etc/origo/internalip` if ($net =~ /^10\./);
 } else {
 	die "No ip address found\n";
 }
