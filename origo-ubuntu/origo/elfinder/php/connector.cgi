@@ -146,7 +146,9 @@ if ((isset( $_GET ) && isset($_GET['nfs'])) || (isset( $_POST ) && isset($_POST[
 }
 
 if (isset($tktuser) && $tktuser!=='' && $tktuser!=='g') {
-    $dominfo = `samba-tool domain info \`cat /tmp/internalip\``;
+    my $intip = `cat /tmp/internalip`;
+    $intip = `cat /etc/origo/internalip` if (-e '/etc/origo/internalip');
+    $dominfo = `samba-tool domain info $intip`;
     preg_match('/Domain\s+: (\S+)/', $dominfo, $matches);
     $sambadomain = $matches[1];
     $domparts = explode(".", $sambadomain);

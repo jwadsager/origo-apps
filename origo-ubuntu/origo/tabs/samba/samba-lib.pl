@@ -6,7 +6,9 @@ sub samba {
     my %in = %{$in_ref};
 
     my $dominfo;
-    $dominfo = `samba-tool domain info \`cat /tmp/internalip\`` unless ($action eq 'restore');
+    my $intip = `cat /tmp/internalip`;
+    $intip = `cat /etc/origo/internalip` if (-e '/etc/origo/internalip');
+    $dominfo = `samba-tool domain info $intip` unless ($action eq 'restore');
     my $sambadomain;
     $sambadomain = $1 if ($dominfo =~ /Domain\s+: (\S+)/);
     my $sambahost;

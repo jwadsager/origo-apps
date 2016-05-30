@@ -24,7 +24,7 @@ if ($action eq 'mountpools') {
 if (-e '/etc/webmin/') {
     while (!$registered && $i<20) {
         $internalip = `cat /tmp/internalip` if (-e '/tmp/internalip');
-        $internalip = `cat /etc/internalip` if (-e '/etc/internalip');
+        $internalip = `cat /etc/origo/internalip` if (-e '/etc/origo/internalip');
         chomp $internalip;
         my $res = `curl http://$internalip:10000/origo/index.cgi?action=registerwebminserver`;
         $registered = ($res =~ /Registered at \S+/);

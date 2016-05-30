@@ -115,7 +115,9 @@ END
         $groupdir = $1 if ($groupdir =~ /(.+)\/[^\/]+/);
     # Get the users groups
         my %usergroups;
-        my $dominfo = `samba-tool domain info \`cat /tmp/internalip\``;
+        my $intip = `cat /tmp/internalip`;
+        $intip = `cat /etc/origo/internalip` if (-e '/etc/origo/internalip');
+        my $dominfo = `samba-tool domain info $intip`;
         my $sambadomain;
         $sambadomain = $1 if ($dominfo =~ /Domain\s+: (\S+)/);
         if ($sambadomain) {
@@ -366,7 +368,9 @@ sub dirOK {
         $groupdir = $1 if ($groupdir =~ /(.+)\/[^\/]+/);
     # Get the users groups
         my %usergroups;
-        my $dominfo = `samba-tool domain info \`cat /tmp/internalip\``;
+        my $intip = `cat /tmp/internalip`;
+        $intip = `cat /etc/origo/internalip` if (-e '/etc/origo/internalip');
+        my $dominfo = `samba-tool domain info $intip`;
         my $sambadomain;
         $sambadomain = $1 if ($dominfo =~ /Domain\s+: (\S+)/);
         if ($sambadomain) {
