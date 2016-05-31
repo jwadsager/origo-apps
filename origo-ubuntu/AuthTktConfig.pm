@@ -42,11 +42,12 @@ our $DEBUG = 0;
 sub validate
 {
     my ($username, $password) = @_;
-    my $dominfo = `samba-tool domain info \`cat /tmp/internalip\``;
+    my $internalip = `cat /tmp/internalip`;
+    $internalip = `cat /etc/origo/internalip` if (-e '/etc/origo/internalip');
+    my $dominfo = `samba-tool domain info \`cat $internalip\``;
     my $sambadomain = $1 if ($dominfo =~ /Domain\s+: (\S+)/);
     my @domparts = split(/\./, $sambadomain);
     my $userbase = "CN=users,DC=" . join(",DC=", @domparts);
-    my $internalip = `cat /tmp/internalip`;
     chomp $internalip;
     my $ldap = Authen::Simple::LDAP->new(
         binddn  => $username . '@' . $domparts[0],

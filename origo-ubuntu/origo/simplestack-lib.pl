@@ -6,12 +6,15 @@ init_config();
 
 sub get_internalip {
     my $internalip;
-    if (!(-e "/tmp/internalip")) {
+    if (!(-e "/tmp/internalip") && !(-e "/etc/origo/internalip")) {
         $internalip = $1 if (`curl -sk https://10.0.0.1/steamengine/networks/this` =~ /"internalip" : "(.+)",/);
         chomp $internalip;
         `echo "$internalip" > /tmp/internalip` if ($internalip);
+        `mkdir /etc/origo` unless (-e '/etc/origo');
+        `echo "$internalip" > /etc/origo/internalip` if ($internalip);
     } else {
         $internalip = `cat /tmp/internalip` if (-e "/tmp/internalip");
+        $internalip = `cat /tmp/internalip` if (-e "/etc/origo/internalip");
         chomp $internalip;
     }
     return $internalip;

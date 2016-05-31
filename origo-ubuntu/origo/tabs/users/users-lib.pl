@@ -11,7 +11,9 @@ sub users {
     my %in = %{$in_ref};
 
     unless ($action eq 'restore' || $sambadomain) {
-        my $dominfo = `samba-tool domain info \`cat /tmp/internalip\``;
+        my $intip = `cat /tmp/internalip`;
+        $intip = `cat /etc/origo/internalip` if (-e '/etc/origo/internalip');
+        my $dominfo = `samba-tool domain info $intip`;
         $sambadomain = $1 if ($dominfo =~ /Domain\s+: (\S+)/);
     }
     unless ($action eq 'restore' || $userbase) {
@@ -351,7 +353,9 @@ END
 
 sub getUsers {
     unless ($sambadomain) {
-        my $dominfo = `samba-tool domain info \`cat /tmp/internalip\``;
+        my $intip = `cat /tmp/internalip`;
+        $intip = `cat /etc/origo/internalip` if (-e '/etc/origo/internalip');
+        my $dominfo = `samba-tool domain info $intip`;
         $sambadomain = $1 if ($dominfo =~ /Domain\s+: (\S+)/);
     }
     unless ($userbase) {

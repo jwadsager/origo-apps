@@ -153,6 +153,7 @@ WantedBy=network.target" > /etc/systemd/system/origo-networking.service'
     chroot $1 ln -s /usr/share/webmin/origo/elfinder/img /usr/share/webmin/origo/
     chroot $1 ln -s /mnt/fuel /usr/share/webmin/origo/elfinder/
     chroot $1 mkdir /usr/share/webmin/origo/files
+    chroot $1 ln -s /usr/bin/php /usr/bin/php5
 
 # Start local webmin again
     if [ -e "/etc/init.d/webmin" ]; then
@@ -178,6 +179,7 @@ else
         --addpkg dmidecode\
         --addpkg git\
         --addpkg iptables\
+        --addpkg libapache2-mod-php\
         --addpkg libguestfs-tools\
         --addpkg libjson-perl\
         --addpkg libstring-shellquote-perl\
