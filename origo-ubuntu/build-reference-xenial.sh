@@ -137,6 +137,12 @@ WantedBy=network.target" > /etc/systemd/system/origo-networking.service'
     chroot $1 perl -pi -e 's/NETSERVER_ENABLE=YES/NETSERVER_ENABLE=NO/' /etc/default/netperf
     chroot $1 bash -c 'echo "netserver: 10.0.0.0/8" >> /etc/hosts.allow'
 
+# Install version 2.5 of netperf
+    chroot $1 mv /usr/bin/netperf /usr/bin/netserver2.6
+    chroot $1 ln -s /usr/share/webmin/origo/tabs/tests/netperf /usr/bin
+    chroot $1 mv /usr/bin/netserver /usr/bin/netserver2.6
+    chroot $1 ln -s /usr/share/webmin/origo/tabs/tests/netserver /usr/bin
+
 # Disable ssh login - reenable from configuration UI
    chroot $1 bash -c 'echo "sshd: ALL" >> /etc/hosts.deny'
    chroot $1 bash -c 'echo "sshd: 10.0.0.0/8 #origo" >> /etc/hosts.allow'

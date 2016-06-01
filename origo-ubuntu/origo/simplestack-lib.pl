@@ -14,7 +14,7 @@ sub get_internalip {
         `echo "$internalip" > /etc/origo/internalip` if ($internalip);
     } else {
         $internalip = `cat /tmp/internalip` if (-e "/tmp/internalip");
-        $internalip = `cat /tmp/internalip` if (-e "/etc/origo/internalip");
+        $internalip = `cat /etc/origo/internalip` if (-e "/etc/origo/internalip");
         chomp $internalip;
     }
     return $internalip;
