@@ -1,7 +1,7 @@
 #!/bin/bash
 
-version="1.0"
-dname="origo-reference-xenial"
+version="1.3"
+dname="origo-reference"
 me=`basename $0`
 
 # change working directory to script's directory
