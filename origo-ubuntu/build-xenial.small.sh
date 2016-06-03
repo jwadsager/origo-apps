@@ -97,7 +97,7 @@ After=network.target network-online.target
 
 [Service]
 Type=oneshot
-ExecStart=/usr/share/webmin/origo/tabs/servers/shellinaboxd -b -t -n --no-beep
+ExecStart=/usr/local/bin/origo-ubuntu.pl
 TimeoutSec=10
 RemainAfterExit=yes
 
@@ -105,6 +105,7 @@ RemainAfterExit=yes
 WantedBy=multi-user.target" > /etc/systemd/system/origo-ubuntu.service'
 	chmod 664 $1/etc/systemd/system/origo-ubuntu.service
 
+# Simple script to start shellinabox
     chroot $1 bash -c 'echo "[Unit]
 DefaultDependencies=no
 Description=Shellinabox for Origo Compute
@@ -119,7 +120,7 @@ Type=forking
 WantedBy=multi-user.target" > /etc/systemd/system/origo-shellinabox.service'
 	chmod 664 $1/etc/systemd/system/origo-shellinabox.service
 
-# Configure IP address from address passed to VM through BIOS parameter SKU Number
+# Simple script to configure IP address from address passed to VM through BIOS parameter SKU Number
     cp origo-xenial-networking.pl $1/usr/local/bin/origo-networking.pl
     chmod 755 $1/usr/local/bin/origo-networking.pl
     > $1/etc/network/interfaces
