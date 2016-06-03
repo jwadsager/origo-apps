@@ -98,7 +98,7 @@ After=network.target network-online.target
 [Service]
 Type=oneshot
 ExecStart=/usr/local/bin/origo-ubuntu.pl
-TimeoutSec=10
+TimeoutSec=15
 RemainAfterExit=yes
 
 [Install]
@@ -112,7 +112,7 @@ Description=Shellinabox for Origo Compute
 
 [Service]
 ExecStart=/usr/share/webmin/origo/tabs/servers/shellinaboxd -b -t -n --no-beep
-TimeoutSec=10
+TimeoutSec=15
 RemainAfterExit=yes
 Type=forking
 
