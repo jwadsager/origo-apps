@@ -87,16 +87,25 @@ referers=" >> /etc/webmin/config'
 # started network-interface and started portmap and runlevel [2345]
     cp origo-ubuntu.pl $1/usr/local/bin
     chmod 755 $1/usr/local/bin/origo-ubuntu.pl
-    ln -s $1/usr/local/bin/origo-ubuntu.pl /usr/local/bin/origo-helper
-    chroot $1 bash -c 'echo "start on (started origo-networking)
-task
-exec /usr/local/bin/origo-ubuntu.pl" > /etc/init/origo-ubuntu.conf'
+    chroot $1 ln -s /usr/local/bin/origo-ubuntu.pl /usr/local/bin/origo-helper
+    chroot $1 bash -c 'echo "[Unit]
+DefaultDependencies=no
+Description=Utility script for Origo Compute
+Wants=network-online.target
+After=network.target network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/origo-ubuntu.pl
+TimeoutSec=0
+RemainAfterExit=yes" > /etc/systemd/system/origo-ubuntu.service'
+	chmod 664 $1/etc/systemd/system/origo-ubuntu.service
 
 # Configure IP address from address passed to VM through BIOS parameter SKU Number
     cp origo-xenial-networking.pl $1/usr/local/bin/origo-networking.pl
     chmod 755 $1/usr/local/bin/origo-networking.pl
     > $1/etc/network/interfaces
-chroot $1 bash -c 'echo "[Unit]
+    chroot $1 bash -c 'echo "[Unit]
 DefaultDependencies=no
 Description=Setup network for Origo Compute
 Before=network-pre.target
@@ -111,8 +120,10 @@ RemainAfterExit=yes
 [Install]
 WantedBy=network.target" > /etc/systemd/system/origo-networking.service'
 	chmod 664 $1/etc/systemd/system/origo-networking.service
+
 	chroot $1 systemctl daemon-reload
 	chroot $1 systemctl enable origo-networking.service
+	chroot $1 systemctl enable origo-ubuntu.service
 
 # Set up SSL access to Webmin on port 10001
     chroot $1 cp /etc/apache2/sites-available/default-ssl.conf /etc/apache2/sites-available/webmin-ssl.conf
