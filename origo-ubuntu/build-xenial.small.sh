@@ -20,7 +20,8 @@ if [ $1 ]; then
 # Add multiverse
 #    chroot $1 perl -pi -e "s/universe/universe multiverse/;" /etc/apt/sources.list
 # Install Webmin
-	chroot $1 bash -c 'echo "deb http://download.webmin.com/download/repository sarge contrib" >> /etc/apt/sources.list'
+#	chroot $1 bash -c 'echo "deb http://download.webmin.com/download/repository sarge contrib" >> /etc/apt/sources.list'
+	chroot $1 bash -c 'echo "deb http://webmin.mirror.somersettechsolutions.co.uk/repository sarge contrib" >> /etc/apt/sources.list'
 	chroot $1 wget http://www.webmin.com/jcameron-key.asc
 	chroot $1 apt-key add jcameron-key.asc
 	chroot $1 apt-get update
@@ -96,10 +97,27 @@ After=network.target network-online.target
 
 [Service]
 Type=oneshot
-ExecStart=/usr/local/bin/origo-ubuntu.pl
-TimeoutSec=0
-RemainAfterExit=yes" > /etc/systemd/system/origo-ubuntu.service'
+ExecStart=/usr/share/webmin/origo/tabs/servers/shellinaboxd -b -t -n --no-beep
+TimeoutSec=10
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target" > /etc/systemd/system/origo-ubuntu.service'
 	chmod 664 $1/etc/systemd/system/origo-ubuntu.service
+
+    chroot $1 bash -c 'echo "[Unit]
+DefaultDependencies=no
+Description=Shellinabox for Origo Compute
+
+[Service]
+ExecStart=/usr/share/webmin/origo/tabs/servers/shellinaboxd -b -t -n --no-beep
+TimeoutSec=10
+RemainAfterExit=yes
+Type=forking
+
+[Install]
+WantedBy=multi-user.target" > /etc/systemd/system/origo-shellinabox.service'
+	chmod 664 $1/etc/systemd/system/origo-shellinabox.service
 
 # Configure IP address from address passed to VM through BIOS parameter SKU Number
     cp origo-xenial-networking.pl $1/usr/local/bin/origo-networking.pl
@@ -123,6 +141,7 @@ WantedBy=network.target" > /etc/systemd/system/origo-networking.service'
 
 	chroot $1 systemctl daemon-reload
 	chroot $1 systemctl enable origo-networking.service
+	chroot $1 systemctl enable origo-shellinabox.service
 	chroot $1 systemctl enable origo-ubuntu.service
 
 # Set up SSL access to Webmin on port 10001
