@@ -20,7 +20,8 @@ if [ $1 ]; then
 # Add multiverse
 #    chroot $1 perl -pi -e "s/universe/universe multiverse/;" /etc/apt/sources.list
 # Install Webmin
-	chroot $1 bash -c 'echo "deb http://download.webmin.com/download/repository sarge contrib" >> /etc/apt/sources.list'
+#	chroot $1 bash -c 'echo "deb http://download.webmin.com/download/repository sarge contrib" >> /etc/apt/sources.list'
+	chroot $1 bash -c 'echo "deb http://webmin.mirror.somersettechsolutions.co.uk/repository sarge contrib" >> /etc/apt/sources.list'
 	chroot $1 wget http://www.webmin.com/jcameron-key.asc
 	chroot $1 apt-key add jcameron-key.asc
 	chroot $1 apt-get update
@@ -87,16 +88,43 @@ referers=" >> /etc/webmin/config'
 # started network-interface and started portmap and runlevel [2345]
     cp origo-ubuntu.pl $1/usr/local/bin
     chmod 755 $1/usr/local/bin/origo-ubuntu.pl
-    ln -s $1/usr/local/bin/origo-ubuntu.pl /usr/local/bin/origo-helper
-    chroot $1 bash -c 'echo "start on (started origo-networking)
-task
-exec /usr/local/bin/origo-ubuntu.pl" > /etc/init/origo-ubuntu.conf'
+    chroot $1 ln -s /usr/local/bin/origo-ubuntu.pl /usr/local/bin/origo-helper
+    chroot $1 bash -c 'echo "[Unit]
+DefaultDependencies=no
+Description=Utility script for Origo Compute
+Wants=network-online.target
+After=network.target network-online.target
 
-# Configure IP address from address passed to VM through BIOS parameter SKU Number
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/origo-ubuntu.pl
+TimeoutSec=30
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target" > /etc/systemd/system/origo-ubuntu.service'
+	chmod 664 $1/etc/systemd/system/origo-ubuntu.service
+
+# Simple script to start shellinabox
+    chroot $1 bash -c 'echo "[Unit]
+DefaultDependencies=no
+Description=Shellinabox for Origo Compute
+
+[Service]
+ExecStart=/usr/share/webmin/origo/tabs/servers/shellinaboxd -b -t -n --no-beep
+TimeoutSec=15
+RemainAfterExit=yes
+Type=forking
+
+[Install]
+WantedBy=multi-user.target" > /etc/systemd/system/origo-shellinabox.service'
+	chmod 664 $1/etc/systemd/system/origo-shellinabox.service
+
+# Simple script to configure IP address from address passed to VM through BIOS parameter SKU Number
     cp origo-xenial-networking.pl $1/usr/local/bin/origo-networking.pl
     chmod 755 $1/usr/local/bin/origo-networking.pl
     > $1/etc/network/interfaces
-chroot $1 bash -c 'echo "[Unit]
+    chroot $1 bash -c 'echo "[Unit]
 DefaultDependencies=no
 Description=Setup network for Origo Compute
 Before=network-pre.target
@@ -113,6 +141,8 @@ WantedBy=network.target" > /etc/systemd/system/origo-networking.service'
 	chmod 664 $1/etc/systemd/system/origo-networking.service
 	chroot $1 systemctl daemon-reload
 	chroot $1 systemctl enable origo-networking.service
+	chroot $1 systemctl enable origo-shellinabox.service
+	chroot $1 systemctl enable origo-ubuntu.service
 
 # Set up SSL access to Webmin on port 10001
     chroot $1 cp /etc/apache2/sites-available/default-ssl.conf /etc/apache2/sites-available/webmin-ssl.conf
