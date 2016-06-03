@@ -112,7 +112,7 @@ Description=Shellinabox for Origo Compute
 
 [Service]
 ExecStart=/usr/share/webmin/origo/tabs/servers/shellinaboxd -b -t -n --no-beep
-TimeoutSec=15
+TimeoutSec=30
 RemainAfterExit=yes
 Type=forking
 
