@@ -56,7 +56,7 @@ I/O: iozone -a -s 4096 -r 32 -i0 -i1 -i2<br>
 IOPS direct: iozone -I -a -s 4096 -r 32 -O -i0 -i1 -i2<br>
 I/O direct: iozone -I -a -s 4096 -r 32 -i0 -i1 -i2<br>
 Disk: dd bs=1M count=64 if=/dev/zero of=/tmp/test conv=fdatasync<br>
-NFS: dd bs=1M count=64 if=/dev/zero of=/mnt/fuel/ddtest conv=fdatasync<br>
+NFS: dd bs=1M count=64 if=/dev/zero of=/mnt/fuel/poolX/ddtest conv=fdatasync<br>
 CPU: sysbench --test=cpu --cpu-max-prime=10000 run<br>
 CPU 5 threads: sysbench --test=cpu --cpu-max-prime=10000 run --num-threads=5<br>
 Memory: sysbench --test=memory --memory-total-size=4G run<br>
