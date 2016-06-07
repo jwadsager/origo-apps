@@ -39,7 +39,7 @@ sub getLoopTab {
         my $loopsecurityform = <<END
 <div class="tab-pane" id="loop-security">
     <form class="passwordform" action="index.cgi?action=looplimit\&tab=os2loop\&show=loop-security" method="post" accept-charset="utf-8" style="margin-bottom:36px;" autocomplete="off">
-        <small>Limit OS2Loop login for all sites to:</small>
+        <small>Limit login for all sites to:</small>
         <input id="loop-limit" type="text" name="loop-limit" value="$loop_limit" placeholder="IP address or network, e.g. '192.168.0.0/24 127.0.0.1'">
         $current_ip
         <button class="btn btn-default" type="submit" onclick="spinner(this);">Set!</button>
@@ -56,16 +56,15 @@ END
     }
 
     my $resetbutton = qq|<button class="btn btn-danger" rel="tooltip" data-placement="top" title="This will remove your website and wipe your database. Are you sure this is what you want to do?" onclick="confirmWPAction('loopremove', '$domain_without_origo');" type="button">Remove website</button>|;
-    my $backup_tooltip = "Click to back up your database";
     my $manageform = <<END
     <div class="tab-pane" id="$domain_without_origo-site">
     <form class="passwordform wpform" id="wpform_$domain_without_origo" action="index.cgi?tab=os2loop\&show=$domain_without_origo-site" method="post" accept-charset="utf-8" autocomplete="off">
         <div>
             <small>The website's domain name:</small>
-            <input class="wpdomain" id="wpdomain_$domain_without_origo" type="text" name="wpdomain_$domain_without_origo" value="$domain" disabled autocomplete="off">
+            <input class="loopdomain" id="loopdomain_$domain_without_origo" type="text" name="loopdomain_$domain_without_origo" value="$domain" disabled autocomplete="off">
         </div>
         <div>
-            <small>Aliases for the site:</small>
+            <small>Aliases for the website:</small>
             <input class="wpalias" id="wpaliases_$domain_without_origo" type="text" name="wpaliases_$domain_without_origo" value="$domain_aliases" autocomplete="off" />
             <input type="hidden" id="wpaliases_h_$domain_without_origo" name="wpaliases_h_$domain_without_origo" value="$domain_aliases" autocomplete="off" />
             <button type="submit" class="btn btn-default" onclick="spinner(this); \$('#action_$domain_without_origo').val('domain_aliases'); submit();" rel="tooltip" data-placement="top" title="Aliases that are not FQDNs will be created in the origo.io domain as [alias].origo.io">Set!</button>
@@ -79,22 +78,19 @@ END
 END
 ;
 
-    my $backupbutton = qq|<button class="btn btn-primary" rel="tooltip" data-placement="top" title="$backup_tooltip" onclick="\$('#action_$domain_without_origo').val('wpbackup'); \$('#wpform_$domain_without_origo').submit(); spinner(this);">Backup database</button>|;
-
     if ($domain eq 'new') {
-        $backup_tooltip = "You must save before you can back up";
-        $resetbutton = qq|<button class="btn btn-info" type="button" rel="tooltip" data-placement="top" title="Click to create your new website!" onclick="if (\$('#loopdomain_new').val()) {spinner(this); \$('#action_$domain_without_origo').val('wpcreate'); \$('#wpform_$domain_without_origo').submit();} else {\$('#loopdomain_new').css('border','1px solid #f39c12'); \$('#loopdomain_new').focus(); return false;}">Create website</button>|;
+        $resetbutton = qq|<button class="btn btn-info" type="button" rel="tooltip" data-placement="top" title="Click to create your new website!" onclick="if (\$('#loopdomain_new').val()) {spinner(this); \$('#action_$domain_without_origo').val('loopcreate'); \$('#wpform_$domain_without_origo').submit();} else {\$('#loopdomain_new').css('border','1px solid #f39c12'); \$('#loopdomain_new').focus(); return false;}">Create website</button>|;
 
         $manageform = <<END
     <div class="tab-pane" id="$domain-site">
     <form class="passwordform wpform" id="wpform_$domain_without_origo" action="index.cgi?tab=os2loop\&show=$domain_without_origo-site" method="post" accept-charset="utf-8" autocomplete="off">
         <div>
             <small>The website's domain name:</small>
-            <input class="wpdomain required" id="wpdomain_$domain_without_origo" type="text" name="wpdomain_$domain_without_origo" value="" autocomplete="off">
+            <input class="loopdomain required" id="loopdomain_$domain_without_origo" type="text" name="loopdomain_$domain_without_origo" value="" autocomplete="off">
         </div>
         <div>
             <small>Aliases for the website:</small>
-            <input class="wpdomain" id="wpaliases_$domain_without_origo" type="text" name="wpaliases_$domain_without_origo" value="$domain_aliases" autocomplete="off">
+            <input class="loopdomain" id="wpaliases_$domain_without_origo" type="text" name="wpaliases_$domain_without_origo" value="$domain_aliases" autocomplete="off">
         </div>
         <div>
             <small>Set password for OS2Loop user 'admin':</small>
@@ -104,20 +100,10 @@ END
     <div style="height:10px;"></div>
 END
 ;
-        $backupbutton = qq|<button class="btn btn-primary disabled" rel="tooltip" data-placement="top" title="$backup_tooltip" onclick="spinner(this); return false;">Backup database</button>|;
-    }
-
-    my $restorebutton = qq|<button class="btn btn-primary disabled" rel="tooltip" data-placement="top" title="You must back up before you can restore" onclick="spinner(this); return false;">Restore database</button>|;
-
-    if (-e "/var/lib/wordpress/wordpress_$domain_without_origo.sql") {
-        my $ftime = make_date( (stat("/var/lib/wordpress/wordpress_$wdomain_without_origo.sql"))[9] ) . ' ' . `date +%Z`;
-        $restorebutton = qq|<button class="btn btn-primary" rel="tooltip" data-placement="top" title="Restore database from backup made $ftime" onclick="spinner(this); \$('#action_$domain_without_origo').val('wprestore'); \$('#wpform_$domain_without_origo').submit();">Restore database</button>|;
     }
 
     my $backupform .= <<END
     <div class="mbl">
-        $backupbutton
-        $restorebutton
         $resetbutton
         <input type="hidden" name="action" id="action_$domain_without_origo">
         <input type="hidden" name="wp" id="wp_$domain_without_origo" value="$domain">
@@ -139,7 +125,6 @@ sub getLoopDropdown {
     my $websitedrops;
     my @sites = getDrupalSites();
 
-    # TODO: make aliases work
     foreach my $file (@sites) {
         next if (-l "$configdir/$file");
         next if $file eq 'default';
@@ -158,10 +143,10 @@ END
     <a href="#" id="myTabDrop1" class="dropdown-toggle" data-toggle="dropdown">os2loop <b class="caret"></b></a>
     <span class="dropdown-arrow"></span>
     <ul class="dropdown-menu" role="menu" aria-labelledby="myTabDrop1">
-        <li><a href="#default-site" tabindex="-1" data-toggle="tab">Default site</a></li>
-		$websitedrops
-        <li><a href="#new-site" tabindex="-1" data-toggle="tab">Add new site...</a></li>
-        <li><a href="#loop-security" tabindex="-1" data-toggle="tab">Security</a></li>
+        <li><a href="#default-site" tabindex="-1" data-toggle="tab">Default website</a></li>
+        $websitedrops
+        <li><a href="#new-site" tabindex="-1" data-toggle="tab">Add new website...</a></li>
+        <!--<li><a href="#loop-security" tabindex="-1" data-toggle="tab">Security</a></li>-->
     </ul>
 </li>
 END
@@ -188,13 +173,13 @@ sub os2loop {
             }
         }
 
-    	foreach my $file (@sites) {
+        foreach my $file (@sites) {
             next if (-l "$configdir/$file");
             my $domain = $file;
             my $domain_without_origo = $domain;
-        	$domain_without_origo = $1 if ($domain_without_origo =~ /(.+)\.origo\.io/);
-        	$domain_without_origo =~ tr/\./_/;
-        	$form .= getLoopTab($domain, $domain_without_origo, $aliases{$file});
+            $domain_without_origo = $1 if ($domain_without_origo =~ /(.+)\.origo\.io/);
+            $domain_without_origo =~ tr/\./_/;
+            $form .= getLoopTab($domain, $domain_without_origo, $aliases{$file});
         }
 
         $form .=  getLoopTab('new', 'new');
@@ -243,7 +228,7 @@ sub os2loop {
             }
         })
 
-        \$(".wpdomain").keypress(function(event){
+        \$(".loopdomain").keypress(function(event){
             var inputValue = event.which;
             //if digits or not a space then don't let keypress work.
             if(
@@ -289,7 +274,7 @@ sub os2loop {
         });
 
         function confirmWPAction(action, wpname) {
-            if (action == 'wpremove') {
+            if (action == 'loopremove') {
                 \$('#action_' + wpname).val(action);
                 \$('#confirmdialog').prop('actionform', '#wpform_' + wpname);
                 \$('#confirmdialog').modal({'backdrop': false, 'show': true});
@@ -329,7 +314,7 @@ END
         }
         return $res;
 
-# This is called from origo-ubuntu.pl when rebooting and with status "upgrading"
+    # Called from origo-ubuntu.pl when rebooting and with status "upgrading"
     } elsif ($action eq 'restore') {
         my $srcloc = $in{sourcedir};
         my $res;
@@ -352,7 +337,7 @@ END
             `chown -R www-data:www-data /var/www/html`;
 
             # Set management link
-#            `curl -k -X PUT --data-urlencode "PUTDATA={\\"uuid\\":\\"this\\",\\"managementlink\\":\\"/steamengine/pipe/http://{uuid}:10000/origo/\\"}" https://10.0.0.1/steamengine/images`;
+            #`curl -k -X PUT --data-urlencode "PUTDATA={\\"uuid\\":\\"this\\",\\"managementlink\\":\\"/steamengine/pipe/http://{uuid}:10000/origo/\\"}" https://10.0.0.1/steamengine/images`;
 
             chomp $res;
         }
@@ -360,7 +345,7 @@ END
         $res = "Not copying $srcloc/* -> $dumploc" unless ($res);
         return $res;
 
-    } elsif ($action eq 'wpremove' && $in{wp}) {
+    } elsif ($action eq 'loopremove' && $in{wp}) {
         my $message;
         my $wp = $in{wp};
         my $dom = $wp;
@@ -392,14 +377,16 @@ END
             }
         }
 
-        if ($dom eq 'default') { # default should always exist - recreate
+        if ($dom eq 'default') { # default site should always exist - recreate
             `echo "create database $db;" | mysql`;
+            # only delete settings.php, preserve directory
+            `rm $configdir/$dom/settings.php`;
         # Change the managementlink property of the image
         #    `curl -k -X PUT --data-urlencode 'PUTDATA={"uuid":"this","managementlink":"/steamengine/pipe/http://{uuid}/home/wp-admin/install.php"}' https://10.0.0.1/steamengine/images`;
             $message .=  "<div class=\"message\">Default site was reset!</div>";
             $message .=  qq|<script>loc=document.location.href; document.location=loc.substring(0,loc.indexOf(":10000")) + "/install.php?profile=loopdk&locale=en"; </script>|;
         } else {
-            unlink("$configdir/$dom");
+            `rm -rf $configdir/$dom`;
 
             # Remove DNS entry if not a FQDN
             $message .= `curl -k --max-time 5 "https://10.0.0.1/steamengine/networks?action=dnsdelete\&name=$wp"` unless ($wp =~ /\./);
@@ -412,9 +399,9 @@ END
         }
         return $message;
 
-    } elsif ($action eq 'wpcreate' && $in{loopdomain_new}) {
+    } elsif ($action eq 'loopcreate' && $in{loopdomain_new}) {
         my $message;
-        my $wp = $in{loopdomain_new};
+        my $wp = lc $in{loopdomain_new};
         my $wpname = $wp;
         $wp = $1 if ($wp =~ /(.+)\.origo\.io$/);
         $wpname = $1 if ($wpname =~ /(.+)\.origo\.io$/);
@@ -431,6 +418,7 @@ END
             my $target = "$dom";
             $message .= `mkdir $configdir/$target`;
             $message .= `cp $configdir/default/default.settings.php $configdir/$target/settings.php`;
+            #$message .= `sed 's///' $configdir/$target/settings.php`;
             $message .= `chown -R www-data:www-data $configdir/$target`;
             #$message .= `perl -pi -e 's/os2loop_default/$db/;' /var/www/html/sites/$target/settings.php`;
             #$message .= `perl -pi -e 's/wordpress\\\/wp-content/wordpress\\\/wp-content\\\/blogs.dir\\\/$wpname/;' /etc/wordpress/$target`;
@@ -461,9 +449,9 @@ END
                 }
             }
 
-            $message .=  "<div class=\"message\">Site $dom was created!</div>";
+            $message .=  "<div class=\"message\">Website $dom was created!</div>";
             $postscript .= qq|\$('#nav-tabs a[href="#$wpname-site"]').tab('show');\n|;
-            $message .=  qq|<script>loc=document.location.href; document.location=loc.substring(0,loc.indexOf(":10000")) + "/install.php?profile=loopdk&locale=en"; </script>|;
+            $message .=  qq|<script>loc=document.location.href; document.location=$wp + "/install.php?profile=loopdk&locale=en"; </script>|;
         }
         return $message;
 
@@ -551,17 +539,17 @@ END
     #    $postscript .= qq|\$('#nav-tabs a[href="#$wpname-site"]').tab('show');\n|;
         return $message;
 
-    } elsif ($action eq 'wpbackup' && $in{wp}) {
-        my $message;
-        my $wp = $in{wp};
-        my $wpname = $wp;
-        $wpname = $1 if ($wpname =~ /(.+)\.origo\.io/);
-        $wpname =~ tr/\./_/;
-        my $db = "os2loop_$wpname";
-        $message .=  `mysqldump $db > /$db.sql`;
-        $message .=  "<div class=\"message\">WordPress database was backed up!</div>" if (-e "/$db.sql");
+        #} elsif ($action eq 'wpbackup' && $in{wp}) {
+        #my $message;
+        #my $wp = $in{wp};
+        #my $wpname = $wp;
+        #$wpname = $1 if ($wpname =~ /(.+)\.origo\.io/);
+        #$wpname =~ tr/\./_/;
+        #my $db = "os2loop_$wpname";
+        #$message .=  `mysqldump $db > /$db.sql`;
+        #$message .=  "<div class=\"message\">WordPress database was backed up!</div>" if (-e "/$db.sql");
     #    $postscript .= qq|\$('#nav-tabs a[href="#$wpname-site"]').tab('show');\n|;
-        return $message;
+    #return $message;
     } elsif ($action eq 'wppassword' && $in{wp}) {
         my $message;
         my $wp = $in{wp};
@@ -576,33 +564,30 @@ END
         }
     #    $postscript .= qq|\$('#nav-tabs a[href="#$wpname-site"]').tab('show');\n|;
         return $message;
-    } elsif ($action eq 'looplimit') {
-        my $message;
-        if (defined $in{wplimit}) {
-            my $limit = $in{wplimit};
-            my ($validlimit, $mess) = validate_limit($limit);
-            $message .= $mess;
-            if ($validlimit) {
-                if (`grep '#origo' /usr/share/wordpress/.htaccess`)
-                {
-                    $message .= `perl -pi -e 's/allow from (.*) \#origo/allow from $validlimit #origo/;' /usr/share/wordpress/.htaccess`;
-                } else {
-                    $validlimit =~ s/\\//g;
-                    `echo "<files wp-login.php>\norder deny,allow\ndeny from all\nallow from $validlimit #origo\n</files>" >> /usr/share/wordpress/.htaccess`;
-                }
-                $message .=  "<div class=\"message\">WordPress admin access was changed!</div>";
-            } else {
-                $message .= `perl -i -p0e 's/<files wp-login\.php>\n.*\n.*\n.*\n<\/files>//smg' /usr/share/wordpress/.htaccess`;
-                $message .=  "<div class=\"message\">WordPress admin access is now open from anywhere!</div>";
-                $wplimit = '';
-            }
-            my $allow = `cat /usr/share/wordpress/.htaccess`;
-            $wplimit = $1 if ($allow =~ /allow from (.+) \#origo/);
+        } elsif ($action eq 'looplimit') {
+            #my $message;
+            #if (defined $in{wplimit}) {
+            #my $limit = $in{wplimit};
+            #my ($validlimit, $mess) = validate_limit($limit);
+            #$message .= $mess;
+            #if ($validlimit) {
+            #    if (`grep '#origo' $drupalroot/.htaccess`) {
+            #        $message .= `perl -pi -e 's/allow from (.*) \#origo/allow from $validlimit #origo/;' $drupalroot/.htaccess`;
+            #    } else {
+            #        $validlimit =~ s/\\//g;
+            #        `echo '<Files ~ "admin">\norder allow deny\ndeny from all\nallow from $validlimit #origo\n</Files>' >> $drupalroot/.htaccess`;
+            #    }
+            #    $message .=  "<div class=\"message\">OS2Loop admin access was changed!</div>";
+            #} else {
+            #    $message .= `perl -i -p0e 's/<files wp-login\.php>\n.*\n.*\n.*\n<\/files>//smg' /usr/share/wordpress/.htaccess`;
+            #    $message .=  "<div class=\"message\">OS2Loop admin access is now open from anywhere!</div>";
+            #    $wplimit = '';
+            #}
+            #my $allow = `cat $drupalroot/.htaccess`;
+            #$wplimit = $1 if ($allow =~ /allow from (.+) \#origo/);
+            #}
+            #return $message;
         }
-        return $message;
-    }
 }
-
-
 
 1;
