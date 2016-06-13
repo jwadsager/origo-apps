@@ -1,6 +1,8 @@
 #!/usr/bin/perl
 
 use JSON;
+use HTML::Entities;
+use URI::Escape;
 
 my $drupalroot = '/var/www/html';
 my $configdir = "$drupalroot/sites";
@@ -190,7 +192,17 @@ sub os2loop {
             $form .=  qq|<script>loc=document.location.href; setTimeout(function(){document.location=loc;}, 1500); </script>|;
         # Redirect to install page if default site not configured
         } elsif (!(`echo "SHOW TABLES LIKE 'users'" | mysql os2loop_default`)) {
-            $form .=  qq|<script>loc=document.location.href; document.location=loc.substring(0,loc.indexOf(":10000")) + "/install.php?profile=loopdk&locale=en"; </script>|;
+            #$form .=  qq|<script>loc=document.location.href; document.location=loc.substring(0,loc.indexOf(":10000")) + "/install.php?profile=loopdk&locale=en"; </script>|;
+            my $doc = `curl -k 'http://localhost/install.php?profile=loopdk&locale=en'`;
+            $doc =~ s|<script|<scr/ipt|g;
+            $doc =~ s|</script|</scr/ipt|g;
+            $doc =~ s|http\:\/\/localhost|PLACEHOLDER|g;
+            #$doc =~ s|src=\"http://localhost/themes/seven/logo\.png\"|src=\"data:image/gif;base64,\"|g;
+            $doc = uri_escape($doc);
+            #$form .=  "<script>document.location='data:text/html;charset:utf-8,' + $doc; </script>";
+            #$form .=  qq|<script>res='$doc'; loc=document.location.href; url=loc.substring(0,loc.indexOf(":10000")); res=res.replace('http://localhost', url); document.location='data:text/html;charset:utf-8,' + res; </script>|;
+            #$form .=  qq|<script>res='$doc'; loc=document.location.href; url=loc.substring(0,loc.indexOf(":10000")) + '/'; res=res.split('http\:\/\/localhost').join(url); document.location='data:text/html;charset:utf-8,' + res; </script>|;
+            $form .=  qq|<script>res='$doc'; loc=document.location.href; url=loc.substring(0,loc.indexOf(":10000")) + '/'; res=res.replace(/PLACEHOLDER/g, url); document.location='data:text/html;charset:utf-8,' + res; </script>|;
         }
 
         return $form;
@@ -383,8 +395,8 @@ END
             `rm $configdir/$dom/settings.php`;
         # Change the managementlink property of the image
         #    `curl -k -X PUT --data-urlencode 'PUTDATA={"uuid":"this","managementlink":"/steamengine/pipe/http://{uuid}/home/wp-admin/install.php"}' https://10.0.0.1/steamengine/images`;
-            $message .=  "<div class=\"message\">Default site was reset!</div>";
-            $message .=  qq|<script>loc=document.location.href; document.location=loc.substring(0,loc.indexOf(":10000")) + "/install.php?profile=loopdk&locale=en"; </script>|;
+            $message .=  "#<div class=\"message\">Default site was reset!</div>";
+            #$message .=  qq|<script>loc=document.location.href; document.location=loc.substring(0,loc.indexOf(":10000")) + "/install.php?profile=loopdk&locale=en"; </script>|;
         } else {
             `rm -rf $configdir/$dom`;
 
@@ -451,7 +463,7 @@ END
 
             $message .=  "<div class=\"message\">Website $dom was created!</div>";
             $postscript .= qq|\$('#nav-tabs a[href="#$wpname-site"]').tab('show');\n|;
-            $message .=  qq|<script>loc=document.location.href; document.location=$wp + "/install.php?profile=loopdk&locale=en"; </script>|;
+            #$message .=  qq|<script>loc=document.location.href; document.location=$wp + "/install.php?profile=loopdk&locale=en"; </script>|;
         }
         return $message;
 
