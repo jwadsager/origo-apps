@@ -17,9 +17,9 @@ modprobe nbd max_part=63
 qemu-nbd -c /dev/nbd0 "$dname.master.qcow2"
 
 # Wait for nbd0 to be created
-while [ ! -f "/dev/nbd0" ]
+while [ ! -e "/dev/nbd0p1" ]
 do
-  echo "Waiting for nbd0..."
+  echo "Waiting for nbd0p1..."
   sleep 1
 done
 
