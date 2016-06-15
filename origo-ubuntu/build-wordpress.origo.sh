@@ -12,6 +12,13 @@ cd ${0%/*}
 # Clone base image
 qemu-img create -f qcow2 -b "$baseimg" "$dname.master.qcow2"
 
+# Wait for image to be created
+while [ ! -f /tmp/list.txt ]
+do
+  echo "Waiting for image..."
+  sleep 1
+done
+
 # Mount image
 mkdir $dname
 modprobe nbd max_part=63
