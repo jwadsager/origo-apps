@@ -33,7 +33,7 @@ gzip -f $dname.wbm.tar
 tar -zxf $dname.wbm.tar.gz -C $dname/usr/share/webmin
 
 # Unmount base image
-#umount $dname
-#killall qemu-nbd
+umount $dname
+killall qemu-nbd
 rm -d $dname
 rm $dname.wbm.tar.gz
