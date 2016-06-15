@@ -12,17 +12,19 @@ cd ${0%/*}
 # Clone base image
 qemu-img create -f qcow2 -b "$baseimg" "$dname.master.qcow2"
 
-# Wait for image to be created
-while [ ! -f "$dname.master.qcow2" ]
+# Load nbd
+modprobe nbd max_part=63
+qemu-nbd -c /dev/nbd0 "$dname.master.qcow2"
+
+# Wait for nbd0 to be created
+while [ ! -f "/dev/nbd0" ]
 do
-  echo "Waiting for image..."
+  echo "Waiting for nbd0..."
   sleep 1
 done
 
 # Mount image
 mkdir $dname
-modprobe nbd max_part=63
-qemu-nbd -c /dev/nbd0 "$dname.master.qcow2"
 mount /dev/nbd0p1 $dname
 
 # Include all the modules we want installed for this app
