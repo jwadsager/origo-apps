@@ -10,7 +10,7 @@ baseimg="/mnt/fuel/pool3/origo-xenial.small.master.qcow2"
 cd ${0%/*}
 
 # Clone base image
-kvm-img create -f qcow2 -b "$baseimg" "$dname.master.qcow2"
+qemu-img create -f qcow2 -b "$baseimg" "$dname.master.qcow2"
 
 # Mount image
 mkdir $dname
