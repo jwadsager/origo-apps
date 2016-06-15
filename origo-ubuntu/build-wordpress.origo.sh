@@ -1,10 +1,10 @@
 #!/bin/bash
 
 # The version of the app we are building
-version="1.3"
+version="1.0"
 
 dname="origo-wordpress.o"
-baseimg="/mnt/fuel/pool3/origo-xenial.small.master.qcow2"
+baseimg="/mnt/fuel/pool3/origo-xenial.small-1.4.master.qcow2"
 
 # Change working directory to script's directory
 cd ${0%/*}
