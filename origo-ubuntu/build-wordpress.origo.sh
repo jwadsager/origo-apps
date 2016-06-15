@@ -21,10 +21,10 @@ mount /dev/nbd0p1 $dname
 # Include all the modules we want installed for this app
 tar rvf $dname.wbm.tar origo/tabs/wordpress
 gzip -f $dname.wbm.tar
-cp -a $dname.wbm.tar.gz $1/tmp/origo.wbm.tar.gz
-tar -zxf /tmp/origo.wbm.tar.gz -C $dname/usr/share/webmin
+tar -zxf $dname.wbm.tar.gz -C $dname/usr/share/webmin
 
 # Unmount base image
-#umount /mnt/image
-#vgchange -an VolGroupName
+#umount $dname
 #killall qemu-nbd
+rm -d $dname
+rm $dname.wbm.tar.gz
