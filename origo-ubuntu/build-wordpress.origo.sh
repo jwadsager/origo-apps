@@ -9,14 +9,14 @@ baseimg="/mnt/fuel/pool3/origo-xenial.small-1.4.master.qcow2"
 # Change working directory to script's directory
 cd ${0%/*}
 
+# Load nbd
+modprobe nbd max_part=63
+
 # Clone base image
 qemu-img create -f qcow2 -b "$baseimg" "$dname.master.qcow2"
 
-# Load nbd
-modprobe nbd max_part=63
-qemu-nbd -c /dev/nbd0 "$dname.master.qcow2"
-
 # Wait for nbd0 to be created
+qemu-nbd -c /dev/nbd0 "$dname.master.qcow2"
 while [ ! -e "/dev/nbd0p1" ]
 do
   echo "Waiting for nbd0p1..."
