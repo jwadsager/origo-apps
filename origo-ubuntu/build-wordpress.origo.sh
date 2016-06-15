@@ -13,7 +13,7 @@ cd ${0%/*}
 qemu-img create -f qcow2 -b "$baseimg" "$dname.master.qcow2"
 
 # Wait for image to be created
-while [ ! -f /tmp/list.txt ]
+while [ ! -f "$dname.master.qcow2" ]
 do
   echo "Waiting for image..."
   sleep 1
