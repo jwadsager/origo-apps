@@ -32,7 +32,7 @@ tar rvf $dname.wbm.tar origo/tabs/wordpress
 gzip -f $dname.wbm.tar
 tar -zxf $dname.wbm.tar.gz -C $dname/usr/share/webmin
 
-# Unmount base image
+# Unmount base image and clean up
 umount $dname
 killall qemu-nbd
 rm -d $dname
