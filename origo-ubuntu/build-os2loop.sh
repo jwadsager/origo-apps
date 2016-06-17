@@ -260,7 +260,7 @@ DELIM'
 
     # install drupal profile
     chroot $1 rm -rf /var/www/html
-    chroot $1 drush make --no-cache https://raw.github.com/jwadsager/profile/test/drupal.make /var/www/html
+    chroot $1 drush make --no-cache https://raw.github.com/os2loop/profile/master/drupal.make /var/www/html
     chroot $1 chown -R www-data:www-data /var/www/html
 
     # setup tomcat and solr

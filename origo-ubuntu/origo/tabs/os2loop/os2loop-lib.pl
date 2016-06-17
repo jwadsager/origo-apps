@@ -193,11 +193,14 @@ sub os2loop {
         # Redirect to install page if default site not configured
         } elsif (!(`echo "SHOW TABLES LIKE 'users'" | mysql os2loop_default`)) {
             #$form .=  qq|<script>loc=document.location.href; document.location=loc.substring(0,loc.indexOf(":10000")) + "/install.php?profile=loopdk&locale=en"; </script>|;
+            #my $doc = `curl -k 'http://localhost/install.php?profile=loopdk&locale=en'`;
+            #my $doc = `curl -k -d "form_id=install_settings_form&op=Save+and+continue&mysql%5Bdatabase%5D=os2loop_default&mysql%5Busername%5D=root&mysql%5Bpassword%5D=&mysql%5Bhost%5D=localhost" 'http://localhost/install.php?profile=loopdk&locale=en'`;
+            my $doc = `curl -k -d 'mysql%5Bdatabase%5D=os2loop_default&mysql%5Busername%5D=root&mysql%5Bpassword%5D=&mysql%5Bhost%5D=localhost&mysql%5Bport%5D=&mysql%5Bdb_prefix%5D=&form_build_id=form-sKq21LoOKoVbGQlP39yFR0DVnEAU3buyOXvLtmxvloY&form_id=install_settings_form&op=Save+and+continue' 'http://localhost/install.php?profile=loopdk&locale=en'`;
             my $doc = `curl -k 'http://localhost/install.php?profile=loopdk&locale=en'`;
             $doc =~ s|<script|<scr/ipt|g;
             $doc =~ s|</script|</scr/ipt|g;
             $doc =~ s|http\:\/\/localhost|PLACEHOLDER|g;
-            #$doc =~ s|src=\"http://localhost/themes/seven/logo\.png\"|src=\"data:image/gif;base64,\"|g;
+            $doc =~ s|action=\"\/install\.php\?profile=loopdk\&amp;locale=en\"|action\=\"PLACEHOLDERinstall\.php\?profile=loopdk\&amp;locale=en\"|g;
             $doc = uri_escape($doc);
             #$form .=  "<script>document.location='data:text/html;charset:utf-8,' + $doc; </script>";
             #$form .=  qq|<script>res='$doc'; loc=document.location.href; url=loc.substring(0,loc.indexOf(":10000")); res=res.replace('http://localhost', url); document.location='data:text/html;charset:utf-8,' + res; </script>|;
