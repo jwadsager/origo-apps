@@ -131,7 +131,7 @@ if ($postexec) {
 
 # Install boot exec script
 if ($service) {
-    my $cmd =  <<END
+    my $cmd =  <<END;
 [Unit]
 DefaultDependencies=no
 Description=Origo $dname
