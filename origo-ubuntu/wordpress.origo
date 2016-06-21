@@ -1,5 +1,0 @@
-VERSION=1.0
-BASEIMAGE=origo-xenial.small-1.4.master.qcow2
-NAME=wordpress
-INCLUDEDIR=origo/tabs/wordpress
-TARGETDIR=/usr/share/webmin
