@@ -90,8 +90,9 @@ if ($preexec) {
         $line =~ s/\s+$//;
         $line =~ s/#.+$//;
         $line =~ s/\|/\|chroot "\/tmp\/$dname" /;
-        $line =~ s/\>/\>chroot "\/tmp\/$dname" /;
-        $line =~ s/\</\<chroot "\/tmp\/$dname" /;
+        $line =~ s/\> */\> \/tmp\/$dname/;
+        $line =~ s/\< */\> \/tmp\/$dname/;
+        $line =~ s/\$\((.+)\)/\$(chroot "\/tmp\/$dname" $1) /;
         if ($line) {
             my $cmd = qq|chroot "/tmp/$dname" $line|;
             print ">> $cmd\n";
@@ -104,7 +105,7 @@ if ($preexec) {
 if ($debs) {
     print ">> Installing packages\n";
     print `chroot /tmp/$dname apt-get update`;
-    print `chroot /tmp/$dname apt-get -q -y --force-yes install $debs`;
+    print `chroot /tmp/$dname apt-get -q -y --force-yes --show-progress install $debs`;
 }
 
 # Copy files
@@ -121,11 +122,28 @@ if ($tar && -e $tar) {
     print `tar xf $tar -C /tmp/$dname/$tartarget`;
 }
 
+# Git clone
+if ($git) {
+    print ">> Cloning from Git repo...\n";
+    print `git clone $git $gittarget`;
+}
+
 # Run post exec script
 if ($postexec) {
-    print ">> Running post exec\n";
-    foreach my $line (split "\n", $postexec) {
-        print `$line` unless ($line =~ /^#/);
+    print "Running post exec in /tmp/$dname\n";
+    foreach my $line (split(/\\n/, $postexec)) {
+        $line =~ s/^\s+//;
+        $line =~ s/\s+$//;
+        $line =~ s/#.+$//;
+        $line =~ s/\|/\|chroot "\/tmp\/$dname" /;
+        $line =~ s/\> */\> \/tmp\/$dname/;
+        $line =~ s/\< */\> \/tmp\/$dname/;
+        $line =~ s/\$\((.+)\)/\$(chroot "\/tmp\/$dname" $1) /;
+        if ($line) {
+            my $cmd = qq|chroot "/tmp/$dname" $line|;
+            print ">> $cmd\n";
+            print `$cmd`;
+        }
     }
 }
 
@@ -149,7 +167,7 @@ WantedBy=multi-user.target
 END
 ;
     `echo "$cmd" > /tmp/$dname/etc/systemd/system/origo-$dname.service`;
-	`chmod 664 $/tmp/$dname/etc/systemd/system/origo-$dname.service`;
+	`chmod 664 /tmp/$dname/etc/systemd/system/origo-$dname.service`;
 	`chmod 755 /tmp/$dname$service`;
 }
 
