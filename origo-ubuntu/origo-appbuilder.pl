@@ -149,7 +149,7 @@ WantedBy=multi-user.target
 END
 ;
     `echo "$cmd" > /tmp/$dname/etc/systemd/system/origo-$dname.service`;
-	`chmod 664 $1/etc/systemd/system/origo-$dname.service`;
+	`chmod 664 $/tmp/$dname/etc/systemd/system/origo-$dname.service`;
 	`chmod 755 /tmp/$dname$service`;
 }
 
