@@ -131,7 +131,7 @@ if ($postexec) {
 
 # Install boot exec script
 if ($service) {
-    my $cmd =  <<END;
+    my $cmd =  <<END
 [Unit]
 DefaultDependencies=no
 Description=Origo $dname
@@ -149,8 +149,8 @@ WantedBy=multi-user.target
 END
 ;
     `echo "$cmd" > /tmp/$dname/etc/systemd/system/origo-$dname.service`;
-	chmod 664 $1/etc/systemd/system/origo-$dname.service;
-	chmod 755 /tmp/$dname$service;
+	`chmod 664 $1/etc/systemd/system/origo-$dname.service`;
+	`chmod 755 /tmp/$dname$service`;
 }
 
 # Unmount base image and clean up
