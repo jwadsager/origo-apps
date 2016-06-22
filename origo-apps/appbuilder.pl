@@ -9,8 +9,17 @@ my $ofile = shift if $ARGV[0];
 my $cwd = cwd();
 
 unless ($ofile) {
-    print "Usage: origo-appbuilder 'origofile'\n";
-    exit;
+    opendir(DIR, ".");
+    @files = grep(/\.html$/,readdir(DIR));
+    closedir(DIR);
+
+    if (@files) {
+        $ofile = $files[0];
+        print "Using $ofile as origofile\n";
+    } else {
+        print "Usage: origo-appbuilder 'origofile'\n";
+        exit;
+    }
 }
 unless (-e $ofile) {
     print "Origo file not found: $ofile\n";
