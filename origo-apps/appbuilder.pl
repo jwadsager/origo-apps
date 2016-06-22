@@ -35,56 +35,88 @@ my $debs = $config->get("DEBS");
 my $preexec = $config->get("PREEXEC");
 my $postexec = $config->get("POSTEXEC");
 my $service = $config->get("SERVICE");
+my $dname="$name.$version";
+my $size=$config->get("SIZE") || 9216;
 
+# If app is based on another image, get a link to it, and mount it
+if ($baseimage) {
+    # Load nbd
+    print `modprobe nbd max_part=63`;
 
-my $dname="$name.$version.origo";
+    # Make base image available in fuel
+    print ">> Asking Valve to link $baseimage\n";
+    my $json = `curl --silent -k "https://10.0.0.1/steamengine/images/?action=linkmaster&image=$baseimage"`;
 
-# Load nbd
-print `modprobe nbd max_part=63`;
+    my $jobj = from_json($json);
+    my $linkpath = $jobj->{linkpath};
+    my $basepath = $jobj->{path};
+    my $masterpath = $jobj->{masterpath};
 
-# Make base image available in fuel
-print ">> Asking Valve to link $baseimage\n";
-my $json = `curl --silent -k "https://10.0.0.1/steamengine/images/?action=linkmaster&image=$baseimage"`;
+    unless ($basepath) {
+        print ">> No base path received\n";
+        print $json, "\n";
+        exit 0;
+    }
 
-my $jobj = from_json($json);
-my $linkpath = $jobj->{linkpath};
-my $basepath = $jobj->{path};
-my $masterpath = $jobj->{masterpath};
-
-unless ($basepath) {
-    print ">> No base path received\n";
-    print $json, "\n";
-    exit 0;
-}
-
-while (!(-e $basepath)) {
-  print ">> Waiting for $basepath...\n";
-  sleep 1
-}
-
-# Clone base image
-if (-e "$dname.master.qcow2") {
-    print ">> Destination image already exists: $dname.master.qcow2\n";
-} else {
-    print `qemu-img create -f qcow2 -b "$basepath" "$dname.master.qcow2"`;
-}
-
-# Wait for nbd0 to be created
-if (!(-e "/dev/nbd0p1")) {
-    print `qemu-nbd -c /dev/nbd0 "$dname.master.qcow2"`;
-    while (!(-e "/dev/nbd0p1")) {
-      print ">> Waiting for nbd0p1...\n";
+    while (!(-e $basepath)) {
+      print ">> Waiting for $basepath...\n";
       sleep 1
     }
+
+    # Clone base image
+    if (-e "$dname.master.qcow2") {
+        print ">> Destination image already exists: $dname.master.qcow2\n";
+    } else {
+        print `qemu-img create -f qcow2 -b "$basepath" "$dname.master.qcow2"`;
+    }
+
+# No baseimage, let's build image from scratch
+} else {
+	my $cmd = <<END
+vmbuilder kvm ubuntu \
+-o -v --debug \
+--suite xenial \
+--arch amd64 \
+--components main,universe,multiverse \
+--rootsize $size \
+--user origo --pass origo \
+--hostname $name \
+--tmpfs 2048 \
+--addpkg linux-image-generic \
+--domain origo.io \
+--ip 10.1.1.2 \
+END
+;
+    print `$cmd`;
+    # Clean up
+    `mv ubuntu-kvm/*.qcow2 "./$dname.master.qcow2"`;
+    `rm -r ubuntu-kvm`;
 }
 
-# Mount image
-print `mkdir /tmp/$dname` unless (-d "/tmp/$dname");
-print `mount /dev/nbd0p1 /tmp/$dname` unless (-e "/tmp/$dname/boot");
+# Now load nbd and mount the image
+if (-e "$dname.master.qcow2") {
+    # Wait for nbd0 to be created
+    if (!(-e "/dev/nbd0p1")) {
+        print `qemu-nbd -c /dev/nbd0 "$dname.master.qcow2"`;
+        while (!(-e "/dev/nbd0p1")) {
+          print ">> Waiting for nbd0p1...\n";
+          sleep 1
+        }
+    }
+
+    # Mount image
+    print `mkdir /tmp/$dname` unless (-d "/tmp/$dname");
+    print `mount /dev/nbd0p1 /tmp/$dname` unless (-e "/tmp/$dname/boot");
+
+} else {
+    die "Unable to mount image $dname.master.qcow2";
+}
+
 
 # Run pre exec script
 if ($preexec) {
     print "Running pre exec in /tmp/$dname\n";
+    my @lines = split(/\\n/, $preexec);
     foreach my $line (split(/\\n/, $preexec)) {
         $line =~ s/^\s+//;
         $line =~ s/\s+$//;
@@ -149,7 +181,7 @@ if ($postexec) {
 
 # Install boot exec script
 if ($service) {
-    my $cmd =  <<END
+    my $unit =  <<END
 [Unit]
 DefaultDependencies=no
 Description=Origo $dname
@@ -166,7 +198,7 @@ RemainAfterExit=yes
 WantedBy=multi-user.target
 END
 ;
-    `echo "$cmd" > /tmp/$dname/etc/systemd/system/origo-$dname.service`;
+    `echo "$unit" > /tmp/$dname/etc/systemd/system/origo-$dname.service`;
 	`chmod 664 /tmp/$dname/etc/systemd/system/origo-$dname.service`;
 	`chmod 755 /tmp/$dname$service`;
 }
