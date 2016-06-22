@@ -4,8 +4,8 @@ BASEIMAGE=
 SIZE=9216
 NAME=origo-xenial.small
 APPNAME=Ubuntu Server
-DIR=origo
-DIRTARGET=/usr/share/webmin
+DIR=files
+DIRTARGET=/tmp
 TAR=
 TARTARGET=
 GIT=
@@ -32,6 +32,6 @@ DEBS=apache2\
      libio-pty-perl\
      apt-show-versions\
      apt-transport-https
-PREEXEC=preexec.sh
-POSTEXEC=postexec.sh
+PREEXEC=/tmp/preexec.sh
+POSTEXEC=/tmp/postexec.sh
 SERVICE=

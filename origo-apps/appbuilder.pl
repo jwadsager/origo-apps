@@ -35,11 +35,11 @@ my $baseimage = $config->get("BASEIMAGE");
 my $name = $config->get("NAME");
 my $appname = $config->get("APPNAME");
 my $dir = $config->get("DIR");
-my $dirtarget = $config->get("DIRTARGET") || '/';
+my $dirtarget = $config->get("DIRTARGET") || '/tmp';
 my $tar = $config->get("TAR");
-my $tartarget = $config->get("TARTARGET") || '/';
+my $tartarget = $config->get("TARTARGET") || '/tmp';
 my $git = $config->get("GIT");
-my $gittarget = $config->get("GITTARGET") || '/';
+my $gittarget = $config->get("GITTARGET") || '/tmp';
 my $debs = $config->get("DEBS");
 my $preexec = $config->get("PREEXEC");
 my $postexec = $config->get("POSTEXEC");
@@ -108,6 +108,14 @@ if (-e "$dname.master.qcow2") {
 }
 
 
+# Copy files
+if ($dir && -e $dir) {
+    print ">> Copying files...\n";
+    print `tar rvf /tmp/$dname.tar $dir`;
+    print `tar xf /tmp/$dname.tar -C /tmp/$dname/$dirtarget`;
+    print `rm /tmp/$dname.tar`;
+}
+
 # Run pre exec script
 if ($preexec) {
     print "Running pre exec in /tmp/$dname\n";
@@ -133,14 +141,6 @@ if ($debs) {
     print ">> Installing packages\n";
     print `chroot /tmp/$dname apt-get update`;
     print `chroot /tmp/$dname apt-get -q -y --force-yes --show-progress install $debs`;
-}
-
-# Copy files
-if ($dir && -e $dir) {
-    print ">> Copying files...\n";
-    print `tar rvf /tmp/$dname.tar $dir`;
-    print `tar xf /tmp/$dname.tar -C /tmp/$dname/$dirtarget`;
-    print `rm /tmp/$dname.tar`;
 }
 
 # Unpack tar
