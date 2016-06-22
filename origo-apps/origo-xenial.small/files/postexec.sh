@@ -4,7 +4,7 @@ echo "Performing post-install operations"
 
 # Simple script to register this server with admin webmin server when webmin starts
 # This script is also responsible for mounting nfs-share, copy back data, etc. if upgrading/reinstalling
-cp /tmp/origo-ubuntu.pl $1/usr/local/bin
+cp /tmp/files/origo-ubuntu.pl $1/usr/local/bin
 chmod 755 /usr/local/bin/origo-ubuntu.pl
 ln -s /usr/local/bin/origo-ubuntu.pl /usr/local/bin/origo-helper
 bash -c 'echo "[Unit]
@@ -24,7 +24,7 @@ WantedBy=multi-user.target" > /etc/systemd/system/origo-ubuntu.service'
 chmod 664 /etc/systemd/system/origo-ubuntu.service
 
 # Simple script to configure IP address from address passed to VM through BIOS parameter SKU Number
-cp /tmp/origo-xenial-networking.pl /usr/local/bin/origo-networking.pl
+cp /tmp/files/origo-xenial-networking.pl /usr/local/bin/origo-networking.pl
 chmod 755 /usr/local/bin/origo-networking.pl
 # Zap existing file
 > /etc/network/interfaces
@@ -60,7 +60,7 @@ perl -pi -e 's/Listen 443/Listen 443\n    Listen 10001/;' /etc/apache2/ports.con
 update-rc.d ondemand disable
 
 # Disable gzip compression in Apache (enable it manually if desired)
-a2dismod deflate
+a2dismod -f deflate
 
 # Enable SSL
 a2enmod ssl

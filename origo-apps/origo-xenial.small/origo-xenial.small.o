@@ -12,7 +12,6 @@ GIT=
 GITTARGET=
 DEBS=apache2\
      acpid\
-     curl\
      dmidecode\
      git\
      iptables\
