@@ -81,21 +81,7 @@ if ($baseimage) {
 
 # No baseimage, let's build image from scratch
 } else {
-	my $cmd = <<END
-vmbuilder kvm ubuntu \
--o -v --debug \
---suite xenial \
---arch amd64 \
---components main,universe,multiverse \
---rootsize $size \
---user origo --pass origo \
---hostname $name \
---tmpfs 2048 \
---addpkg linux-image-generic \
---domain origo.io \
---ip 10.1.1.2 \
-END
-;
+	my $cmd = qq|vmbuilder kvm ubuntu -o -v --debug --suite xenial --arch amd64 --components main,universe,multiverse --rootsize $size --user origo --pass origo --hostname $name --tmpfs 2048 --addpkg linux-image-generic --domain origo.io --ip 10.1.1.2|;
     print `$cmd`;
     # Clean up
     `mv ubuntu-kvm/*.qcow2 "./$dname.master.qcow2"`;
