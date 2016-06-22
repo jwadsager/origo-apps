@@ -10,7 +10,7 @@ my $cwd = cwd();
 
 unless ($ofile) {
     opendir(DIR, ".");
-    @files = grep(/\.html$/,readdir(DIR));
+    my @files = grep(/\.o/,readdir(DIR));
     closedir(DIR);
 
     if (@files) {
