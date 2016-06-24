@@ -2,6 +2,8 @@
 
 echo "Performing post-install operations"
 
+cp -a /tmp/files/origo /tmp/files/Apache /usr/share/webmin
+
 # Simple script to register this server with admin webmin server when webmin starts
 # This script is also responsible for mounting nfs-share, copy back data, etc. if upgrading/reinstalling
 cp /tmp/files/origo-ubuntu.pl $1/usr/local/bin
