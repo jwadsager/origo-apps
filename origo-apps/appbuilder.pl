@@ -32,6 +32,7 @@ my $config = ConfigReader::Simple->new($ofile);
 # The version of the app we are building
 my $version = $config->get("VERSION") || '1.0';
 my $baseimage = $config->get("BASEIMAGE");
+my $basesuite = $config->get("BASESUITE") || 'xenial';
 my $name = $config->get("NAME");
 my $appname = $config->get("APPNAME");
 my $dir = $config->get("DIR");
@@ -81,7 +82,7 @@ if ($baseimage) {
 
 # No baseimage, let's build image from scratch
 } else {
-	my $cmd = qq|vmbuilder kvm ubuntu -o -v --debug --suite xenial --arch amd64 --components main,universe,multiverse --rootsize $size --user origo --pass origo --hostname $name --tmpfs 2048 --addpkg linux-image-generic --addpkg wget --addpkg curl --domain origo.io --ip 10.1.1.2|;
+	my $cmd = qq|vmbuilder kvm ubuntu -o -v --debug --suite $basesuite --arch amd64 --components main,universe,multiverse --rootsize $size --user origo --pass origo --hostname $name --tmpfs 2048 --addpkg linux-image-generic --addpkg wget --addpkg curl --domain origo.io --ip 10.1.1.2|;
     print `$cmd`;
     # Clean up
     `mv ubuntu-kvm/*.qcow2 "./$dname.master.qcow2"`;

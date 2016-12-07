@@ -19,7 +19,7 @@ auto_user=origo
 scan_time=10
 resolve=0
 auto_email=" > /etc/webmin/servers/config'
-# Allow unauthenticated access to ubuntu module
+# Allow unauthenticated access to origo module
 bash -c 'echo "anonymous=/origo=origo" >> /etc/webmin/miniserv.conf'
 # Disable Webmin SSL
 perl -pi -e "s/ssl=1/ssl=0/g;" /etc/webmin/miniserv.conf

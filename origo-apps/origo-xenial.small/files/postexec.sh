@@ -2,7 +2,15 @@
 
 echo "Performing post-install operations"
 
-cp -a /tmp/files/origo /tmp/files/Apache /usr/share/webmin
+# Install webmin module
+# Include all the modules we want installed for this app
+cd /tmp/
+tar cvf $dname.wbm.tar origo --exclude=origo/tabs/*
+tar rvf $dname.wbm.tar origo/tabs/commands origo/tabs/security origo/tabs/servers origo/tabs/software
+mv $dname.wbm.tar $dname.wbm
+gzip -f $dname.wbm
+cp -a $dname.wbm.gz /tmp/origo.wbm.gz
+bash -c '/usr/share/webmin/install-module.pl /tmp/origo.wbm.gz'
 
 # Simple script to register this server with admin webmin server when webmin starts
 # This script is also responsible for mounting nfs-share, copy back data, etc. if upgrading/reinstalling

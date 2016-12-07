@@ -1,0 +1,20 @@
+VERSION=1.0
+MAINTAINER=Christian Orellana <christian@origo.io>
+BASEIMAGE=origo-xenial.small-1.4.master.qcow2
+NAME=discourse
+APPNAME=Discourse
+DIR=discourse
+DIRTARGET=/usr/share/webmin/origo/tabs
+TAR=
+TARTARGET=
+GIT=
+GITTARGET=
+DEBS=postgresql postgresql-contrib redis-server postfix ruby ruby-bundler discourse
+PREEXEC=apt-get install apt-transport-https \n\
+        wget -qO - https://deb.packager.io/key | apt-key add - \n\
+        echo "deb http://deb.packager.io/gh/pkgr/discourse trusty pkgr" | tee /etc/apt/sources.list.d/discourse.list
+POSTEXEC=discourse config:set DATABASE_URL=postgres://user:pass@127.0.0.1/discourse \n\
+        discourse config:set REDIS_URL=redis://127.0.0.1:6379 \n\
+        discourse config:set SECRET_TOKEN=$(discourse run rake secret) \n\
+#        echo  "server {listen 80; server_name $(hostname); location / {proxy_pass http://localhost:6379;}}" > /etc/nginx/sites-available/default
+SERVICE=/usr/share/webmin/origo/tabs/discourse/origo-discourse.pl
