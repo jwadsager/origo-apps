@@ -253,7 +253,7 @@ sub get_results {
                 if ($result =~ /Setting up/) {
                     $res .= qq|<span class="label label-success" style="cursor:pointer;" onclick='\$("#$rid").toggle();'>$d has been upgraded</span>\n|;
                     $res .= qq|<ul><pre id="$rid" style="max-height:160px; font-size:12px; overflow: auto; $disp">$result</pre></ul>\n|;
-                } elsif ($result =~ /The following package/) {
+                } elsif ($result =~ /The following packages/) {
                     $res .= qq|<span class="label label-success upgrade-available" style="cursor:pointer;" onclick='\$("#$rid").toggle();'>$d has software upgrades available</span>\n|;
                     $res .= qq|<ul><pre id="$rid" style="max-height:160px; font-size:12px; overflow: auto; $disp">$result</pre></ul>\n|;
                 } else {
