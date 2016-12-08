@@ -137,7 +137,7 @@ if ($dir) {
 if ($preexec) {
     print "Running pre exec in /tmp/$dname\n";
     my @lines = split(/\\n/, $preexec);
-    foreach my $line (split(/\\n/, $preexec)) {
+    foreach my $line (split(/\\n/, $preexec)) { # $preexec may contain a multi-line script
         $line =~ s/^\s+//;
         $line =~ s/\s+$//;
         $line =~ s/#.+$//;

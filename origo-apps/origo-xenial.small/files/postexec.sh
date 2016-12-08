@@ -4,7 +4,7 @@ echo "Performing post-install operations"
 
 # Install webmin module
 # Include all the modules we want installed for this app
-cd /tmp/
+cd /tmp/files/
 tar cvf $dname.wbm.tar origo --exclude=origo/tabs/*
 tar rvf $dname.wbm.tar origo/tabs/commands origo/tabs/security origo/tabs/servers origo/tabs/software
 mv $dname.wbm.tar $dname.wbm
