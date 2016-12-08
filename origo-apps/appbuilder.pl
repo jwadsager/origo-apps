@@ -51,6 +51,7 @@ my $postexec = $config->get("POSTEXEC");
 my $service = $config->get("SERVICE");
 my $dname="$name.$version";
 my $size=$config->get("SIZE") || 9216;
+my $masterpath;
 
 # If app is based on another image, get a link to it, and mount it
 if ($baseimage) {
@@ -64,7 +65,7 @@ if ($baseimage) {
     my $jobj = from_json($json);
     my $linkpath = $jobj->{linkpath};
     my $basepath = $jobj->{path};
-    my $masterpath = $jobj->{masterpath};
+    $masterpath = $jobj->{masterpath};
 
     unless ($basepath) {
         print ">> No base path received\n";
@@ -222,7 +223,7 @@ print `rm -d /tmp/$dname`;
 print "Converting $dname.master.qcow2\n";
 print `qemu-img amend -f qcow2 -o compat=0.10 $dname.master.qcow2`;
 
-# Rebasing and activating image
-print `qemu-img rebase -f qcow2 -u -b "$masterpath" "$dname.master.qcow2"`;
+# Rebase and activate image
+print `qemu-img rebase -f qcow2 -u -b "$masterpath" "$dname.master.qcow2"` if ($masterpath);
 $appname = uri_escape($appname);
 print `curl --silent -k "https://10.0.0.1/steamengine/images?action=activate&image=$cwd/$dname.master.qcow2&name=$appname"`;
