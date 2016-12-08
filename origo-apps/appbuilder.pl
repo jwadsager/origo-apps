@@ -25,6 +25,8 @@ unless (-e $ofile) {
     print "Origo file not found: $ofile\n";
     print "Usage: origo-appbuilder 'origofile'\n";
     exit;
+} else {
+    chdir $1 if ($ofile =~ /(.*\/).+/);
 }
 
 my $config = ConfigReader::Simple->new($ofile);
@@ -36,9 +38,9 @@ my $basesuite = $config->get("BASESUITE") || 'xenial';
 my $name = $config->get("NAME");
 my $appname = $config->get("APPNAME");
 my $dir = $config->get("DIR");
-die "Directory $dir (DIR) does not exist" unless (!$dir || -d $dir);
+die "Directory '$dir' (DIR) does not exist" unless (!$dir || -d $dir);
 my $dirtarget = $config->get("DIRTARGET") || '/tmp';
-die "Directory $dirtarget (DIRTARGET) does not exist" unless ($dirtarget || -d $dirtarget);
+die "Directory '$dirtarget' (DIRTARGET) does not exist" unless ($dirtarget || -d $dirtarget);
 my $tar = $config->get("TAR");
 my $tartarget = $config->get("TARTARGET") || '/tmp';
 my $git = $config->get("GIT");
