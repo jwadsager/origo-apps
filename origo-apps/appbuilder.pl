@@ -126,7 +126,7 @@ if (-e "$cwd/$dname.master.qcow2") {
 
 # Copy files
 if ($dir) {
-    die "'$dir' not found [DIR]";
+    die "'$dir' not found [DIR]" unless (-d $dir);
     print ">> Copying files...\n";
     print `tar rvf /tmp/$dname.tar $dir`;
     print `tar xf /tmp/$dname.tar -C /tmp/$dname$dirtarget`;
