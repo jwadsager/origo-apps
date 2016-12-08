@@ -86,7 +86,8 @@ if ($baseimage) {
 # We unfortunately have to patch vmbuilder
     unless (`grep 'force-confnew' /usr/lib/python2.7/dist-packages/VMBuilder/plugins/ubuntu/dapper.py`) {
         print ">> Patching vmbuilder\n";
-        system("perl -pi -e 's/(\\\'dist-upgrade\\\')/\\\'--option=Dpkg::Options::=--force-confnew\\\', \\\'dist-upgrade\\\'/' /usr/lib/python2.7/dist-packages/VMBuilder/plugins/ubuntu/dapper.py");
+        system('perl -pi -e "s/(\'dist-upgrade\')/\'--option=Dpkg::Options::=--force-confnew\', \'dist-upgra
+        de\'/" /usr/lib/python2.7/dist-packages/VMBuilder/plugins/ubuntu/dapper.py');
         unlink('/usr/lib/python2.7/dist-packages/VMBuilder/plugins/ubuntu/dapper.pyc');
     }
 
