@@ -25,22 +25,22 @@ unless (-e $ofile) {
     print "Origo file not found: $ofile\n";
     print "Usage: origo-appbuilder 'origofile'\n";
     exit;
-} else {
-    chdir $1 if ($ofile =~ /(.*\/).+/);
 }
 
 my $config = ConfigReader::Simple->new($ofile);
+chdir $1 if ($ofile =~ /(.*\/).+/);
 
 # The version of the app we are building
 my $version = $config->get("VERSION") || '1.0';
 my $baseimage = $config->get("BASEIMAGE");
 my $basesuite = $config->get("BASESUITE") || 'xenial';
 my $name = $config->get("NAME");
+die "You must supply a name [NAME]" unless ($name);
 my $appname = $config->get("APPNAME");
 my $dir = $config->get("DIR");
-die "Directory '$dir' (DIR) does not exist" unless (!$dir || -d $dir);
+die "Directory '$dir' [DIR] does not exist" unless (!$dir || -d $dir);
 my $dirtarget = $config->get("DIRTARGET") || '/tmp';
-die "Directory '$dirtarget' (DIRTARGET) does not exist" unless ($dirtarget || -d $dirtarget);
+die "Directory '$dirtarget' [DIRTARGET] does not exist" unless ($dirtarget || -d $dirtarget);
 my $tar = $config->get("TAR");
 my $tartarget = $config->get("TARTARGET") || '/tmp';
 my $git = $config->get("GIT");
