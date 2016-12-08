@@ -79,10 +79,10 @@ if ($baseimage) {
     }
 
     # Clone base image
-    if (-e "$dname.master.qcow2") {
-        print ">> Destination image already exists: $dname.master.qcow2\n";
+    if (-e "$cwd/$dname.master.qcow2") {
+        print ">> Destination image already exists: $cwd/$dname.master.qcow2\n";
     } else {
-        print `qemu-img create -f qcow2 -b "$basepath" "$dname.master.qcow2"`;
+        print `qemu-img create -f qcow2 -b "$basepath" "$cwd/$dname.master.qcow2"`;
     }
 
 # No baseimage, let's build image from scratch
@@ -100,15 +100,15 @@ if ($baseimage) {
 	my $cmd = qq|vmbuilder kvm ubuntu -o -v --debug --suite $basesuite --arch amd64 --components main,universe,multiverse --rootsize $size --user origo --pass origo --hostname $name --tmpfs 2048 --addpkg linux-image-generic --addpkg wget --addpkg curl --domain origo.io --ip 10.1.1.2|;
     print `$cmd`;
     # Clean up
-    `mv ubuntu-kvm/*.qcow2 "./$dname.master.qcow2"`;
+    `mv ubuntu-kvm/*.qcow2 "$cwd/$dname.master.qcow2"`;
     `rm -r ubuntu-kvm`;
 }
 
 # Now load nbd and mount the image
-if (-e "$dname.master.qcow2") {
+if (-e "$cwd/$dname.master.qcow2") {
     # Wait for nbd0 to be created
     if (!(-e "/dev/nbd0p1")) {
-        print `qemu-nbd -c /dev/nbd0 "$dname.master.qcow2"`;
+        print `qemu-nbd -c /dev/nbd0 "$cwd/$dname.master.qcow2"`;
         while (!(-e "/dev/nbd0p1")) {
           print ">> Waiting for nbd0p1...\n";
           sleep 1
@@ -120,7 +120,7 @@ if (-e "$dname.master.qcow2") {
     print `mount /dev/nbd0p1 /tmp/$dname` unless (-e "/tmp/$dname/boot");
 
 } else {
-    die "Unable to mount image $dname.master.qcow2";
+    die "Unable to mount image $cwd/$dname.master.qcow2";
 }
 
 
@@ -220,10 +220,10 @@ print `killall qemu-nbd`;
 print `rm -d /tmp/$dname`;
 
 # convert to qcow2
-print "Converting $dname.master.qcow2\n";
-print `qemu-img amend -f qcow2 -o compat=0.10 $dname.master.qcow2`;
+print "Converting $cwd/$dname.master.qcow2\n";
+print `qemu-img amend -f qcow2 -o compat=0.10 $cwd/$dname.master.qcow2`;
 
 # Rebase and activate image
-print `qemu-img rebase -f qcow2 -u -b "$masterpath" "$dname.master.qcow2"` if ($masterpath);
+print `qemu-img rebase -f qcow2 -u -b "$masterpath" "$cwd/$dname.master.qcow2"` if ($masterpath);
 $appname = uri_escape($appname);
 print `curl --silent -k "https://10.0.0.1/steamengine/images?action=activate&image=$cwd/$dname.master.qcow2&name=$appname"`;
