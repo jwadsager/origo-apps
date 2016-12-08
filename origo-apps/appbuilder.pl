@@ -82,6 +82,13 @@ if ($baseimage) {
 
 # No baseimage, let's build image from scratch
 } else {
+
+# We unfortunately have to patch vmbuilder
+    unless (`grep 'force-confnew' /usr/lib/python2.7/dist-packages/VMBuilder/plugins/ubuntu/dapper.py`) {
+        system("perl -pi -e 's/(\'dist-upgrade\')/\'--option=Dpkg::Options::=--force-confnew\', \'dist-upgrade\'/' /usr/lib/python2.7/dist-packages/VMBuilder/plugins/ubuntu/dapper.py");
+        unlink('/usr/lib/python2.7/dist-packages/VMBuilder/plugins/ubuntu/dapper.pyc');
+    }
+
 	my $cmd = qq|vmbuilder kvm ubuntu -o -v --debug --suite $basesuite --arch amd64 --components main,universe,multiverse --rootsize $size --user origo --pass origo --hostname $name --tmpfs 2048 --addpkg linux-image-generic --addpkg wget --addpkg curl --domain origo.io --ip 10.1.1.2|;
     print `$cmd`;
     # Clean up
