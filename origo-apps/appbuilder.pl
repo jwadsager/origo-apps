@@ -136,7 +136,7 @@ if ($dir) {
 # Run pre exec script
 if ($preexec) {
     # Stop local webmin from blocking port 10000
-    `systemctl stop webmin`
+    print `systemctl stop webmin`;
     print "Running pre exec in /tmp/$dname\n";
     my @lines = split(/\\n/, $preexec);
     foreach my $line (split(/\\n/, $preexec)) { # $preexec may contain a multi-line script
@@ -154,7 +154,7 @@ if ($preexec) {
         }
     }
     # Start webmin again
-    `systemctl start webmin`
+    print `systemctl start webmin`;
 
 }
 
