@@ -36,7 +36,9 @@ my $basesuite = $config->get("BASESUITE") || 'xenial';
 my $name = $config->get("NAME");
 my $appname = $config->get("APPNAME");
 my $dir = $config->get("DIR");
+die "Directory $dir (DIR) does not exist" unless (!$dir || -d $dir);
 my $dirtarget = $config->get("DIRTARGET") || '/tmp';
+die "Directory $dirtarget (DIRTARGET) does not exist" unless ($dirtarget || -d $dirtarget);
 my $tar = $config->get("TAR");
 my $tartarget = $config->get("TARTARGET") || '/tmp';
 my $git = $config->get("GIT");
@@ -84,6 +86,7 @@ if ($baseimage) {
 } else {
 
 # We unfortunately have to patch vmbuilder
+## See: http://askubuntu.com/questions/819844/kvm-vmbuilder-fails
     unless (`grep 'force-confnew' /usr/lib/python2.7/dist-packages/VMBuilder/plugins/ubuntu/dapper.py`) {
         print ">> Patching vmbuilder\n";
         system('perl -pi -e "s/(\'dist-upgrade\')/\'--option=Dpkg::Options::=--force-confnew\', \'dist-upgra
@@ -122,7 +125,7 @@ if (-e "$dname.master.qcow2") {
 if ($dir && -e $dir) {
     print ">> Copying files...\n";
     print `tar rvf /tmp/$dname.tar $dir`;
-    print `tar xf /tmp/$dname.tar -C /tmp/$dname/$dirtarget`;
+    print `tar xf /tmp/$dname.tar -C /tmp/$dname$dirtarget`;
     print `rm /tmp/$dname.tar`;
 }
 
