@@ -5,8 +5,6 @@ bash -c 'echo "deb http://webmin.mirror.somersettechsolutions.co.uk/repository s
 wget http://www.webmin.com/jcameron-key.asc
 apt-key add jcameron-key.asc
 apt-get update
-# Stop local webmin from blocking port 10000
-`systemctl stop webmin`
 apt-get -q -y --force-yes install webmin
 # Set up automatic scanning for other Webmin servers
 bash -c 'echo "auto_pass=origo
@@ -66,5 +64,3 @@ Type=forking
 [Install]
 WantedBy=multi-user.target" > /etc/systemd/system/origo-shellinabox.service'
 chmod 664 /etc/systemd/system/origo-shellinabox.service
-# Start webmin again
-`systemctl start webmin`
