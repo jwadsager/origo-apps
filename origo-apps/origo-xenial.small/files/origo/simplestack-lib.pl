@@ -26,11 +26,11 @@ sub get_externalip {
         $externalip = $1 if (`curl -sk https://10.0.0.1/steamengine/networks/this` =~ /"externalip" : "(.+)",/);
         chomp $externalip;
         if ($externalip eq '--') {
-            # Assume we have eth1 up with an external IP address
-            $externalip = `ifconfig eth1 | grep -o 'inet addr:\\\S*' | sed -n -e 's/^inet addr://p'`;
+            # Assume we have ens4 up with an external IP address
+            $externalip = `ifconfig ens4 | grep -o 'inet addr:\\\S*' | sed -n -e 's/^inet addr://p'`;
             chomp $externalip;
         }
-        `echo "$externalip" > /tmp/externalip`;
+        `echo "$externalip" > /tmp/externalip` if ($externalip);
     } else {
         $externalip = `cat /tmp/externalip` if (-e "/tmp/externalip");
         chomp $externalip;
@@ -253,7 +253,7 @@ sub get_results {
                 if ($result =~ /Setting up/) {
                     $res .= qq|<span class="label label-success" style="cursor:pointer;" onclick='\$("#$rid").toggle();'>$d has been upgraded</span>\n|;
                     $res .= qq|<ul><pre id="$rid" style="max-height:160px; font-size:12px; overflow: auto; $disp">$result</pre></ul>\n|;
-                } elsif ($result =~ /The following packages will be upgraded/) {
+                } elsif ($result =~ /The following package/) {
                     $res .= qq|<span class="label label-success upgrade-available" style="cursor:pointer;" onclick='\$("#$rid").toggle();'>$d has software upgrades available</span>\n|;
                     $res .= qq|<ul><pre id="$rid" style="max-height:160px; font-size:12px; overflow: auto; $disp">$result</pre></ul>\n|;
                 } else {
