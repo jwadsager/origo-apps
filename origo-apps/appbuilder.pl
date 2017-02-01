@@ -53,10 +53,11 @@ my $dname="$name.$version";
 my $size=$config->get("SIZE") || 9216;
 my $masterpath;
 
+# Load nbd
+print `modprobe nbd max_part=63`;
+
 # If app is based on another image, get a link to it, and mount it
 if ($baseimage) {
-    # Load nbd
-    print `modprobe nbd max_part=63`;
 
     # Make base image available in fuel
     print ">> Asking Valve to link $baseimage\n";
