@@ -1,0 +1,29 @@
+<VirtualHost *:80>
+	RewriteEngine On
+	RewriteCond %{HTTPS} off
+	RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI}
+</VirtualHost>
+
+<VirtualHost _default_:443>
+	SSLEngine on
+	SSLCertificateFile /etc/ssl/certs/ssl-cert-snakeoil.pem
+	SSLCertificateKeyFile /etc/ssl/private/ssl-cert-snakeoil.key
+        ProxyPreserveHost On
+        ProxyRequests off
+
+	RewriteEngine on
+	RewriteCond %{HTTP:UPGRADE} ^WebSocket$ [NC]
+	RewriteCond %{HTTP:CONNECTION} ^Upgrade$ [NC]
+	RewriteRule .* ws://127.0.0.1:8000%{REQUEST_URI} [P]
+
+	<LocationMatch "/(user/[^/]*)/(api/kernels/[^/]+/channels|terminals/websocket)(.*)">
+    		ProxyPassMatch ws://127.0.0.1:8000/mypath/$1/$2$3
+    		ProxyPassReverse ws://127.0.0.1:8000
+	</LocationMatch>
+
+        #ProxyPass /api/kernels/ ws://127.0.0.1:8000/api/kernels/
+        #ProxyPassReverse /api/kernels/ http://127.0.0.1:8000/api/kernels/
+
+        ProxyPass / http://127.0.0.1:8000/
+        ProxyPassReverse / http://127.0.0.1:8000/
+</VirtualHost>
