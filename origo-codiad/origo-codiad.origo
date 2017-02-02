@@ -3,10 +3,10 @@ MAINTAINER=Christian Orellana <christian@origo.io>
 BASEIMAGE=origo-xenial.small.1.5.master.qcow2
 BASESUITE=
 SIZE=9216
-NAME=origo-xenial.small
+NAME=origo-codiad
 APPNAME=Ubuntu Xenial Server
-DIR=files
-DIRTARGET=/tmp
+DIR=
+DIRTARGET=
 TAR=
 TARTARGET=
 GIT=
@@ -32,6 +32,6 @@ DEBS=apache2\
      libio-pty-perl\
      apt-show-versions\
      apt-transport-https
-PREEXEC=/tmp/files/preexec.sh
-POSTEXEC=/tmp/files/postexec.sh
+PREEXEC=
+POSTEXEC=
 SERVICE=
