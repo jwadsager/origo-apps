@@ -1,0 +1,236 @@
+#!/usr/bin/perl
+
+use JSON;
+use URI::Escape;
+use ConfigReader::Simple;
+use Cwd;
+
+my $ofile = shift if $ARGV[0];
+my $cwd = cwd();
+
+unless ($ofile) {
+    opendir(DIR, ".");
+    my @files = grep(/\.o/,readdir(DIR));
+    closedir(DIR);
+
+    if (@files) {
+        $ofile = $files[0];
+        print "Using $ofile as origofile\n";
+    } else {
+        print "Usage: origo-appbuilder 'origofile'\n";
+        exit;
+    }
+}
+unless (-e $ofile) {
+    print "Origo file not found: $ofile\n";
+    print "Usage: origo-appbuilder 'origofile'\n";
+    exit;
+}
+
+my $config = ConfigReader::Simple->new($ofile);
+chdir $1 if ($ofile =~ /(.*\/).+/);
+
+# The version of the app we are building
+my $version = $config->get("VERSION") || '1.0';
+my $baseimage = $config->get("BASEIMAGE");
+my $basesuite = $config->get("BASESUITE") || 'xenial';
+my $name = $config->get("NAME");
+die "You must supply a name [NAME]" unless ($name);
+my $appname = $config->get("APPNAME");
+my $dir = $config->get("DIR");
+die "Directory '$dir' [DIR] does not exist" unless (!$dir || -d $dir);
+my $dirtarget = $config->get("DIRTARGET") || '/tmp';
+die "Directory '$dirtarget' [DIRTARGET] does not exist" unless ($dirtarget || -d $dirtarget);
+my $tar = $config->get("TAR");
+my $tartarget = $config->get("TARTARGET") || '/tmp';
+my $git = $config->get("GIT");
+my $gittarget = $config->get("GITTARGET") || '/tmp';
+my $debs = $config->get("DEBS");
+my $preexec = $config->get("PREEXEC");
+my $postexec = $config->get("POSTEXEC");
+my $service = $config->get("SERVICE");
+my $dname="$name.$version";
+my $size=$config->get("SIZE") || 9216;
+my $masterpath;
+
+# Load nbd
+print `modprobe nbd max_part=63`;
+
+# If app is based on another image, get a link to it, and mount it
+if ($baseimage) {
+
+    # Make base image available in fuel
+    print ">> Asking Valve to link $baseimage\n";
+    my $json = `curl --silent -k "https://10.0.0.1/steamengine/images/?action=linkmaster&image=$baseimage"`;
+
+    my $jobj = from_json($json);
+    my $linkpath = $jobj->{linkpath};
+    my $basepath = $jobj->{path};
+    $masterpath = $jobj->{masterpath};
+
+    unless ($basepath) {
+        print ">> No base path received\n";
+        print $json, "\n";
+        exit 0;
+    }
+
+    while (!(-e $basepath)) {
+      print ">> Waiting for $basepath...\n";
+      sleep 1
+    }
+
+    # Clone base image
+    if (-e "$cwd/$dname.master.qcow2") {
+        print ">> Destination image already exists: $cwd/$dname.master.qcow2\n";
+    } else {
+        print `qemu-img create -f qcow2 -b "$basepath" "$cwd/$dname.master.qcow2"`;
+    }
+
+# No baseimage, let's build image from scratch
+} else {
+
+# We unfortunately have to patch vmbuilder
+## See: http://askubuntu.com/questions/819844/kvm-vmbuilder-fails
+    unless (`grep 'force-confnew' /usr/lib/python2.7/dist-packages/VMBuilder/plugins/ubuntu/dapper.py`) {
+        print ">> Patching vmbuilder\n";
+        system('perl -pi -e "s/(\'dist-upgrade\')/\'--option=Dpkg::Options::=--force-confnew\', \'dist-upgra
+        de\'/" /usr/lib/python2.7/dist-packages/VMBuilder/plugins/ubuntu/dapper.py');
+        unlink('/usr/lib/python2.7/dist-packages/VMBuilder/plugins/ubuntu/dapper.pyc');
+    }
+
+	my $cmd = qq|vmbuilder kvm ubuntu -o -v --debug --suite $basesuite --arch amd64 --components main,universe,multiverse --rootsize $size --user origo --pass origo --hostname $name --tmpfs 2048 --addpkg linux-image-generic --addpkg wget --addpkg curl --domain origo.io --ip 10.1.1.2|;
+    print `$cmd`;
+    # Clean up
+    `mv ubuntu-kvm/*.qcow2 "$cwd/$dname.master.qcow2"`;
+    `rm -r ubuntu-kvm`;
+}
+
+# Now load nbd and mount the image
+if (-e "$cwd/$dname.master.qcow2") {
+    # Wait for nbd0 to be created
+    if (!(-e "/dev/nbd0p1")) {
+        print `qemu-nbd -c /dev/nbd0 "$cwd/$dname.master.qcow2"`;
+        while (!(-e "/dev/nbd0p1")) {
+          print ">> Waiting for nbd0p1...\n";
+          sleep 1
+        }
+    }
+
+    # Mount image
+    print `mkdir /tmp/$dname` unless (-d "/tmp/$dname");
+    print `mount /dev/nbd0p1 /tmp/$dname` unless (-e "/tmp/$dname/boot");
+
+} else {
+    die "Unable to mount image $cwd/$dname.master.qcow2";
+}
+
+
+# Copy files
+if ($dir) {
+    die "'$dir' not found [DIR]" unless (-d $dir);
+    print ">> Copying files...\n";
+    print `tar rvf /tmp/$dname.tar $dir`;
+    print `tar xf /tmp/$dname.tar -C /tmp/$dname$dirtarget`;
+    print `rm /tmp/$dname.tar`;
+}
+
+# Run pre exec script
+if ($preexec) {
+    # Stop local webmin from blocking port 10000
+    print `systemctl stop webmin`;
+    print "Running pre exec in /tmp/$dname\n";
+    my @lines = split(/\\n/, $preexec);
+    foreach my $line (split(/\\n/, $preexec)) { # $preexec may contain a multi-line script
+        $line =~ s/^\s+//;
+        $line =~ s/\s+$//;
+        $line =~ s/#.+$//;
+        $line =~ s/\|/\|chroot "\/tmp\/$dname" /;
+        $line =~ s/\> */\> \/tmp\/$dname/;
+        $line =~ s/\< */\> \/tmp\/$dname/;
+        $line =~ s/\$\((.+)\)/\$(chroot "\/tmp\/$dname" $1) /;
+        if ($line) {
+            my $cmd = qq|chroot "/tmp/$dname" $line|;
+            print ">> $cmd\n";
+            print `$cmd`;
+        }
+    }
+    # Start webmin again
+    print `systemctl start webmin`;
+
+}
+
+# Install debs
+if ($debs) {
+    print ">> Installing packages\n";
+    print `chroot /tmp/$dname apt-get update`;
+    print `chroot /tmp/$dname apt-get -q -y --force-yes --show-progress install $debs`;
+}
+
+# Unpack tar
+if ($tar && -e $tar) {
+    print ">> Unpacking files...\n";
+    print `tar xf $tar -C /tmp/$dname/$tartarget`;
+}
+
+# Git clone
+if ($git) {
+    print ">> Cloning from Git repo...\n";
+    print `git clone $git $gittarget`;
+}
+
+# Run post exec script
+if ($postexec) {
+    print "Running post exec in /tmp/$dname\n";
+    foreach my $line (split(/\\n/, $postexec)) {
+        $line =~ s/^\s+//;
+        $line =~ s/\s+$//;
+        $line =~ s/#.+$//;
+        $line =~ s/\|/\|chroot "\/tmp\/$dname" /;
+        $line =~ s/\> */\> \/tmp\/$dname/;
+        $line =~ s/\< */\> \/tmp\/$dname/;
+        $line =~ s/\$\((.+)\)/\$(chroot "\/tmp\/$dname" $1) /;
+        if ($line) {
+            my $cmd = qq|chroot "/tmp/$dname" $line|;
+            print ">> $cmd\n";
+            print `$cmd`;
+        }
+    }
+}
+
+# Install boot exec script
+if ($service) {
+    my $unit =  <<END
+[Unit]
+DefaultDependencies=no
+Description=Origo $dname
+Before=network-pre.target
+Wants=network-pre.target
+
+[Service]
+Type=oneshot
+ExecStart=$service
+TimeoutSec=0
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target
+END
+;
+    `echo "$unit" > /tmp/$dname/etc/systemd/system/origo-$dname.service`;
+	`chmod 664 /tmp/$dname/etc/systemd/system/origo-$dname.service`;
+	`chmod 755 /tmp/$dname$service`;
+}
+
+# Unmount base image and clean up
+print `umount /tmp/$dname`;
+print `killall qemu-nbd`;
+print `rm -d /tmp/$dname`;
+
+# convert to qcow2
+print "Converting $cwd/$dname.master.qcow2\n";
+print `qemu-img amend -f qcow2 -o compat=0.10 $cwd/$dname.master.qcow2`;
+
+# Rebase and activate image
+print `qemu-img rebase -f qcow2 -u -b "$masterpath" "$cwd/$dname.master.qcow2"` if ($masterpath);
+$appname = uri_escape($appname);
+print `curl --silent -k "https://10.0.0.1/steamengine/images?action=activate&image=$cwd/$dname.master.qcow2&name=$appname"`;

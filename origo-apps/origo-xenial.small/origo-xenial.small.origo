@@ -1,0 +1,37 @@
+VERSION=1.5
+MAINTAINER=Christian Orellana <christian@origo.io>
+BASEIMAGE=
+BASESUITE=xenial
+SIZE=9216
+NAME=origo-xenial.small
+APPNAME=Ubuntu Xenial Server
+DIR=files
+DIRTARGET=/tmp
+TAR=
+TARTARGET=
+GIT=
+GITTARGET=
+DEBS=apache2\
+     acpid\
+     dmidecode\
+     git\
+     iptables\
+     libapache2-mod-php\
+     libjson-perl\
+     libstring-shellquote-perl\
+     liburi-encode-perl\
+     man\
+     nfs-common\
+     openssh-server\
+     sysbench\
+     perl\
+     libnet-ssleay-perl\
+     openssl\
+     libauthen-pam-perl\
+     libpam-runtime\
+     libio-pty-perl\
+     apt-show-versions\
+     apt-transport-https
+PREEXEC=/tmp/files/preexec.sh
+POSTEXEC=/tmp/files/postexec.sh
+SERVICE=
