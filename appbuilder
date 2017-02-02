@@ -52,6 +52,9 @@ my $service = $config->get("SERVICE");
 my $dname="$name.$version";
 my $size=$config->get("SIZE") || 9216;
 my $masterpath;
+my $managementlink = $config->get("MANAGEMENTLINK") || '';
+my $upgradelink = $config->get("UPGRADELINK") || '';
+my $terminallink = $config->get("TERMINALLINK") || '';
 
 # Load nbd
 print `modprobe nbd max_part=63`;
@@ -233,4 +236,7 @@ print `qemu-img amend -f qcow2 -o compat=0.10 $cwd/$dname.master.qcow2`;
 # Rebase and activate image
 print `qemu-img rebase -f qcow2 -u -b "$masterpath" "$cwd/$dname.master.qcow2"` if ($masterpath);
 $appname = uri_escape($appname);
-print `curl --silent -k "https://10.0.0.1/steamengine/images?action=activate&image=$cwd/$dname.master.qcow2&name=$appname"`;
+$managementlink = uri_escape($managementlink);
+$upgradelink = uri_escape($upgradelink);
+$terminallink = uri_escape($terminallink);
+print `curl --silent -k "https://10.0.0.1/steamengine/images?action=activate&image=$cwd/$dname.master.qcow2&name=$appname&managementlink=$managementlink&upgradelink=$upgradelink&terminallink=$terminallink"`;

@@ -114,7 +114,7 @@ if ($status eq 'upgrading') {
 } else {
     print "Server is $status. Not upgrading this server...\n";
     if (-e '/usr/share/webmin/origo/tabs/servers/shellinaboxd') {
-        unless (`pgrep shellinaboxd`) {
+#        unless (`pgrep shellinaboxd`) {
             print "Opening ports for shellinabox...\n";
             # Disallow shellinabox access from outside
             my $gw = $internalip;
@@ -127,6 +127,6 @@ if ($status eq 'upgrading') {
 #            `screen -d -m /usr/share/webmin/origo/tabs/servers/shellinaboxd -t -n --no-beep`;
 #            `/usr/share/webmin/origo/tabs/servers/shellinaboxd -b -t -n --no-beep`;
 #            exec('/usr/share/webmin/origo/tabs/servers/shellinaboxd -b -t -n --no-beep');
-        }
+#        }
     }
 }
