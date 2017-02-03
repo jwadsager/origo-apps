@@ -144,15 +144,15 @@ if ($preexec) {
     print "Running pre exec in /tmp/$dname\n";
     my @lines = split(/\\n/, $preexec);
     foreach my $line (split(/\\n/, $preexec)) { # $preexec may contain a multi-line script
-        $line =~ s/^\s+//;
-        $line =~ s/\s+$//;
-        $line =~ s/#.+$//;
-        $line =~ s/\|/\|chroot "\/tmp\/$dname" /;
-        $line =~ s/\> */\> \/tmp\/$dname/;
-        $line =~ s/\< */\> \/tmp\/$dname/;
-        $line =~ s/\$\((.+)\)/\$(chroot "\/tmp\/$dname" $1) /;
+        $line =~ s/^\s+//; # remove leading spaces
+        $line =~ s/\s+$//; # remove trailing spaces
+        $line =~ s/#.+$//; # remove comments
+        $line =~ s/\|/\|chroot "\/tmp\/$dname" /; # redirect pipes
+        $line =~ s/\> */\> \/tmp\/$dname/; # redirect pipes
+        $line =~ s/\< */\> \/tmp\/$dname/; # redirect pipes
+        $line =~ s/\$\((.+)\)/\$(chroot "\/tmp\/$dname" $1) /; # handle environment variables
         if ($line) {
-            my $cmd = qq|chroot "/tmp/$dname" $line|;
+            my $cmd = qq|chroot "/tmp/$dname" $line|; # execute command in chroot
             print ">> $cmd\n";
             print `$cmd`;
         }
