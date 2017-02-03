@@ -120,8 +120,8 @@ if (-e "$cwd/$dname.master.qcow2") {
     }
 
     # Mount image
-    print `mkdir /tmp/$dname` unless (-d "/tmp/$dname");
-    print `mount /dev/nbd0p1 /tmp/$dname` unless (-e "/tmp/$dname/boot");
+    print `mkdir "/tmp/$dname"` unless (-d "/tmp/$dname");
+    print `mount /dev/nbd0p1 "/tmp/$dname"` unless (-e "/tmp/$dname/boot");
 
 } else {
     die "Unable to mount image $cwd/$dname.master.qcow2";
@@ -132,9 +132,9 @@ if (-e "$cwd/$dname.master.qcow2") {
 if ($dir) {
     die "'$dir' not found [DIR]" unless (-d $dir);
     print ">> Copying files...\n";
-    print `tar rvf /tmp/$dname.tar $dir`;
-    print `tar xf /tmp/$dname.tar -C /tmp/$dname$dirtarget`;
-    print `rm /tmp/$dname.tar`;
+    print `tar rvf "/tmp/$dname.tar" "$dir"`;
+    print `tar xf "/tmp/$dname.tar" -C "/tmp/$dname$dirtarget"`;
+    print `rm "/tmp/$dname.tar"`;
 }
 
 # Run pre exec script
@@ -165,20 +165,20 @@ if ($preexec) {
 # Install debs
 if ($debs) {
     print ">> Installing packages\n";
-    print `chroot /tmp/$dname apt-get update`;
-    print `chroot /tmp/$dname apt-get -q -y --force-yes --show-progress install $debs`;
+    print `chroot "/tmp/$dname" apt-get update`;
+    print `chroot "/tmp/$dname" apt-get -q -y --force-yes --show-progress install $debs`;
 }
 
 # Unpack tar
 if ($tar && -e $tar) {
     print ">> Unpacking files...\n";
-    print `tar xf $tar -C /tmp/$dname/$tartarget`;
+    print `tar xf $tar -C "/tmp/$dname/$tartarget"`;
 }
 
 # Git clone
 if ($git) {
     print ">> Cloning from Git repo...\n";
-    print `git clone $git $gittarget`;
+    print `git clone $git "/tmp/$dname/$gittarget"`;
 }
 
 # Run post exec script
@@ -219,15 +219,15 @@ RemainAfterExit=yes
 WantedBy=multi-user.target
 END
 ;
-    `echo "$unit" > /tmp/$dname/etc/systemd/system/origo-$dname.service`;
-	`chmod 664 /tmp/$dname/etc/systemd/system/origo-$dname.service`;
-	`chmod 755 /tmp/$dname$service`;
+    `echo "$unit" > "/tmp/$dname/etc/systemd/system/origo-$dname.service"`;
+	`chmod 664 "/tmp/$dname/etc/systemd/system/origo-$dname.service"`;
+	`chmod 755 "/tmp/$dname$service"`;
 }
 
 # Unmount base image and clean up
-print `umount /tmp/$dname`;
+print `umount "/tmp/$dname"`;
 print `killall qemu-nbd`;
-print `rm -d /tmp/$dname`;
+print `rm -d "/tmp/$dname"`;
 
 # convert to qcow2
 print "Converting $cwd/$dname.master.qcow2\n";
