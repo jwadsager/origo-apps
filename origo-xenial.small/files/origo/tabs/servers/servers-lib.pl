@@ -9,7 +9,7 @@ sub servers {
 # Generate and return the HTML form for this tab
         my $form = <<END
 <div class="tab-pane" id="servers">
-The servers in this app are listed below. You can add (+) and remove (-) servers.
+The servers in this app are listed below. Click to launch terminal. You can add (+) and remove (-) servers.
 <div style="margin-bottom: 5px;" id="loadservers">
 <table style="display:inline-block; margin:0; padding:4px;"><tr><td><img src="images/loader.gif"></td></tr></table>
 </div>
@@ -135,7 +135,7 @@ END
                 // var termurl = '/steamengine/pipe/http://' + serv.networkuuid1 + ':4200/';
                 // var termurl = 'index.cgi?action=terminal&tab=servers&ip=' + serv.internalip; + '/'
 
-                stext += '<table title="' + serv.internalip + ' (' + serv.name + ')' + ':' + serv.status + '" id="' + serv.uuid + '" style="display:inline-block; margin:0; padding:0;"><tr><td style="background-color: ' + bgcolors[serv.status] + ';"><a href="#" onclick="loadTerm(\\\'' + serv.networkuuid1 + '\\\', \\\'' + serv.name + '\\\');"><img src="images/server-black.png"></a></td></tr></table> ';
+                stext += '<table title="' + serv.internalip + ' (' + serv.name + ')' + ':' + serv.status + '" id="' + serv.uuid + '" style="display:inline-block; margin:0; padding:0;"><tr><td style="background-color: ' + bgcolors[serv.status] + ';"><a href="#" onclick="loadTerm(\\\'' + serv.networkuuid1 + '\\\', \\\'' + serv.internalip + ' (' + serv.name + ')' + '\\\');"><img src="images/server-black.png"></a></td></tr></table> ';
 //                if ( bgcolors[serv.status]=="orange" || bgcolors[serv.status]=="darkgreen" ) sloading = true;
                 if ( bgcolors[serv.status]=="orange" ) sloading = true;
             }
