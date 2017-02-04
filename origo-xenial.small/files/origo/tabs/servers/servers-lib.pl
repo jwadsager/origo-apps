@@ -9,7 +9,7 @@ sub servers {
 # Generate and return the HTML form for this tab
         my $form = <<END
 <div class="tab-pane" id="servers">
-The servers in this app are listed below. Click to launch terminal. You can add (+) and remove (-) servers.
+The servers in this app are listed below. Click to launch terminal.
 <div style="margin-bottom: 5px;" id="loadservers">
 <table style="display:inline-block; margin:0; padding:4px;"><tr><td><img src="images/loader.gif"></td></tr></table>
 </div>
@@ -87,7 +87,7 @@ END
 
     function loadTerm(networkuuid1, name) {
         if (\$("#terminal").length==0) {
-            \$("#nav-tabs").append('<li title="' + name + '"><a data-toggle="tab" href="#terminal">terminal&nbsp;</a> <span class="no-closeText">x</span> </li>');
+            \$("#nav-tabs").append('<li title="' + name + '"><a data-toggle="tab" href="#terminal">' + name + '&nbsp;</a> <span class="no-closeText">x</span> </li>');
             \$("#tab-content").append('<div id="terminal" class="tab-pane">Terminal</div>');
 
             \$("#nav-tabs").on("click", "a", function(e){

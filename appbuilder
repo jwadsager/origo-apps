@@ -33,6 +33,7 @@ chdir $1 if ($ofile =~ /(.*\/).+/);
 # The version of the app we are building
 my $version = $config->get("VERSION") || '1.0';
 my $baseimage = $config->get("BASEIMAGE");
+my $rebase = $config->get("REBASE");
 my $basesuite = $config->get("BASESUITE") || 'xenial';
 my $name = $config->get("NAME");
 die "You must supply a name [NAME]" unless ($name);
@@ -234,7 +235,11 @@ print "Converting $cwd/$dname.master.qcow2\n";
 print `qemu-img amend -f qcow2 -o compat=0.10 $cwd/$dname.master.qcow2`;
 
 # Rebase and activate image
-print `qemu-img rebase -f qcow2 -u -b "$masterpath" "$cwd/$dname.master.qcow2"` if ($masterpath);
+if ($rebase) { # Flatten image
+    print `qemu-img rebase -f qcow2 -b "" "$cwd/$dname.master.qcow2"` if ($masterpath);
+} else { # Update backing file path
+    print `qemu-img rebase -f qcow2 -u -b "$masterpath" "$cwd/$dname.master.qcow2"` if ($masterpath);
+}
 $appname = uri_escape($appname);
 $managementlink = uri_escape($managementlink);
 $upgradelink = uri_escape($upgradelink);
