@@ -94,3 +94,5 @@ bash -c 'echo "export TERM=xterm-color" >> /etc/bash.bashrc'
 perl -pi -e 's/PS1="/# PS1="/' /home/origo/.bashrc
 perl -pi -e 's/PS1="/# PS1="/' /root/.bashrc
 
+# Clean up
+rm -r /tmp/files
