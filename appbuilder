@@ -240,12 +240,8 @@ if ($masterpath) {
         print ">> Rebasing and flattening image...\n";
         print `qemu-img rebase -f qcow2 -b "" "$cwd/$dname.master.qcow2"`;
     } else { # Update backing file path
-        if (-e $masterpath) {
-            print ">> Rebasing to new backing file path ...\n";
-            print `qemu-img rebase -f qcow2 -u -b "$masterpath" "$cwd/$dname.master.qcow2"` if ($masterpath);
-        } else {
-            print ">> Error: Backing file path does not exist: $masterpath\n";
-        }
+        print ">> Rebasing to new backing file path ...\n";
+        print `qemu-img rebase -f qcow2 -u -b "$masterpath" "$cwd/$dname.master.qcow2"` if ($masterpath);
     }
 }
 $appname = uri_escape($appname);
