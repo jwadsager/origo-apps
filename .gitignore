@@ -1,0 +1,4 @@
+*.gz
+*.qcow2
+screenlog.*
+appbuilder.pl
