@@ -136,7 +136,7 @@ if ($dir) {
     die "'$dir' not found [DIR]" unless (-d $dir);
     print ">> Copying files...\n";
     print `tar rvf "/tmp/$dname.tar" "$dir"`;
-    print `tar xf "/tmp/$dname.tar" -C "/tmp/$dname$dirtarget"`;
+    print `tar xfv "/tmp/$dname.tar" -C "/tmp/$dname$dirtarget"`;
     print `rm "/tmp/$dname.tar"`;
 }
 
@@ -175,7 +175,7 @@ if ($debs) {
 # Unpack tar
 if ($tar && -e $tar) {
     print ">> Unpacking files...\n";
-    print `tar xf $tar -C "/tmp/$dname/$tartarget"`;
+    print `tar xfv $tar -C "/tmp/$dname/$tartarget"`;
 }
 
 # Git clone
