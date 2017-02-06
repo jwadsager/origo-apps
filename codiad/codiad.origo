@@ -1,6 +1,6 @@
 VERSION=1.5
 MAINTAINER=Christian Orellana <christian@origo.io>
-BASEIMAGE=origo-xenial.small.1.5.master.qcow2
+BASEIMAGE=ubuntu-xenial.small.1.5.master.qcow2
 REBASE=0
 BASESUITE=
 SIZE=9216
