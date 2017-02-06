@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# This script is executed in the image chroot
 echo "Performing pre-install operations"
 bash -c 'echo "deb http://webmin.mirror.somersettechsolutions.co.uk/repository sarge contrib" >> /etc/apt/sources.list'
 wget http://www.webmin.com/jcameron-key.asc

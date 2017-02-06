@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# This script is executed in the image chroot
 echo "Performing post-install operations"
 
 # Install webmin module
