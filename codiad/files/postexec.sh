@@ -9,5 +9,5 @@ touch /var/www/html/config.php
 chown www-data:www-data -R /var/www/html/
 
 # Add this app's assets to Webmin
-#cd /tmp/files/
-#mv origo/tabs/* /usr/share/webmin/origo/tabs/
+cd /tmp/files/
+mv origo/tabs/* /usr/share/webmin/origo/tabs/
