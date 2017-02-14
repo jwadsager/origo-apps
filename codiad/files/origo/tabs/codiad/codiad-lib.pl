@@ -10,14 +10,23 @@ sub codiad {
     if ($action eq 'form') {
 # Generate and return the HTML form for this tab
 
-    # First let's make sure install.php has been patched - WP may have been upgraded
-        unless (`grep "HTTP_HOST" /usr/share/wordpress/wp-admin/install.php`) {
+    # First let's make sure Apache is patched to handle perl scripts
+        if (-s "/var/www/html/config.php") {
             ;
         } else {
             ;# "Already patched\n";
         }
 
         my $form;
+
+
+        # Redirect to upgrade page if still upgrading
+        if (-e "/tmp/restoring") {
+            $form .=  qq|<script>loc=document.location.href; setTimeout(function(){document.location=loc;}, 1500); </script>|;
+        # Redirect to Codiad install page if not configured
+        } elsif (-z "/var/www/html/config.php") {
+            $form .=  qq|<script>loc=document.location.href; document.location=loc.substring(0,loc.indexOf(":10000")) + "/"; </script>|;
+        }
 
         return $form;
 

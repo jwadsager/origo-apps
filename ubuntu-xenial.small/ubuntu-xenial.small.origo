@@ -35,3 +35,4 @@ DEBS=apache2\
 PREEXEC=/tmp/files/preexec.sh
 POSTEXEC=/tmp/files/postexec.sh
 SERVICE=
+TERMINALLINK=/steamengine/pipe/http://{uuid}:4200
