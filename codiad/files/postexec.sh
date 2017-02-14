@@ -10,6 +10,13 @@ echo '<?php/*|[{"username":"origo","password":"","project":"My Project"}]|*/?>' 
 echo '<?php/*|[{"name":"My Project","path":"MyProject"}]|*/?>' > /var/www/html/data/projects.php
 echo '<?php/*|[""]|*/?>' > /var/www/html/data/active.php
 mkdir "/var/www/html/workspace/MyProject"
+# Install some plugins
+cd /var/www/html/plugins
+git clone https://github.com/Andr3as/Codiad-Permissions
+git clone https://github.com/daeks/Codiad-Together
+git clone https://github.com/Andr3as/Codiad-Beautify
+git clone https://github.com/Andr3as/Codiad-CodeTransfer
+git clone https://github.com/Andr3as/Codiad-CodeGit
 chown www-data:www-data -R /var/www/html/
 a2enmod cgi
 echo 'AddHandler cgi-script cgi pl py

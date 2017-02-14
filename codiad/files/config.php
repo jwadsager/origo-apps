@@ -14,7 +14,7 @@
 define("BASE_PATH", "/var/www/html");
 
 // BASE URL TO CODIAD (without trailing slash)
-define("BASE_URL", "https://" . $_SERVER['SERVER_NAME']);
+define("BASE_URL", $_SERVER['SERVER_NAME']);
 
 // THEME : default, modern or clear (look at /themes)
 define("THEME", "default");
