@@ -5,7 +5,7 @@ echo "Performing post-install operations"
 
 rm -r /var/www/html
 mv /var/www/codiad /var/www/html
-touch /var/www/html/config.php
+mv /tmp/files/config.php /var/www/html/
 echo '<?php/*|[{"username":"origo","password":"","project":"My Project"}]|*/?>' > /var/www/html/data/users.php
 echo '<?php/*|[{"name":"My Project","path":"MyProject"}]|*/?>' > /var/www/html/data/projects.php
 echo '<?php/*|[""]|*/?>' > /var/www/html/data/active.php
