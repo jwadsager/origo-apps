@@ -7,8 +7,9 @@ rm -r /var/www/html
 mv /var/www/codiad /var/www/html
 touch /var/www/html/config.php
 echo '<?php/*|[{"username":"origo","password":"","project":"My Project"}]|*/?>' > /var/www/html/data/users.php
-echo '<?php/*|[{"name":"origo","path":"My Project"}]|*/?>' > /var/www/html/data/projects.php
-mkdir "/var/www/html/workspace/My Project"
+echo '<?php/*|[{"name":"My Project","path":"MyProject"}]|*/?>' > /var/www/html/data/projects.php
+echo '<?php/*|[""]|*/?>' > /var/www/html/data/active.php
+mkdir "/var/www/html/workspace/MyProject"
 chown www-data:www-data -R /var/www/html/
 a2enmod cgi
 echo 'AddHandler cgi-script cgi pl py
