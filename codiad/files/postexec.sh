@@ -16,8 +16,8 @@ mkdir "/var/www/html/workspace/MyProject"
 cd /var/www/html/plugins
 git clone https://github.com/Andr3as/Codiad-Permissions
 git clone https://github.com/daeks/Codiad-Together
-git clone https://github.com/Andr3as/Codiad-Beautify
-git clone https://github.com/Andr3as/Codiad-CodeTransfer
+# git clone https://github.com/Andr3as/Codiad-Beautify
+# git clone https://github.com/Andr3as/Codiad-CodeTransfer
 git clone https://github.com/Andr3as/Codiad-CodeGit
 chown www-data:www-data -R /var/www/html/
 a2enmod cgi
