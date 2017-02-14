@@ -8,9 +8,6 @@ sub codiad {
     my %in = %{$in_ref};
 
     if ($action eq 'form') {
-# Generate and return the HTML form for this tab
-
-    # First let's make sure Apache is patched to handle perl scripts
         if (-s "/var/www/html/config.php") {
             ;
         } else {
@@ -27,6 +24,21 @@ sub codiad {
         } elsif (-z "/var/www/html/config.php") {
             $form .=  qq|<script>loc=document.location.href; document.location=loc.substring(0,loc.indexOf(":10000")) + "/"; </script>|;
         }
+
+
+        $form .= <<END
+    <div class="tab-pane active" id="codiad">
+    <div>
+        Here you can manage basic security settings for your development server.
+    </div>
+    <small>Set password for Codiad user "origo":</small>
+    <form class="passwordform" action="index.cgi?action=changelinuxpassword&tab=security" method="post" onsubmit="passwordSpinner();" accept-charset="utf-8" id="linform" autocomplete="off">
+        <input id="codiadpassword" type="password" name="codiadpassword" autocomplete="off" value="" class="password" onfocus="doStrength(this);">
+        <button class="btn btn-default" type="submit" id="password_button">Set!</button>
+    </form>
+    </div>
+END
+        ;
 
         return $form;
 
