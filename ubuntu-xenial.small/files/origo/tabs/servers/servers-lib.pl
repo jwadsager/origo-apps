@@ -85,7 +85,7 @@ END
         });
     }
 
-    function loadTerm(networkuuid1, name) {
+    function loadTerm(networkuuid1, name, title) {
         if (\$("#terminal").length==0) {
             \$("#nav-tabs").append('<li title="' + name + '"><a data-toggle="tab" href="#terminal">' + name + '&nbsp;</a> <span class="no-closeText">x</span> </li>');
             \$("#tab-content").append('<div id="terminal" class="tab-pane">Terminal</div>');
@@ -135,7 +135,7 @@ END
                 // var termurl = '/steamengine/pipe/http://' + serv.networkuuid1 + ':4200/';
                 // var termurl = 'index.cgi?action=terminal&tab=servers&ip=' + serv.internalip; + '/'
 
-                stext += '<table title="' + serv.internalip + ' (' + serv.name + ')' + ':' + serv.status + '" id="' + serv.uuid + '" style="display:inline-block; margin:0; padding:0;"><tr><td style="background-color: ' + bgcolors[serv.status] + ';"><a href="#" onclick="loadTerm(\\\'' + serv.networkuuid1 + '\\\', \\\'' + serv.internalip + ' (' + serv.name + ')' + '\\\');"><img src="images/server-black.png"></a></td></tr></table> ';
+                stext += '<table title="' + serv.internalip + ' (' + serv.name + ')' + ':' + serv.status + '" id="' + serv.uuid + '" style="display:inline-block; margin:0; padding:0;"><tr><td style="background-color: ' + bgcolors[serv.status] + ';"><a href="#" onclick="loadTerm(\\\'' + serv.networkuuid1 + '\\\', \\\'' + serv.internalip + '\\\', \\\'' + serv.name + '\\\');"><img src="images/server-black.png"></a></td></tr></table> ';
 //                if ( bgcolors[serv.status]=="orange" || bgcolors[serv.status]=="darkgreen" ) sloading = true;
                 if ( bgcolors[serv.status]=="orange" ) sloading = true;
             }
