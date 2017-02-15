@@ -149,10 +149,12 @@ if ($status eq 'upgrading') {
             print `letsencrypt -d $externalip.origo.io --email=cert\@origo.io --agree-tos --no-redirect --noninteractive --apache`;
 
         }
-        if (!(`grep letsencrypt /etc/apache2/sites-available/webmin-ssl.conf`)) {
-            `perl -pi -e 's/SSLEngine on/SSLEngine on\\n                Include \\/etc\\/letsencrypt\\/options-ssl-apache.conf\\n                ServerName $externalip.origo.io/' /etc/apache2/sites-available/webmin-ssl.conf`;
+        if (-e "/etc/letsencrypt/live/$externalip.origo.io") {
+            if (!(`grep letsencrypt /etc/apache2/sites-available/webmin-ssl.conf`)) {
+                `perl -pi -e 's/SSLEngine on/SSLEngine on\\n                Include \\/etc\\/letsencrypt\\/options-ssl-apache.conf\\n                ServerName $externalip.origo.io/' /etc/apache2/sites-available/webmin-ssl.conf`;
+            }
+            `perl -pi -e 's/SSLCertificateFile\\s+\\/.*/SSLCertificateFile \\/etc\\/letsencrypt\\/live\\/$externalip.origo.io\\/fullchain.pem/' /etc/apache2/sites-available/webmin-ssl.conf`;
+            `perl -pi -e 's/SSLCertificateKeyFile\\s+\\/.*/SSLCertificateKeyFile \\/etc\\/letsencrypt\\/live\\/$externalip.origo.io\\/privkey.pem/' /etc/apache2/sites-available/webmin-ssl.conf`;
         }
-        `perl -pi -e 's/SSLCertificateFile\\s+\\/.*/SSLCertificateFile \\/etc\\/letsencrypt\\/live\\/$externalip.origo.io\\/fullchain.pem/' /etc/apache2/sites-available/webmin-ssl.conf`;
-        `perl -pi -e 's/SSLCertificateKeyFile\\s+\\/.*/SSLCertificateKeyFile \\/etc\\/letsencrypt\\/live\\/$externalip.origo.io\\/privkey.pem/' /etc/apache2/sites-available/webmin-ssl.conf`;
     }
 }

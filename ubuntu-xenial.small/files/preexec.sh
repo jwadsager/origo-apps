@@ -57,7 +57,7 @@ DefaultDependencies=no
 Description=Shellinabox for Origo Compute
 
 [Service]
-ExecStart=/usr/share/webmin/origo/tabs/servers/shellinaboxd -b -t -n --no-beep --static-file=favicon.ico:/usr/share/webmin/origo/images/icons/favicon.ico
+ExecStart=/usr/share/webmin/origo/tabs/servers/shellinaboxd -b -t -n --no-beep --static-file=favicon.ico:/usr/share/webmin/origo/images/icons/favicon.ico --static-file=ShellInABox.js:/usr/share/webmin/origo/tabs/servers/ShellInABox.js
 TimeoutSec=15
 RemainAfterExit=yes
 Type=forking
