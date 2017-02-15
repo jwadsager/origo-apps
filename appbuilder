@@ -65,7 +65,7 @@ if ($baseimage) {
 
     # Make base image available in fuel
     # First remove any existing base image link
-    unlink($baseimage) if (-e $baseimage);
+    `rm "$baseimage"` if (-e $baseimage);
     print ">> Asking Valve to link $baseimage\n";
     my $json = `curl --silent -k "https://10.0.0.1/steamengine/images/?action=linkmaster&image=$baseimage"`;
 
