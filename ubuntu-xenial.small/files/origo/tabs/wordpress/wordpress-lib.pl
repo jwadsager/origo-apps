@@ -72,7 +72,7 @@ sub wordpress {
             if (!match || match[1] == 'default' || match[1] == 'new') {
                 \$("#currentwp").attr("href", "http://$externalip/");
                 \$("#currentwp").text("to default WordPress website");
-                \$("#currentwpadmin").attr("href", "https://$externalip/home/wp-admin/");
+                \$("#currentwpadmin").attr("href", "https://$externalip.origo.io/home/wp-admin/");
                 \$("#currentwpadmin").text("to default WordPress console");
             } else {
                 var siteaddr = site;

@@ -36,7 +36,7 @@ sub codiad {
             <button class="btn btn-default" type="submit">Set!</button>
         </form>
         <small style="margin-top:10px;">
-            After setting the password <a target="_blank" href="https://$externalip">log in here</a> with username "origo" and your password.
+            After setting the password <a target="_blank" href="https://$externalip.origo.io">log in here</a> with username "origo" and your password.
         </small>
     </div>
 END
@@ -48,6 +48,9 @@ END
 # Generate and return javascript the UI for this tab needs
         my $js = <<END
         \$('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+            \$("#currentwpadmin").attr("href", "https://$externalip.origo.io/");
+            \$("#currentwpadmin").text("to Codiad Web IDE");
+            \$("#currentwpadmin").parent().show()
         })
 END
 ;

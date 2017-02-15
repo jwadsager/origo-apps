@@ -40,6 +40,10 @@ if (-e '/etc/webmin/') {
     print "Webmin not installed, not registering server\n";
 }
 
+$externalip = `cat /tmp/externalip` if (-e '/tmp/externalip');
+$externalip = `cat /etc/origo/externalip` if (-e '/etc/origo/externalip');
+chomp $externalip;
+
 my $appinfo = `curl -ks "https://10.0.0.1/steamengine/servers?action=getappinfo"`;
 my $info_ref = from_json($appinfo);
 my $status = $info_ref->{status};
@@ -115,18 +119,40 @@ if ($status eq 'upgrading') {
     print "Server is $status. Not upgrading this server...\n";
     if (-e '/usr/share/webmin/origo/tabs/servers/shellinaboxd') {
 #        unless (`pgrep shellinaboxd`) {
-            print "Opening ports for shellinabox...\n";
-            # Disallow shellinabox access from outside
-            my $gw = $internalip;
-            $gw = "$1.1" if ($gw =~ /(\d+\.\d+\.\d+)\.\d+/);
-            print `iptables -D INPUT -p tcp --dport 4200 -s $gw -j ACCEPT`;
-            print `iptables -D INPUT -p tcp --dport 4200 -j DROP`;
-            print `iptables -A INPUT -p tcp --dport 4200 -s $gw -j ACCEPT`;
-            print `iptables -A INPUT -p tcp --dport 4200 -j DROP`;
+        print "Opening ports for shellinabox...\n";
+        # Disallow shellinabox access from outside
+        my $gw = $internalip;
+        $gw = "$1.1" if ($gw =~ /(\d+\.\d+\.\d+)\.\d+/);
+        print `iptables -D INPUT -p tcp --dport 4200 -s $gw -j ACCEPT`;
+        print `iptables -D INPUT -p tcp --dport 4200 -j DROP`;
+        print `iptables -A INPUT -p tcp --dport 4200 -s $gw -j ACCEPT`;
+        print `iptables -A INPUT -p tcp --dport 4200 -j DROP`;
+
+        my $title = $externalip || $internalip;
+        if (-e '/usr/share/webmin/origo/tabs/servers/ShellInABox.js') {
+            print "Updating terminal title to $title\n";
+            `perl -pi -e 's/^document.title = ".*";/document.title = "Term:$title";/' /usr/share/webmin/origo/tabs/servers/ShellInABox.js`;
+        }
+
 
 #            `screen -d -m /usr/share/webmin/origo/tabs/servers/shellinaboxd -t -n --no-beep`;
 #            `/usr/share/webmin/origo/tabs/servers/shellinaboxd -b -t -n --no-beep`;
 #            exec('/usr/share/webmin/origo/tabs/servers/shellinaboxd -b -t -n --no-beep');
 #        }
+    }
+    # Run letsencrypt
+    if ($externalip) {
+        print "Running letsencrypt\n";
+        if (-e "/etc/letsencrypt/live/$externalip.origo.io") {
+            print `letsencrypt renew`;
+        } else {
+            print `letsencrypt -d $externalip.origo.io --email=cert\@origo.io --agree-tos --no-redirect --noninteractive --apache`;
+
+        }
+        `perl -pi -e 's/SSLCertificateFile .*/SSLCertificateFile \\\/etc\\\/letsencrypt\\\/live\\\/$externalip.origo.io\\\/fullchain.pem/' /etc/apache2/sites-available/webmin-ssl.conf`;
+        `perl -pi -e 's/SSLCertificateKeyFile .*/SSLCertificateKeyFile \\\/etc\\\/letsencrypt\\\/live\\\/$externalip.origo.io\\\/privkey.pem/' /etc/apache2/sites-available/webmin-ssl.conf`;
+        if (!(`grep letsencrypt /etc/apache2/sites-available/webmin-ssl.conf`)) {
+            `perl -pi -e 's/SSLEngine on/SSLEngine on\\\nInclude /etc/letsencrypt/options-ssl-apache.conf/\\\nServerName $externalip.origo.io' /etc/apache2/sites-available/webmin-ssl.conf`;
+        }
     }
 }

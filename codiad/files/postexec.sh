@@ -3,6 +3,7 @@
 # This script is executed in the image chroot
 echo "Performing post-install operations"
 
+# Install Codiad
 rm -r /var/www/html
 mv /var/www/codiad /var/www/html
 mv /tmp/files/config.php /var/www/html/
@@ -11,8 +12,21 @@ echo '<?php/*|[{"name":"My Project","path":"MyProject"}]|*/?>' > /var/www/html/d
 echo '<?php/*|[""]|*/?>' > /var/www/html/data/active.php
 echo '<?php/*|{"c":"c_cpp","coffee":"coffee","cpp":"c_cpp","css":"css","d":"d","erb":"html_ruby","h":"c_cpp","hpp":"c_cpp","htm":"html","html":"html","jade":"jade","java":"java","js":"javascript","json":"json","less":"less","md":"markdown","php":"php","php4":"php","php5":"php","phtml":"php","py":"python","rb":"ruby","sass":"scss","scss":"scss","sql":"sql","tpl":"html","vm":"velocity","xml":"xml","pl":"perl","cgi":"perl"}|*/?>' > /var/www/html/data/extensions.php
 
+# Make a simple project with a Python file
 mkdir "/var/www/html/workspace/MyProject"
-# Install some plugins
+echo "#!/usr/bin/env python
+# -*- coding: UTF-8 -*-
+
+# enable debugging
+import cgitb
+cgitb.enable()
+
+print 'Content-Type: text/html;charset=utf-8'
+print
+print '<h1>Hello World!</h1>'" > /var/www/html/workspace/MyProject/hello.py
+chmod 755 /var/www/html/workspace/MyProject/hello.py
+
+# Install some Codiad plugins
 cd /var/www/html/plugins
 git clone https://github.com/Andr3as/Codiad-Permissions
 git clone https://github.com/daeks/Codiad-Together

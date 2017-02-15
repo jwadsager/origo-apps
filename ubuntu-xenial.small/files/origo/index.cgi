@@ -30,6 +30,7 @@ my $message;
 opendir(DIR,"tabs") or die "Cannot open tabs directory\n";
 my @dir = readdir(DIR);
 closedir(DIR);
+sort @dir;
 my @tabs;
 my %tabsh;
 push @tabs, 'security' if (-d "tabs/security");
@@ -348,12 +349,12 @@ my $head = <<END
                     </a>
                 </li>
                 <li style="display:none;">
-                    <a href="http://$externalip/" target="_blank" id="currentwpadmin">
+                    <a href="https://$externalip.origo.io/" target="_blank" id="currentwpadmin">
                         to default website management console
                     </a>
                 </li>
                 <li>
-                    <a href="https://$externalip:10001/" target="_blank">
+                    <a href="https://$externalip.origo.io:10001/" target="_blank">
                         to the Webmin console
                     </a>
                 </li>
