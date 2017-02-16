@@ -47,11 +47,9 @@ END
     } elsif ($action eq 'js') {
 # Generate and return javascript the UI for this tab needs
         my $js = <<END
-        \$('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
-            \$("#currentwpadmin").attr("href", "https://$externalip.origo.io/");
-            \$("#currentwpadmin").text("to Codiad Web IDE");
-            \$("#currentwpadmin").parent().show()
-        })
+        \$("#currentwpadmin").attr("href", "https://$externalip.origo.io/");
+        \$("#currentwpadmin").text("to Codiad Web IDE");
+        \$("#currentwpadmin").parent().show()
 END
 ;
         return $js;
