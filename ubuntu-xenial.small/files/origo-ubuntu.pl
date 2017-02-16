@@ -150,11 +150,14 @@ if ($status eq 'upgrading') {
 
         }
         if (-e "/etc/letsencrypt/live/$externalip.origo.io") {
+            my $reloadapache;
             if (!(`grep letsencrypt /etc/apache2/sites-available/webmin-ssl.conf`)) {
                 `perl -pi -e 's/SSLEngine on/SSLEngine on\\n                Include \\/etc\\/letsencrypt\\/options-ssl-apache.conf\\n                ServerName $externalip.origo.io/' /etc/apache2/sites-available/webmin-ssl.conf`;
+                $reloadapache = 1;
             }
             `perl -pi -e 's/SSLCertificateFile\\s+\\/.*/SSLCertificateFile \\/etc\\/letsencrypt\\/live\\/$externalip.origo.io\\/fullchain.pem/' /etc/apache2/sites-available/webmin-ssl.conf`;
             `perl -pi -e 's/SSLCertificateKeyFile\\s+\\/.*/SSLCertificateKeyFile \\/etc\\/letsencrypt\\/live\\/$externalip.origo.io\\/privkey.pem/' /etc/apache2/sites-available/webmin-ssl.conf`;
+            `systemctl reload apache2` if ($reloadapache);
         }
     }
 }

@@ -27,7 +27,7 @@ After=network.target network-online.target
 [Service]
 Type=oneshot
 ExecStart=/usr/local/bin/origo-ubuntu.pl
-TimeoutSec=30
+TimeoutSec=60
 RemainAfterExit=yes
 
 [Install]
