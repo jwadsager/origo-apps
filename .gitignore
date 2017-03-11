@@ -2,3 +2,4 @@
 *.qcow2
 screenlog.*
 appbuilder.pl
+.gitignore
