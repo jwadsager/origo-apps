@@ -12,3 +12,5 @@ instructions which set up a system of servers which typically offer a specific s
 or a file service.
 
 The source code and scripts for building the apps we distribute with OCS are available here.
+
+The software in this repository is made available under the GNU General Public License Version 2.
