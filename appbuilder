@@ -57,153 +57,157 @@ my $managementlink = $config->get("MANAGEMENTLINK") || '';
 my $upgradelink = $config->get("UPGRADELINK") || '';
 my $terminallink = $config->get("TERMINALLINK") || '';
 
-# Load nbd
-print `modprobe nbd max_part=63`;
+if (-e "$cwd/$dname.master.qcow2") { # Master image already exists, try to activate and publish
+    print "Found $cwd/$dname.master.qcow2, trying to activate and publish app\n";
 
-# If app is based on another image, get a link to it, and mount it
-if ($baseimage) {
+} else{
+    # Load nbd
+    print `modprobe nbd max_part=63`;
 
-    # Make base image available in fuel
-    # First remove any existing base image link
-    print ">> Asking Valve to link $baseimage\n";
-    my $json = `curl --silent -k "https://10.0.0.1/steamengine/images/?action=linkmaster&image=$baseimage"`;
+    # If app is based on another image, get a link to it, and mount it
+    if ($baseimage) {
 
-    my $jobj = from_json($json);
-    my $linkpath = $jobj->{linkpath};
-    my $basepath = $jobj->{path};
-    $masterpath = $jobj->{masterpath};
+        # Make base image available in fuel
+        # First remove any existing base image link
+        print ">> Asking Valve to link $baseimage\n";
+        my $json = `curl --silent -k "https://10.0.0.1/steamengine/images/?action=linkmaster&image=$baseimage"`;
 
-    unless ($basepath) {
-        print ">> No base path received\n";
-        print $json, "\n";
-        exit 0;
-    }
+        my $jobj = from_json($json);
+        my $linkpath = $jobj->{linkpath};
+        my $basepath = $jobj->{path};
+        $masterpath = $jobj->{masterpath};
 
-    while (!(-e $basepath)) {
-      print ">> Waiting for $basepath...\n";
-      sleep 1
-    }
+        unless ($basepath) {
+            print ">> No base path received\n";
+            print $json, "\n";
+            exit 0;
+        }
 
-    # Clone base image
-    if (-e "$cwd/$dname.master.qcow2") {
-        print ">> Destination image already exists: $cwd/$dname.master.qcow2\n";
+        while (!(-e $basepath)) {
+            print ">> Waiting for $basepath...\n";
+            sleep 1
+        }
+
+        # Clone base image
+        if (-e "$cwd/$dname.master.qcow2") {
+            print ">> Destination image already exists: $cwd/$dname.master.qcow2\n";
+        } else {
+            print `qemu-img create -f qcow2 -b "$basepath" "$cwd/$dname.master.qcow2"`;
+        }
+
+        # No baseimage, let's build image from scratch
     } else {
-        print `qemu-img create -f qcow2 -b "$basepath" "$cwd/$dname.master.qcow2"`;
+
+        # We unfortunately have to patch vmbuilder
+        ## See: http://askubuntu.com/questions/819844/kvm-vmbuilder-fails
+        unless (`grep 'force-confnew' /usr/lib/python2.7/dist-packages/VMBuilder/plugins/ubuntu/dapper.py`) {
+            print ">> Patching vmbuilder\n";
+            system('perl -pi -e "s/(\'dist-upgrade\')/\'--option=Dpkg::Options::=--force-confnew\', \'dist-upgrade\'/" /usr/lib/python2.7/dist-packages/VMBuilder/plugins/ubuntu/dapper.py');
+            unlink('/usr/lib/python2.7/dist-packages/VMBuilder/plugins/ubuntu/dapper.pyc');
+        }
+
+        my $cmd = qq|vmbuilder kvm ubuntu -o -v --debug --suite $basesuite --arch amd64 --components main,universe,multiverse --rootsize $size --user origo --pass origo --hostname $name --tmpfs 2048 --addpkg linux-image-generic --addpkg wget --addpkg curl --domain origo.io --ip 10.1.1.2|;
+        print `$cmd`;
+        # Clean up
+        `mv ubuntu-kvm/*.qcow2 "$cwd/$dname.master.qcow2"`;
+        `rm -r ubuntu-kvm`;
     }
 
-# No baseimage, let's build image from scratch
-} else {
+    # Now load nbd and mount the image
+    if (-e "$cwd/$dname.master.qcow2") {
+        # Wait for nbd0 to be created
+        if (!(-e "/dev/nbd0p1")) {
+            print `qemu-nbd -c /dev/nbd0 "$cwd/$dname.master.qcow2"`;
+            while (!(-e "/dev/nbd0p1")) {
+                print ">> Waiting for nbd0p1...\n";
+                sleep 1
+            }
+        }
 
-# We unfortunately have to patch vmbuilder
-## See: http://askubuntu.com/questions/819844/kvm-vmbuilder-fails
-    unless (`grep 'force-confnew' /usr/lib/python2.7/dist-packages/VMBuilder/plugins/ubuntu/dapper.py`) {
-        print ">> Patching vmbuilder\n";
-        system('perl -pi -e "s/(\'dist-upgrade\')/\'--option=Dpkg::Options::=--force-confnew\', \'dist-upgrade\'/" /usr/lib/python2.7/dist-packages/VMBuilder/plugins/ubuntu/dapper.py');
-        unlink('/usr/lib/python2.7/dist-packages/VMBuilder/plugins/ubuntu/dapper.pyc');
+        # Mount image
+        print `mkdir "/tmp/$dname"` unless (-d "/tmp/$dname");
+        print `mount /dev/nbd0p1 "/tmp/$dname"` unless (-e "/tmp/$dname/boot");
+
+    } else {
+        die "Unable to mount image $cwd/$dname.master.qcow2";
     }
 
-	my $cmd = qq|vmbuilder kvm ubuntu -o -v --debug --suite $basesuite --arch amd64 --components main,universe,multiverse --rootsize $size --user origo --pass origo --hostname $name --tmpfs 2048 --addpkg linux-image-generic --addpkg wget --addpkg curl --domain origo.io --ip 10.1.1.2|;
-    print `$cmd`;
-    # Clean up
-    `mv ubuntu-kvm/*.qcow2 "$cwd/$dname.master.qcow2"`;
-    `rm -r ubuntu-kvm`;
-}
 
-# Now load nbd and mount the image
-if (-e "$cwd/$dname.master.qcow2") {
-    # Wait for nbd0 to be created
-    if (!(-e "/dev/nbd0p1")) {
-        print `qemu-nbd -c /dev/nbd0 "$cwd/$dname.master.qcow2"`;
-        while (!(-e "/dev/nbd0p1")) {
-          print ">> Waiting for nbd0p1...\n";
-          sleep 1
+    # Copy files
+    if ($dir) {
+        die "'$dir' not found [DIR]" unless (-d $dir);
+        print ">> Copying files...\n";
+        print `tar rvf "/tmp/$dname.tar" "$dir"`;
+        print `tar xfv "/tmp/$dname.tar" -C "/tmp/$dname$dirtarget"`;
+        print `rm "/tmp/$dname.tar"`;
+    }
+
+    # Run pre exec script
+    if ($preexec) {
+        # Stop local webmin from blocking port 10000
+        print `systemctl stop webmin`;
+        print "Running pre exec in /tmp/$dname\n";
+        my @lines = split(/\\n/, $preexec);
+        foreach my $line (split(/\\n/, $preexec)) { # $preexec may contain a multi-line script
+            $line =~ s/^\s+//; # remove leading spaces
+            $line =~ s/\s+$//; # remove trailing spaces
+            $line =~ s/#.+$//; # remove comments
+            $line =~ s/\|/\|chroot "\/tmp\/$dname" /; # redirect pipes
+            $line =~ s/\> */\> \/tmp\/$dname/; # redirect pipes
+            $line =~ s/\< */\> \/tmp\/$dname/; # redirect pipes
+            $line =~ s/\$\((.+)\)/\$(chroot "\/tmp\/$dname" $1) /; # handle environment variables
+            if ($line) {
+                my $cmd = qq|chroot "/tmp/$dname" $line|; # execute command in chroot
+                print ">> $cmd\n";
+                print `$cmd`;
+            }
+        }
+        # Start webmin again
+        print `systemctl start webmin`;
+
+    }
+
+    # Install debs
+    if ($debs) {
+        print ">> Installing packages\n";
+        print `chroot "/tmp/$dname" apt-get update`;
+        print `chroot "/tmp/$dname" apt-get -q -y --force-yes --show-progress install $debs`;
+    }
+
+    # Unpack tar
+    if ($tar && -e $tar) {
+        print ">> Unpacking files...\n";
+        print `tar xfv $tar -C "/tmp/$dname/$tartarget"`;
+    }
+
+    # Git clone
+    if ($git) {
+        print ">> Cloning from Git repo...\n";
+        print `git clone $git "/tmp/$dname/$gittarget"`;
+    }
+
+    # Run post exec script
+    if ($postexec) {
+        print "Running post exec in /tmp/$dname\n";
+        foreach my $line (split(/\\n/, $postexec)) {
+            $line =~ s/^\s+//;
+            $line =~ s/\s+$//;
+            $line =~ s/#.+$//;
+            $line =~ s/\|/\|chroot "\/tmp\/$dname" /;
+            $line =~ s/\> */\> \/tmp\/$dname/;
+            $line =~ s/\< */\> \/tmp\/$dname/;
+            $line =~ s/\$\((.+)\)/\$(chroot "\/tmp\/$dname" $1) /;
+            if ($line) {
+                my $cmd = qq|chroot "/tmp/$dname" $line|;
+                print ">> $cmd\n";
+                print `$cmd`;
+            }
         }
     }
 
-    # Mount image
-    print `mkdir "/tmp/$dname"` unless (-d "/tmp/$dname");
-    print `mount /dev/nbd0p1 "/tmp/$dname"` unless (-e "/tmp/$dname/boot");
-
-} else {
-    die "Unable to mount image $cwd/$dname.master.qcow2";
-}
-
-
-# Copy files
-if ($dir) {
-    die "'$dir' not found [DIR]" unless (-d $dir);
-    print ">> Copying files...\n";
-    print `tar rvf "/tmp/$dname.tar" "$dir"`;
-    print `tar xfv "/tmp/$dname.tar" -C "/tmp/$dname$dirtarget"`;
-    print `rm "/tmp/$dname.tar"`;
-}
-
-# Run pre exec script
-if ($preexec) {
-    # Stop local webmin from blocking port 10000
-    print `systemctl stop webmin`;
-    print "Running pre exec in /tmp/$dname\n";
-    my @lines = split(/\\n/, $preexec);
-    foreach my $line (split(/\\n/, $preexec)) { # $preexec may contain a multi-line script
-        $line =~ s/^\s+//; # remove leading spaces
-        $line =~ s/\s+$//; # remove trailing spaces
-        $line =~ s/#.+$//; # remove comments
-        $line =~ s/\|/\|chroot "\/tmp\/$dname" /; # redirect pipes
-        $line =~ s/\> */\> \/tmp\/$dname/; # redirect pipes
-        $line =~ s/\< */\> \/tmp\/$dname/; # redirect pipes
-        $line =~ s/\$\((.+)\)/\$(chroot "\/tmp\/$dname" $1) /; # handle environment variables
-        if ($line) {
-            my $cmd = qq|chroot "/tmp/$dname" $line|; # execute command in chroot
-            print ">> $cmd\n";
-            print `$cmd`;
-        }
-    }
-    # Start webmin again
-    print `systemctl start webmin`;
-
-}
-
-# Install debs
-if ($debs) {
-    print ">> Installing packages\n";
-    print `chroot "/tmp/$dname" apt-get update`;
-    print `chroot "/tmp/$dname" apt-get -q -y --force-yes --show-progress install $debs`;
-}
-
-# Unpack tar
-if ($tar && -e $tar) {
-    print ">> Unpacking files...\n";
-    print `tar xfv $tar -C "/tmp/$dname/$tartarget"`;
-}
-
-# Git clone
-if ($git) {
-    print ">> Cloning from Git repo...\n";
-    print `git clone $git "/tmp/$dname/$gittarget"`;
-}
-
-# Run post exec script
-if ($postexec) {
-    print "Running post exec in /tmp/$dname\n";
-    foreach my $line (split(/\\n/, $postexec)) {
-        $line =~ s/^\s+//;
-        $line =~ s/\s+$//;
-        $line =~ s/#.+$//;
-        $line =~ s/\|/\|chroot "\/tmp\/$dname" /;
-        $line =~ s/\> */\> \/tmp\/$dname/;
-        $line =~ s/\< */\> \/tmp\/$dname/;
-        $line =~ s/\$\((.+)\)/\$(chroot "\/tmp\/$dname" $1) /;
-        if ($line) {
-            my $cmd = qq|chroot "/tmp/$dname" $line|;
-            print ">> $cmd\n";
-            print `$cmd`;
-        }
-    }
-}
-
-# Install boot exec script
-if ($service) {
-    my $unit =  <<END
+    # Install boot exec script
+    if ($service) {
+        my $unit =  <<END
 [Unit]
 DefaultDependencies=no
 Description=Origo $dname
@@ -219,31 +223,33 @@ RemainAfterExit=yes
 [Install]
 WantedBy=multi-user.target
 END
-;
-    `echo "$unit" > "/tmp/$dname/etc/systemd/system/origo-$dname.service"`;
-	`chmod 664 "/tmp/$dname/etc/systemd/system/origo-$dname.service"`;
-	`chmod 755 "/tmp/$dname$service"`;
-}
+        ;
+        `echo "$unit" > "/tmp/$dname/etc/systemd/system/origo-$dname.service"`;
+        `chmod 664 "/tmp/$dname/etc/systemd/system/origo-$dname.service"`;
+        `chmod 755 "/tmp/$dname$service"`;
+    }
 
-# Unmount base image and clean up
-print `umount "/tmp/$dname"`;
-print `killall qemu-nbd`;
-print `rm -d "/tmp/$dname"`;
+    # Unmount base image and clean up
+    print `umount "/tmp/$dname"`;
+    print `killall qemu-nbd`;
+    print `rm -d "/tmp/$dname"`;
 
-# convert to qcow2
-print "Converting $cwd/$dname.master.qcow2\n";
-print `qemu-img amend -f qcow2 -o compat=0.10 $cwd/$dname.master.qcow2`;
+    # convert to qcow2
+    print "Converting $cwd/$dname.master.qcow2\n";
+    print `qemu-img amend -f qcow2 -o compat=0.10 $cwd/$dname.master.qcow2`;
 
-# Rebase and activate image
-if ($masterpath) {
-    if ($rebase) { # Flatten image
-        print ">> Rebasing and flattening image...\n";
-        print `qemu-img rebase -f qcow2 -b "" "$cwd/$dname.master.qcow2"`;
-    } else { # Update backing file path
-        print ">> Rebasing to new backing file path ...\n";
-        print `qemu-img rebase -f qcow2 -u -b "$masterpath" "$cwd/$dname.master.qcow2"` if ($masterpath);
+    # Rebase image
+    if ($masterpath) {
+        if ($rebase) { # Flatten image
+            print ">> Rebasing and flattening image...\n";
+            print `qemu-img rebase -f qcow2 -b "" "$cwd/$dname.master.qcow2"`;
+        } else { # Update backing file path
+            print ">> Rebasing to new backing file path ...\n";
+            print `qemu-img rebase -f qcow2 -u -b "$masterpath" "$cwd/$dname.master.qcow2"` if ($masterpath);
+        }
     }
 }
+# Activate and publish image
 $appname = uri_escape($appname);
 $managementlink = uri_escape($managementlink);
 $upgradelink = uri_escape($upgradelink);
