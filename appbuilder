@@ -260,5 +260,5 @@ my @ares = split(/, ?/, $res);
 my $uuid = $ares[2];
 print "Trying to publish $uuid to the App Store\n";
 print "Hang on - this may take a while...\n";
-$res = `curl --silent -k "https://10.0.0.1/steamengine/images?action=publish&uuid=$uuid"`;
+#$res = `curl --silent -k "https://10.0.0.1/steamengine/images?action=publish&uuid=$uuid"`;
 print $res;
