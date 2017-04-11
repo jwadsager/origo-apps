@@ -69,8 +69,9 @@ if (-e "$cwd/$dname.master.qcow2") { # Master image already exists, try to activ
 
         # Make base image available in fuel
         # First remove any existing base image link
-        print ">> Asking Valve to link $baseimage\n";
+        print ">> Asking Valve to link or copy $baseimage\n";
         my $json = `curl --silent -k "https://10.0.0.1/steamengine/images/?action=linkmaster&image=$baseimage"`;
+        print $json;
 
         my $jobj = from_json($json);
         my $linkpath = $jobj->{linkpath};
