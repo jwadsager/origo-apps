@@ -13,12 +13,12 @@ GITTARGET=
 DEBS=postgresql postgresql-contrib redis-server postfix ruby ruby-bundler discourse
 PREEXEC=apt-get install apt-transport-https \n\
         wget -qO - https://deb.packager.io/key | apt-key add - \n\
-        echo "deb http://deb.packager.io/gh/pkgr/discourse xenial pkgr" | tee /etc/apt/sources.list.d/discourse.list
+        echo "deb http://deb.packager.io/gh/pkgr/discourse trusty pkgr" | tee /etc/apt/sources.list.d/discourse.list
 POSTEXEC=discourse config:set DATABASE_URL=postgres://user:pass@127.0.0.1/discourse \n\
         discourse config:set REDIS_URL=redis://127.0.0.1:6379 \n\
         discourse config:set SECRET_TOKEN=$(discourse run rake secret) \n\
         echo "ProxyPass /discourse http://localhost:6379"  >> /etc/apache2/sites-available/default-ssl.conf \n\
-        echo "ProxyPassReverse /discourse/ http://localhost:6379/" >> /etc/apache2/sites-available/default-ssl.conf \n\
+        echo "ProxyPassReverse /discourse/ http://localhost:6379/" >> /etc/apache2/sites-available/default-ssl.conf
 SERVICE=/usr/share/webmin/origo/tabs/discourse/origo-discourse.pl
 TERMINALLINK=/steamengine/pipe/http://{uuid}:4200
 VCPU=1

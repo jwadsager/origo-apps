@@ -56,6 +56,8 @@ my $masterpath;
 my $managementlink = $config->get("MANAGEMENTLINK") || '';
 my $upgradelink = $config->get("UPGRADELINK") || '';
 my $terminallink = $config->get("TERMINALLINK") || '';
+my $vcpu = $config->get("VCPU") || '';
+my $memory = $config->get("MEMORY") || '';
 
 if (-e "$cwd/$dname.master.qcow2") { # Master image already exists, try to activate and publish
     print "Found $cwd/$dname.master.qcow2, trying to activate and publish app\n";
@@ -260,5 +262,5 @@ my @ares = split(/, ?/, $res);
 my $uuid = $ares[2];
 print "Trying to publish $uuid to the App Store\n";
 print "Hang on - this may take a while...\n";
-$res = `curl --silent -k "https://10.0.0.1/steamengine/images?action=publish&uuid=$uuid"`;
+$res = `curl --silent -k "https://10.0.0.1/steamengine/images?action=publish&uuid=$uuid&vcpu=$vcpu&memory=$memory"`;
 print $res;
