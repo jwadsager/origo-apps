@@ -32,6 +32,7 @@ DEBS=apache2\
      libio-pty-perl\
      apt-show-versions\
      apt-transport-https\
+     dctrl-tools\
      python-letsencrypt-apache
 PREEXEC=/tmp/files/preexec.sh
 POSTEXEC=/tmp/files/postexec.sh
