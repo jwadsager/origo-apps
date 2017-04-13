@@ -17,9 +17,8 @@ PREEXEC=apt-get install apt-transport-https \n\
 POSTEXEC=discourse config:set DATABASE_URL=postgres://user:pass@127.0.0.1/discourse \n\
         discourse config:set REDIS_URL=redis://127.0.0.1:6379 \n\
         discourse config:set SECRET_TOKEN=$(discourse run rake secret) \n\
-#        echo  "server {listen 80; server_name $(hostname); location / {proxy_pass http://localhost:6379;}}" > /etc/nginx/sites-available/default
-        echo "ProxyPass /discourse http://localhost:6379 \n\
-        ProxyPassReverse /discourse/ http://localhost:6379/" >> /etc/apache2/sites-available/default-ssl.conf
+        echo "ProxyPass /discourse http://localhost:6379"  >> /etc/apache2/sites-available/default-ssl.conf \n\
+        echo "ProxyPassReverse /discourse/ http://localhost:6379/" >> /etc/apache2/sites-available/default-ssl.conf \n\
 SERVICE=/usr/share/webmin/origo/tabs/discourse/origo-discourse.pl
 TERMINALLINK=/steamengine/pipe/http://{uuid}:4200
 VCPU=1
