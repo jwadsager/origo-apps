@@ -10,7 +10,7 @@ TAR=
 TARTARGET=
 GIT=
 GITTARGET=
-DEBS=postgresql postgresql-contrib redis-server postfix ruby ruby-bundler discourse
+DEBS=postgresql postgresql-contrib redis-server postfix ruby ruby-bundler discourse libdbi-perl libdbd-pg-perl
 PREEXEC=apt-get install apt-transport-https \n\
         wget -qO - https://deb.packager.io/key | apt-key add - \n\
         echo "deb http://deb.packager.io/gh/pkgr/discourse trusty pkgr" | tee /etc/apt/sources.list.d/discourse.list

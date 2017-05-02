@@ -42,7 +42,7 @@ chmod 755 /etc/webmin/servers/auto.pl
 # For now - disable automatic scanning
 #	bash -c 'crontab -l | (cat;echo "0,5,10,15,20,25,30,35,40,45,50,55 * * * * /etc/webmin/servers/auto.pl") | crontab'
 # Enable auto registering instead
-bash -c 'crontab -l | (cat;echo "0,5,10,15,20,25,30,35,40,45,50,55 * * * * /usr/local/bin/origo-ubuntu.pl") | crontab'
+bash -c 'crontab -l | (cat;echo "0,5,10,15,20,25,30,35,40,45,50,55 * * * * /usr/local/bin/origo-ubuntu.pl > /dev/null") | crontab'
 # Disable Webmin referer check
 perl -pi -e "s/referers_none=1/referers_none=0/;" /etc/webmin/config
 bash -c 'echo "webprefix=
