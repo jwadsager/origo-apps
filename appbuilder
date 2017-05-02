@@ -173,7 +173,7 @@ if (-e "$cwd/$dname.master.qcow2") { # Master image already exists, try to activ
     if ($debs) {
         print ">> Installing packages\n";
         print `chroot "/tmp/$dname" dpkg --clear-avail`;
-        print `chroot "/tmp/$dname" sync-available` if (-e '/usr/sbin/sync-available');
+        print `chroot "/tmp/$dname" sync-available` if (-e "/tmp/$dname/usr/sbin/sync-available");
         print `chroot "/tmp/$dname" apt-get update`;
         print `chroot "/tmp/$dname" /bin/bash -c 'DEBIAN_FRONTEND=noninteractive apt-get -q -y --force-yes --show-progress install $debs'`;
     }
