@@ -2,7 +2,7 @@
 
 # This script is executed in the image chroot
 echo "Performing pre-install operations"
-bash -c 'echo "deb http://webmin.mirror.somersettechsolutions.co.uk/repository sarge contrib" >> /etc/apt/sources.list'
+bash -c 'echo "deb http://download.webmin.com/download/repository sarge contrib" >> /etc/apt/sources.list'
 wget http://www.webmin.com/jcameron-key.asc
 apt-key add jcameron-key.asc
 apt-get update
