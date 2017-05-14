@@ -349,12 +349,12 @@ my $head = <<END
                     </a>
                 </li>
                 <li style="display:none;">
-                    <a href="https://$externalip.origo.io/" target="_blank" id="currentwpadmin">
+                    <a href="https://$externalip.$appinfo{dnsdomain}/" target="_blank" id="currentwpadmin">
                         to default website management console
                     </a>
                 </li>
                 <li>
-                    <a href="https://$externalip.origo.io:10001/" target="_blank">
+                    <a href="https://$externalip.$appinfo{dnsdomain}:10001/" target="_blank">
                         to the Webmin console
                     </a>
                 </li>
