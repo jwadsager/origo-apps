@@ -138,7 +138,7 @@ if (-e "$cwd/$dname.master.qcow2") { # Master image already exists, try to activ
     # Copy files
     if ($dir) {
         die "'$dir' not found [DIR]" unless (-d $dir);
-        print ">> Copying files...\n";
+        print ">> Copying files from $dir...\n";
         print `tar rvf "/tmp/$dname.tar" "$dir"`;
         print `tar xfv "/tmp/$dname.tar" -C "/tmp/$dname$dirtarget"`;
         print `rm "/tmp/$dname.tar"`;
