@@ -48,6 +48,7 @@ my $appinfo = `curl -ks "https://10.0.0.1/steamengine/servers?action=getappinfo"
 my $info_ref = from_json($appinfo);
 my $status = $info_ref->{status};
 my $uuid = $info_ref->{uuid};
+my $dnsdomain = $info_ref->{dnsdomain};
 
 if ($status eq 'upgrading') {
     print "Upgrading this server...\n";
@@ -143,20 +144,20 @@ if ($status eq 'upgrading') {
     # Run letsencrypt
     if ($externalip) {
         print "Running letsencrypt\n";
-        if (-e "/etc/letsencrypt/live/$externalip.origo.io") {
+        if (-e "/etc/letsencrypt/live/$externalip.$dnsdomain") {
             print `letsencrypt renew`;
         } else {
-            print `letsencrypt -d $externalip.origo.io --email=cert\@origo.io --agree-tos --no-redirect --noninteractive --apache`;
+            print `letsencrypt -d $externalip.$dnsdomain --email=cert\@$dnsdomain --agree-tos --no-redirect --noninteractive --apache`;
 
         }
-        if (-e "/etc/letsencrypt/live/$externalip.origo.io") {
+        if (-e "/etc/letsencrypt/live/$externalip.$dnsdomain") {
             my $reloadapache;
             if (!(`grep letsencrypt /etc/apache2/sites-available/webmin-ssl.conf`)) {
-                `perl -pi -e 's/SSLEngine on/SSLEngine on\\n                Include \\/etc\\/letsencrypt\\/options-ssl-apache.conf\\n                ServerName $externalip.origo.io/' /etc/apache2/sites-available/webmin-ssl.conf`;
+                `perl -pi -e 's/SSLEngine on/SSLEngine on\\n                Include \\/etc\\/letsencrypt\\/options-ssl-apache.conf\\n                ServerName $externalip.$dnsdomain/' /etc/apache2/sites-available/webmin-ssl.conf`;
                 $reloadapache = 1;
             }
-            `perl -pi -e 's/SSLCertificateFile\\s+\\/.*/SSLCertificateFile \\/etc\\/letsencrypt\\/live\\/$externalip.origo.io\\/fullchain.pem/' /etc/apache2/sites-available/webmin-ssl.conf`;
-            `perl -pi -e 's/SSLCertificateKeyFile\\s+\\/.*/SSLCertificateKeyFile \\/etc\\/letsencrypt\\/live\\/$externalip.origo.io\\/privkey.pem/' /etc/apache2/sites-available/webmin-ssl.conf`;
+            `perl -pi -e 's/SSLCertificateFile\\s+\\/.*/SSLCertificateFile \\/etc\\/letsencrypt\\/live\\/$externalip.$dnsdomain\\/fullchain.pem/' /etc/apache2/sites-available/webmin-ssl.conf`;
+            `perl -pi -e 's/SSLCertificateKeyFile\\s+\\/.*/SSLCertificateKeyFile \\/etc\\/letsencrypt\\/live\\/$externalip.$dnsdomain\\/privkey.pem/' /etc/apache2/sites-available/webmin-ssl.conf`;
             `systemctl reload apache2` if ($reloadapache);
         }
     }
