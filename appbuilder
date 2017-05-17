@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 
 use JSON;
-use URI::Escape::XS;
+use URI::Escape::XS qw/uri_escape uri_unescape/;
 use ConfigReader::Simple;
 use Cwd;
 

@@ -35,6 +35,7 @@ DEBS=apache2\
      dctrl-tools\
      python-letsencrypt-apache\
      libconfigreader-simple-perl\
+     liburi-escape-xs-perl\
      qemu-utils
 
 URI::Escape
