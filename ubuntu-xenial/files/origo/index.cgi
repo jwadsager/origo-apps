@@ -44,16 +44,17 @@ if ($appid) {
     $upgradeurl = $appinfo{upgradelink};
 }
 
+
+my $spools_ref = list_simplestack_storagepools();
+@spools = @$spools_ref;
+$mounts = `cat /proc/mounts`;
+
 foreach my $tab (@dir) {
     next if ($tab =~ /\./);
     push @tabs, $tab unless ($tab eq 'security');
     $tabsh{$tab} = $tab;
     require "tabs/$tab/$tab-lib.pl";
 }
-
-my $spools_ref = list_simplestack_storagepools();
-@spools = @$spools_ref;
-$mounts = `cat /proc/mounts`;
 
 # Ask Webmin to parse input
 ReadParse();
