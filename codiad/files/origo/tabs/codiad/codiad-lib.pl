@@ -36,7 +36,7 @@ sub codiad {
             <button class="btn btn-default" type="submit">Set!</button>
         </form>
         <small style="margin-top:10px;">
-            After setting the password <a target="_blank" href="https://$externalip.origo.io">log in here</a> with username "origo" and your password.
+            After setting the password <a target="_blank" href="https://$externalip.$appinfo{dnsdomain}">log in here</a> with username "origo" and your password.
         </small>
     </div>
 END
@@ -47,7 +47,7 @@ END
     } elsif ($action eq 'js') {
 # Generate and return javascript the UI for this tab needs
         my $js = <<END
-        \$("#currentwpadmin").attr("href", "https://$externalip.origo.io/");
+        \$("#currentwpadmin").attr("href", "https://$externalip.$appinfo{dnsdomain}/");
         \$("#currentwpadmin").text("to Codiad Web IDE");
         \$("#currentwpadmin").parent().show()
 END
