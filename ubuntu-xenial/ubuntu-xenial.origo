@@ -33,7 +33,10 @@ DEBS=apache2\
      apt-show-versions\
      apt-transport-https\
      dctrl-tools\
-     python-letsencrypt-apache
+     python-letsencrypt-apache\
+     libconfigreader-simple-perl\
+     liburi-escape-xs-perl\
+     qemu-utils
 PREEXEC=/tmp/files/preexec.sh
 POSTEXEC=/tmp/files/postexec.sh
 SERVICE=

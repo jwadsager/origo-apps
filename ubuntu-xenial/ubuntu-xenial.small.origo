@@ -37,9 +37,6 @@ DEBS=apache2\
      libconfigreader-simple-perl\
      liburi-escape-xs-perl\
      qemu-utils
-
-URI::Escape
-
 PREEXEC=/tmp/files/preexec.sh
 POSTEXEC=/tmp/files/postexec.sh
 SERVICE=
