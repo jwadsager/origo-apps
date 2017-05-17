@@ -38,7 +38,7 @@ push @tabs, 'security' if (-d "tabs/security");
 my $appurl;
 my $upgradeurl;
 my $appinfo_ref = get_appinfo();
-my %appinfo = %$appinfo_ref;
+%appinfo = %$appinfo_ref;
 if ($appid) {
     $appurl = "$appinfo{appstoreurl}#app-$appid";
     $upgradeurl = $appinfo{upgradelink};
