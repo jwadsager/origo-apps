@@ -34,12 +34,6 @@ sort @dir;
 my @tabs;
 my %tabsh;
 push @tabs, 'security' if (-d "tabs/security");
-foreach my $tab (@dir) {
-    next if ($tab =~ /\./);
-    push @tabs, $tab unless ($tab eq 'security');
-    $tabsh{$tab} = $tab;
-    require "tabs/$tab/$tab-lib.pl";
-}
 
 my $appurl;
 my $upgradeurl;
@@ -48,6 +42,13 @@ my %appinfo = %$appinfo_ref;
 if ($appid) {
     $appurl = "$appinfo{appstoreurl}#app-$appid";
     $upgradeurl = $appinfo{upgradelink};
+}
+
+foreach my $tab (@dir) {
+    next if ($tab =~ /\./);
+    push @tabs, $tab unless ($tab eq 'security');
+    $tabsh{$tab} = $tab;
+    require "tabs/$tab/$tab-lib.pl";
 }
 
 my $spools_ref = list_simplestack_storagepools();
