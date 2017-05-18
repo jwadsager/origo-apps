@@ -19,7 +19,8 @@ POSTEXEC=apt-cache policy docker-engine \n\
   git clone https://github.com/discourse/discourse_docker.git /var/discourse \n\
   cp /tmp/files/origo/tabs/discourse/app.yml /var/discourse/containers
   echo "ProxyPass / http://127.0.0.1:8080/"  >> /etc/apache2/sites-available/default-ssl.conf \n\
-  echo "ProxyPassReverse / http://127.0.0.1:8080/" >> /etc/apache2/sites-available/default-ssl.conf
+  echo "ProxyPassReverse / http://127.0.0.1:8080/" >> /etc/apache2/sites-available/default-ssl.conf \n\
+  /var/discourse/launcher rebuild app
 SERVICE=
 TERMINALLINK=/steamengine/pipe/http://{uuid}:4200
 VCPU=1

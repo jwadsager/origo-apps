@@ -45,7 +45,7 @@ env:
   UNICORN_WORKERS: 2
 
   ## TODO: The domain name this Discourse instance will respond to
-  DISCOURSE_HOSTNAME: 195.41.32.172.origo.cloud
+  DISCOURSE_HOSTNAME: discourse
 
   ## Uncomment if you want the container to be started with the same
   ## hostname (-h option) as specified above (default "$hostname-$config")

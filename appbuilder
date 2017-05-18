@@ -181,7 +181,11 @@ if (-e "$cwd/$dname.master.qcow2") { # Master image already exists, try to activ
     # Unpack tar
     if ($tar && -e $tar) {
         print ">> Unpacking files...\n";
-        print `tar xfv $tar -C "/tmp/$dname/$tartarget"`;
+        if ($tar =~ /\.zip$/) {
+            print `unzip $tar -d "/tmp/$dname/$tartarget"`;
+        } else {
+            print `tar xfv $tar -C "/tmp/$dname/$tartarget"`;
+        }
     }
 
     # Git clone
