@@ -1,7 +1,6 @@
 #!/usr/bin/perl
 
 use JSON;
-use Digest::SHA qw(sha1_base64 sha1_hex);
 use Digest::MD5 qw(md5 md5_hex md5_base64);
 
 sub piwik {
@@ -59,8 +58,9 @@ END
         my $message;
         my $pwd = $in{piwikpassword};
         if ($pwd) {
-            my $password = sha1_hex(md5_hex($pwd));
-            $message .= `perl -pi -e 's/password"\:".*"/password":"$password"/' /var/www/html/data/users.php`;
+#            my $password = md5_base64($pwd);
+            my $password = `php -r 'echo password_hash(md5("$pwd"), PASSWORD_DEFAULT);'`;
+            $message .= `mysql piwik -e 'UPDATE piwik_user SET password = "$password" WHERE login = "origo" AND superuser_access = 1;'`;
             $message .= "<div class=\"message\">The Piwik password was changed!</div>";
         }
         return $message;

@@ -16,6 +16,8 @@ POSTEXEC=chown -R www-data:www-data /var/www/html \n\
   rm -Rf /var/www/html/piwik/plugins/Morpheus/icons/submodules \n\
   ls -l /tmp/\n\
   mv /tmp/files/origo/tabs/piwik /usr/share/webmin/origo/tabs/ \n\
+  cp /usr/share/webmin/origo/tabs/piwik/config.ini.php /var/www/html/piwik/config \n\
+  chown www-data:www-data /var/www/html/piwik/config/config.ini.php \n\
   rm -r /usr/share/webmin/origo/tabs/commands
 SERVICE=/usr/share/webmin/origo/tabs/piwik/origo-piwik.pl
 TERMINALLINK=/steamengine/pipe/http://{uuid}:4200
