@@ -11,7 +11,7 @@ TARTARGET=/var/www/html
 GIT=
 GITTARGET=
 PREEXEC=
-#DEBS=mysql-server php-gd php-xml php-mysql php-mbstring php-geoip
+DEBS=mysql-server php-gd php-xml php-mysql php-mbstring php-geoip
 POSTEXEC=chown -R www-data:www-data /var/www/html \n\
   rm -Rf /var/www/html/piwik/plugins/Morpheus/icons/submodules \n\
   ls -l /tmp/\n\
