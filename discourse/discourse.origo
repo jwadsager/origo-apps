@@ -12,7 +12,7 @@ GIT=
 GITTARGET=
 DEBS=postgresql postgresql-contrib redis-server postfix ruby ruby-bundler discourse libdbi-perl libdbd-pg-perl
 PREEXEC=apt-get install apt-transport-https \n\
-        wget -qO - https://deb.packager.io/key | apt-key add - \n\
+        wget -qO - http://deb.packager.io/key | apt-key add - \n\
         echo "deb deb http://deb.packager.io/gh/pkgr/discourse wheezy pkgr" | tee /etc/apt/sources.list.d/discourse.list
 POSTEXEC=echo "CREATE USER \"user\" SUPERUSER PASSWORD \"pass\";" | su - postgres -c psql\n\
   echo "CREATE DATABASE discourse;" | su - postgres -c psql\n\
