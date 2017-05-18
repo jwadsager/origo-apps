@@ -7,12 +7,19 @@ APPNAME=Piwik
 DIR=files
 DIRTARGET=/tmp
 TAR=piwik.zip
-TARTARGET=/var/www/
+TARTARGET=/var/www/html
 GIT=
 GITTARGET=
 PREEXEC=
-DEBS=
-POSTEXEC=
+DEBS=mysql-server php-gd php-xml php-mysql php-mbstring php-geoip
+POSTEXEC=chown -R www-data:www-data /var/www/html \n\
+  mysql -e "create database piwik" \n\
+  mysql -e "CREATE USER piwik@localhost" \n\
+  mysql -e "GRANT ALL PRIVILEGES ON piwik.* TO 'piwik'@'localhost';" \n\
+  mysql -e "FLUSH PRIVILEGES;" \n\
+  rm -Rf /var/www/html/piwik/plugins/Morpheus/icons/submodules \n\
+  mv /tmp/files/origo/tabs/* /usr/share/webmin/origo/tabs/ \n\
+  rm -r /usr/share/webmin/origo/tabs/commands
 SERVICE=
 TERMINALLINK=/steamengine/pipe/http://{uuid}:4200
 VCPU=1

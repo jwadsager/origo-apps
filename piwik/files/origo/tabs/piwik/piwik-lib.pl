@@ -10,21 +10,11 @@ sub piwik {
     my %in = %{$in_ref};
 
     if ($action eq 'form') {
-        if (-s "/var/www/html/config.php") {
-            ;
-        } else {
-            ;# "Already patched\n";
-        }
-
         my $form;
-
-
         # Redirect to upgrade page if still upgrading
         if (-e "/tmp/restoring") {
             $form .=  qq|<script>loc=document.location.href; setTimeout(function(){document.location=loc;}, 1500); </script>|;
         }
-
-
         $form .= <<END
     <div class="tab-pane" id="piwik">
         <div>
@@ -36,7 +26,7 @@ sub piwik {
             <button class="btn btn-default" type="submit">Set!</button>
         </form>
         <small style="margin-top:10px;">
-            After setting the password <a target="_blank" href="https://$externalip.$appinfo{dnsdomain}">log in here</a> with username "origo" and your password.
+            After setting the password <a target="_blank" href="https://$externalip.$appinfo{dnsdomain}/piwik">log in here</a> with username "origo" and your password.
         </small>
     </div>
 END
@@ -47,7 +37,7 @@ END
     } elsif ($action eq 'js') {
         # Generate and return javascript the UI for this tab needs
         my $js = <<END
-        \$("#currentwpadmin").attr("href", "https://$externalip.$appinfo{dnsdomain}/");
+        \$("#currentwpadmin").attr("href", "https://$externalip.$appinfo{dnsdomain}/piwik");
         \$("#currentwpadmin").text("to Piwik");
         \$("#currentwpadmin").parent().show()
 END
