@@ -1,7 +1,8 @@
 # origo-apps
 Apps for the Origo Cloud System.
 
-The Origo Cloud System (OCS) is a platform for managing VM's, storage and networking.
+The Origo Cloud System (OCS) is a platform for building private infrastructure clouds.
+OCS aims to make it very easy to manage VM's, storage and networking from a web UI, through an API and from a command line client.
 OCS consists of a hardware platform, **Origo Engine**, and a software stack, **Steamengine**.
 
 The public cloud computing offering from Origo Systems (available at http://origo.io) is built with OCS, i.e. the
