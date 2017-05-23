@@ -36,7 +36,8 @@ DEBS=apache2\
      python-letsencrypt-apache\
      libconfigreader-simple-perl\
      liburi-escape-xs-perl\
-     qemu-utils
+     qemu-utils\
+     unzip
 PREEXEC=/tmp/files/preexec.sh
 POSTEXEC=/tmp/files/postexec.sh
 SERVICE=
