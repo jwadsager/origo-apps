@@ -169,6 +169,9 @@ if (-e "$cwd/$dname.master.qcow2") { # Master image already exists, try to activ
 
     }
 
+    # Reset resolv.conf
+        print `echo "nameserver 8.8.8.8" > /tmp/$dname/etc/resolv.conf`;
+
     # Install debs
     if ($debs) {
         print ">> Installing packages\n";
